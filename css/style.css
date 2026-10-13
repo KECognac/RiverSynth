@@ -200,8 +200,9 @@ kbd {
 
 /* --- River data -------------------------------------------------------------- */
 .data-area {
-  border-top: 3px solid var(--text);
-  padding-top: 12px;
+  /* sits between the program bar and the panel */
+  border-bottom: 3px solid var(--text);
+  padding-bottom: 14px;
   display: flex; flex-direction: column; gap: 10px;
 }
 .data-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
@@ -314,3 +315,7 @@ kbd {
 }
 #data-gauge { max-width: 280px; }
 .record[aria-pressed="true"] { background: var(--moog-red); border-color: #8f2618; color: #fff; font-variant-numeric: tabular-nums; }
+.midi { width: auto !important; padding: 4px 10px !important; font-size: 12px !important; }
+.midi[aria-pressed="true"] { background: var(--moog-blue); border-color: #1d4475; color: #fff; }
+.river-presets { padding-bottom: 4px; }
+.river-presets input[type="text"] { width: 12em; padding: 4px 6px; }

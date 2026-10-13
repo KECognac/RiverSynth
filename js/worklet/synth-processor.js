@@ -129,6 +129,7 @@ class Voice {
   constructor() {
     this.key = -1;      // the key that triggered this voice
     this.note = 60;     // the note it plays (differs from key in Chord mode)
+    this.pitch = 60;    // the pitch it's sounding right now (glides toward `note`)
     this.detune = 0;    // cents
     this.gate = false;
     this.started = 0;   // allocation order, for voice stealing
@@ -146,6 +147,7 @@ class Voice {
   }
   get active() { return this.amp.stage !== 0; }
   trigger(key, note, detune, order) {
+    if (!this.active) this.pitch = note; // glide only from a note that's still sounding
     this.key = key; this.note = note; this.detune = detune;
     this.gate = true; this.started = order;
     this.amp.gateOn(); this.eg.gateOn();
@@ -210,6 +212,7 @@ export class SynthEngine {
     this.ampR = decay(p['ampeg.release']);
     this.egA = attack(p['eg.attack']);
     this.egD = decay(p['eg.decay']);
+    this.glideCoef = p['voice.glide'] < 0.005 ? 1 : 1 - Math.exp(-5 / (p['voice.glide'] * sr));
   }
 
   get beatSamples() { return (this.sr * 60) / this.p['arp.tempo']; }
@@ -444,7 +447,8 @@ export class SynthEngine {
         const amp = v.amp.tick(this.ampA, this.ampD, sus, this.ampR);
         const eg = v.eg.tick(this.egA, this.egD, 0, this.egD) * egInt;
 
-        const base = v.note + v.detune / 100 + lfoPitch;
+        v.pitch += (v.note - v.pitch) * this.glideCoef;
+        const base = v.pitch + v.detune / 100 + lfoPitch;
         const egPitch = eg * 48;
         const n1 = base + oct1 + (egTarget === 2 ? egPitch : 0);
         const n2 = base + oct2 + (egTarget >= 1 ? egPitch : 0);
@@ -575,20 +579,28 @@ export class SynthEngine {
 
 if (typeof registerProcessor === 'function') {
   class SynthProcessor extends AudioWorkletProcessor {
-    constructor() {
+    constructor(options) {
       super();
       this.engine = new SynthEngine(sampleRate);
       this.queue = []; // timestamped messages, sorted by frame
+      // Offline rendering (song export) passes the whole performance up front, because
+      // port messages may not arrive before rendering starts.
+      const opts = options?.processorOptions;
+      if (opts?.values) this.engine.handle({ type: 'params', values: opts.values });
+      for (const msg of opts?.events ?? []) this.enqueue(msg);
       this.port.onmessage = (e) => {
         const msg = e.data;
         if (msg.type === 'clearScheduled') { this.queue = []; return; }
         if (msg.time == null) { this.engine.handle(msg); return; }
-        // Messages with a `time` (AudioContext seconds) are applied at that exact sample.
-        const frame = Math.round(msg.time * sampleRate);
-        let i = this.queue.length;
-        while (i > 0 && this.queue[i - 1].frame > frame) i--;
-        this.queue.splice(i, 0, { frame, msg });
+        this.enqueue(msg);
       };
+    }
+    // Messages with a `time` (AudioContext seconds) are applied at that exact sample.
+    enqueue(msg) {
+      const frame = Math.round(msg.time * sampleRate);
+      let i = this.queue.length;
+      while (i > 0 && this.queue[i - 1].frame > frame) i--;
+      this.queue.splice(i, 0, { frame, msg });
     }
     process(_inputs, outputs) {
       const [L, R] = outputs[0];

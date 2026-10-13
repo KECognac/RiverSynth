@@ -38,15 +38,27 @@
           <button id="panic" type="button" title="Stop all notes">Panic</button>
           <button id="record" type="button" class="record" aria-pressed="false" title="Record the output to a WAV file">● Rec</button>
         </div>
+        <div class="row">
+          <button id="randomize" type="button" title="Make a new random sound">🎲 Random</button>
+          <button id="mutate" type="button" title="Nudge the current sound into a variation">Mutate</button>
+          <button id="undo" type="button" title="Undo (Cmd/Ctrl+Z)" aria-label="Undo" disabled>↶</button>
+          <button id="redo" type="button" title="Redo (Shift+Cmd/Ctrl+Z)" aria-label="Redo" disabled>↷</button>
+          <button id="share" type="button" title="Copy a link that opens this sound">Share link</button>
+        </div>
       </div>
     </header>
-
-    <div id="panel" class="panel"></div>
 
     <section class="data-area" aria-labelledby="data-title">
       <div class="data-head">
         <h2 id="data-title">River Data</h2>
         <p id="data-status" class="data-status small" aria-live="polite"></p>
+      </div>
+
+      <div class="data-row river-presets">
+        <label>River preset<select id="river-preset"></select></label>
+        <input id="river-preset-name" type="text" placeholder="Name" aria-label="River preset name" maxlength="40">
+        <button id="river-preset-save" type="button">Save</button>
+        <button id="river-preset-delete" type="button" disabled>Delete</button>
       </div>
 
       <div class="data-row">
@@ -65,6 +77,8 @@
 
       <div class="data-row">
         <button id="data-play" type="button" class="play" aria-pressed="false">▶ Play</button>
+        <button id="export-wav" type="button" title="Render the whole river song to a WAV file">Export WAV</button>
+        <button id="export-midi" type="button" title="Save the notes and river signals as a MIDI file">Export MIDI</button>
         <label class="check"><input id="data-loop" type="checkbox">Loop</label>
         <label>Tempo<input id="data-bpm" type="number" min="20" max="400" value="120" size="4"></label>
         <label>Step<select id="data-rate"></select></label>
@@ -93,11 +107,14 @@
       <div><button id="route-add" type="button">+ Add control</button></div>
     </section>
 
+    <div id="panel" class="panel"></div>
+
     <section class="keyboard-area">
       <div class="kb-controls">
         <button id="oct-down" type="button" title="Octave down (Z)">−</button>
         <div class="oct"><span class="small">Octave</span><strong id="octave">C4</strong></div>
         <button id="oct-up" type="button" title="Octave up (X)">+</button>
+        <button id="midi" type="button" class="midi" aria-pressed="false" title="Play from a USB/MIDI keyboard">MIDI</button>
         <p class="small kb-help">Play with <kbd>A</kbd>–<kbd>'</kbd> (black keys on <kbd>W</kbd> <kbd>E</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> <kbd>O</kbd> <kbd>P</kbd>) · <kbd>Z</kbd>/<kbd>X</kbd> octave · drag or double-click knobs, hold <kbd>Shift</kbd> for fine control</p>
       </div>
       <div id="keys" class="keys" role="group" aria-label="Piano keyboard"></div>

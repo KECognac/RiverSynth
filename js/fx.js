@@ -1,5 +1,6 @@
 // Effects chain (main thread, built from Web Audio nodes):
-//   Crush -> Mod FX (chorus / ensemble / phaser / flanger) -> Delay -> Reverb
+//   Crush -> Distortion -> Tape -> Mod FX (chorus / ensemble / phaser / flanger) -> Delay -> Reverb
+// set() takes an optional `time` so offline song exports can schedule changes exactly.
 // The bitcrusher and the shimmer reverb's pitch shifter run as AudioWorklets
 // (js/worklet/fx-processors.js).
 // Each unit has an input, an output, a dry path and a wet path.
@@ -18,17 +19,17 @@ class FXUnit {
     this.wet.gain.value = 0;
   }
 
-  set(key, value) {
+  set(key, value, time) {
     const prev = this.p[key];
     this.p[key] = value;
     if (key === 'type' && value !== prev && this.built) this.rebuild();
     else if (key === 'on' && value && !this.built) this.rebuild();
-    else if (this.built && key !== 'on' && key !== 'type' && key !== 'mix') this.update();
-    this.applyMix();
+    else if (this.built && key !== 'on' && key !== 'type' && key !== 'mix') this.update(time);
+    this.applyMix(time);
   }
 
-  applyMix() {
-    const t = this.ctx.currentTime;
+  applyMix(time) {
+    const t = time ?? this.ctx.currentTime;
     const { on, mix } = this.p;
     // Equal-power crossfade between dry and wet.
     const dry = on ? Math.cos(mix * Math.PI / 2) : 1;
@@ -109,8 +110,8 @@ export class ModFX extends FXUnit {
     }
   }
 
-  update() {
-    const t = this.ctx.currentTime;
+  update(time) {
+    const t = time ?? this.ctx.currentTime;
     const hz = 0.05 * Math.pow(160, this.p.time); // 0.05 .. 8 Hz
     for (const l of this.lfos) {
       l.osc.frequency.setTargetAtTime(hz * l.rate, t, 0.05);
@@ -172,8 +173,8 @@ export class DelayFX extends FXUnit {
     this.fbs.push(fb);
   }
 
-  update() {
-    const t = this.ctx.currentTime;
+  update(time) {
+    const t = time ?? this.ctx.currentTime;
     for (const d of this.delays) d.delayTime.setTargetAtTime(this.p.time, t, 0.05);
     for (const fb of this.fbs) fb.gain.setTargetAtTime(this.p.depth, t, 0.05);
   }
@@ -217,10 +218,13 @@ export class ReverbFX extends FXUnit {
     this.conv.connect(hp).connect(lp).connect(shift).connect(this.fb).connect(loopDelay).connect(sum);
   }
 
-  update() {
-    if (this.fb) this.fb.gain.setTargetAtTime(0.2 + this.p.depth * 0.4, this.ctx.currentTime, 0.05);
-    clearTimeout(this.timer); // regenerate at most every 120 ms while a knob turns
-    this.timer = setTimeout(() => { this.conv.buffer = this.makeIR(); }, this.conv.buffer ? 120 : 0);
+  update(time) {
+    if (this.fb) this.fb.gain.setTargetAtTime(0.2 + this.p.depth * 0.4, time ?? this.ctx.currentTime, 0.05);
+    clearTimeout(this.timer);
+    // Build the first impulse response right away (offline renders start immediately);
+    // after that, regenerate at most every 120 ms while a knob turns.
+    if (!this.conv.buffer) { this.conv.buffer = this.makeIR(); return; }
+    this.timer = setTimeout(() => { this.conv.buffer = this.makeIR(); }, 120);
   }
 
   makeIR() {
@@ -346,9 +350,82 @@ export class CrushFX extends FXUnit {
     this.input.connect(this.crusher).connect(this.wet);
   }
 
-  update() {
-    const t = this.ctx.currentTime;
+  update(time) {
+    const t = time ?? this.ctx.currentTime;
     this.crusher.parameters.get('bits').setValueAtTime(this.p.bits ?? 8, t);
     this.crusher.parameters.get('down').setValueAtTime(this.p.rate ?? 4, t);
+  }
+}
+
+// --- Distortion ------------------------------------------------------------------
+// A wave shaper between a drive gain and a level-compensating output gain.
+//   Tube: warm, asymmetric soft clipping   Fuzz: hard, buzzy clipping   Fold: wavefolding
+const DIST_CURVES = [
+  (x) => Math.tanh(x + 0.15 * x * x), // tube: soft, with a little even-harmonic tilt
+  (x) => Math.max(-1, Math.min(1, x * 1.5)),            // fuzz
+  (x) => Math.sin(x * 1.6),                              // fold
+];
+
+export class DistFX extends FXUnit {
+  build() {
+    const ctx = this.ctx;
+    this.pre = this.node(ctx.createGain());
+    this.shaper = this.node(ctx.createWaveShaper());
+    this.shaper.oversample = '4x';
+    const curve = new Float32Array(2048);
+    const f = DIST_CURVES[this.p.type];
+    for (let i = 0; i < curve.length; i++) curve[i] = f((i / 1023.5 - 1) * 4); // input range +/-4
+    const peak = Math.max(...curve.map(Math.abs)) || 1;
+    for (let i = 0; i < curve.length; i++) curve[i] /= peak;
+    this.shaper.curve = curve;
+    this.tone = this.node(ctx.createBiquadFilter()); // tame the fizz a little
+    this.tone.type = 'lowpass';
+    this.tone.frequency.value = this.p.type === 1 ? 6000 : 9000;
+    this.post = this.node(ctx.createGain());
+    this.input.connect(this.pre).connect(this.shaper).connect(this.tone).connect(this.post).connect(this.wet);
+  }
+
+  update(time) {
+    const t = time ?? this.ctx.currentTime;
+    const amt = this.p.amount ?? 0.4;
+    // The shaper maps its +/-1 input onto the curve's +/-4, so the overall drive is 4x the
+    // pre-gain: 1x (clean) up to 24x. Scaling the output by 1/sqrt(drive) keeps light drive
+    // at unity and heavy drive only a little louder than the clean sound.
+    const pre = 0.25 * Math.pow(24, amt);
+    this.pre.gain.setTargetAtTime(pre, t, 0.02);
+    this.post.gain.setTargetAtTime(1 / Math.sqrt(4 * pre), t, 0.02);
+  }
+}
+
+// --- Tape ------------------------------------------------------------------------------
+// Wow (slow pitch drift) and flutter (fast shimmer) by modulating a short delay, plus a
+// gentle low-pass and saturation for tape colour.
+export class TapeFX extends FXUnit {
+  build() {
+    const ctx = this.ctx;
+    const d = this.node(ctx.createDelay(0.1));
+    d.delayTime.value = 0.012;
+    const wow = this.node(ctx.createOscillator());
+    const flutter = this.node(ctx.createOscillator());
+    wow.frequency.value = 0.55;
+    flutter.frequency.value = 6.3;
+    this.wowAmt = this.node(ctx.createGain());
+    this.flutterAmt = this.node(ctx.createGain());
+    wow.connect(this.wowAmt).connect(d.delayTime);
+    flutter.connect(this.flutterAmt).connect(d.delayTime);
+    const sat = this.node(ctx.createWaveShaper());
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < curve.length; i++) curve[i] = Math.tanh((i / 511.5 - 1) * 1.3) / Math.tanh(1.3);
+    sat.curve = curve;
+    const lp = this.node(ctx.createBiquadFilter());
+    lp.type = 'lowpass'; lp.frequency.value = 9000;
+    this.input.connect(d).connect(sat).connect(lp).connect(this.wet);
+    wow.start(); flutter.start();
+  }
+
+  update(time) {
+    const t = time ?? this.ctx.currentTime;
+    this.wowAmt.gain.setTargetAtTime((this.p.wow ?? 0.4) * 0.004, t, 0.05);      // up to +/-4 ms
+    this.flutterAmt.gain.setTargetAtTime((this.p.flutter ?? 0.3) * 0.0004, t, 0.05); // up to +/-0.4 ms
   }
 }

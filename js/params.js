@@ -106,6 +106,7 @@ export const PARAMS = {
   // --- Voice mode ----------------------------------------------------------
   'voice.mode':  { label: 'Mode', choices: ['Poly', 'Unison', 'Chord', 'Arp'], def: 0 },
   'voice.depth': { label: 'Depth', min: 0, max: 1, def: 0, curve: 'lin', fmt: pct },
+  'voice.glide': { label: 'Glide', min: 0, max: 1, def: 0, curve: 'lin', fmt: (v) => (v < 0.005 ? 'Off' : sec(v)) },
 
   // --- Arpeggiator (Arp voice mode) -------------------------------------------
   'arp.latch': { label: 'Latch', toggle: true, def: 0 },
@@ -145,6 +146,18 @@ export const PARAMS = {
   'crush.bits': { label: 'Bits', min: 1, max: 16, def: 8, curve: 'lin', fmt: (v) => `${v.toFixed(1)} bit` },
   'crush.rate': { label: 'Downsample', min: 1, max: 40, def: 4, curve: 'exp', fmt: (v) => `÷${v.toFixed(1)}` },
   'crush.mix':  { label: 'Mix', min: 0, max: 1, def: 0.8, curve: 'lin', fmt: pct },
+
+  // --- Distortion -------------------------------------------------------------------
+  'dist.on':     { label: 'On', toggle: true, def: 0 },
+  'dist.type':   { label: 'Type', choices: ['Tube', 'Fuzz', 'Fold'], def: 0 },
+  'dist.amount': { label: 'Amount', min: 0, max: 1, def: 0.4, curve: 'lin', fmt: pct },
+  'dist.mix':    { label: 'Mix', min: 0, max: 1, def: 0.7, curve: 'lin', fmt: pct },
+
+  // --- Tape: wow & flutter pitch wobble with a little saturation -------------------
+  'tape.on':      { label: 'On', toggle: true, def: 0 },
+  'tape.wow':     { label: 'Wow', min: 0, max: 1, def: 0.4, curve: 'lin', fmt: pct },
+  'tape.flutter': { label: 'Flutter', min: 0, max: 1, def: 0.3, curve: 'lin', fmt: pct },
+  'tape.mix':     { label: 'Mix', min: 0, max: 1, def: 1, curve: 'lin', fmt: pct },
 };
 
 // Voice-mode depth means something different in each mode.
@@ -179,7 +192,7 @@ export const SECTIONS = [
   },
   {
     id: 'voice', title: 'Voice Mode',
-    controls: ['voice.mode', 'voice.depth', 'arp.latch', 'arp.rate', 'arp.gate'],
+    controls: ['voice.mode', 'voice.depth', 'voice.glide', 'arp.latch', 'arp.rate', 'arp.gate'],
     showIf: Object.fromEntries(['arp.latch', 'arp.rate', 'arp.gate']
       .map((id) => [id, (v) => v['voice.mode'] === 3])),
   },
@@ -187,6 +200,8 @@ export const SECTIONS = [
   // Tempo is global: it drives the arpeggiator, tempo-synced LFO and the pump.
   { id: 'master', title: 'Master', controls: ['master.volume', 'arp.tempo'] },
   { id: 'crush', title: 'Crush', controls: ['crush.on', 'crush.bits', 'crush.rate', 'crush.mix'] },
+  { id: 'dist', title: 'Distortion', controls: ['dist.on', 'dist.type', 'dist.amount', 'dist.mix'] },
+  { id: 'tape', title: 'Tape', controls: ['tape.on', 'tape.wow', 'tape.flutter', 'tape.mix'] },
   { id: 'mod', title: 'Mod FX', controls: ['mod.on', 'mod.type', 'mod.time', 'mod.depth', 'mod.mix'] },
   { id: 'delay', title: 'Delay', controls: ['delay.on', 'delay.type', 'delay.time', 'delay.depth', 'delay.mix'] },
   { id: 'reverb', title: 'Reverb', controls: ['reverb.on', 'reverb.type', 'reverb.time', 'reverb.depth', 'reverb.mix'] },
@@ -219,4 +234,4 @@ export function formatValue(id, v, all) {
 }
 
 // Which params are handled by the main-thread effects chain vs. the voice engine.
-export const isFxParam = (id) => /^(crush|mod|delay|reverb|master)\./.test(id);
+export const isFxParam = (id) => /^(crush|dist|tape|mod|delay|reverb|master)\./.test(id);

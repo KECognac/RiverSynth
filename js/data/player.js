@@ -222,6 +222,32 @@ export class DataPlayer {
     }
   }
 
+  // The whole performance as a list of timed events (for WAV and MIDI export).
+  // Runs the same step logic as live playback, capturing what it would send.
+  collectEvents() {
+    const ev = { notes: [], params: [], roar: [], steps: [] };
+    const real = this.synth, savedSounding = this.sounding;
+    this.synth = {
+      noteOn: (note, velocity, time) => ev.notes.push({ type: 'noteOn', note, velocity, time }),
+      noteOff: (note, time) => ev.notes.push({ type: 'noteOff', note, time }),
+      setParamAt: (id, value, time) => ev.params.push({ id, value, time }),
+      roar: { setFlow: (t, time, smooth) => ev.roar.push({ t, time, smooth }) },
+    };
+    this.sounding = null;
+    try {
+      const dur = this.stepDur;
+      for (let i = 0; i < this.rows.length; i++) {
+        this.scheduleStep(i, i * dur);
+        ev.steps.push({ i, time: i * dur });
+      }
+      ev.duration = this.rows.length * dur;
+    } finally {
+      this.synth = real;
+      this.sounding = savedSounding;
+    }
+    return ev;
+  }
+
   // The step currently sounding (from the scheduled timeline), or null.
   currentStep() {
     if (!this.playing || !this.synth.ctx) return null;

@@ -93,12 +93,22 @@ export class Keyboard {
   releaseAll() { for (const s of [...this.down.keys()]) this.release(s); }
 
   bindComputerKeys() {
-    const typing = (e) => e.target.closest?.('input, textarea, select, [contenteditable]');
+    // Only real text fields block the keyboard. Menus, sliders and buttons don't, and
+    // handled keys call preventDefault so a focused menu doesn't jump to another option.
+    const TEXT_TYPES = new Set(['text', 'search', 'number', 'date', 'email', 'url', 'password', 'tel']);
+    const typing = (e) => {
+      const el = e.target;
+      if (el.closest?.('textarea, [contenteditable]')) return true;
+      return el.tagName === 'INPUT' && TEXT_TYPES.has(el.type);
+    };
     window.addEventListener('keydown', (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey || typing(e)) return;
       const key = e.key.toLowerCase();
-      if (key === 'z') { if (!e.repeat) this.setOctave(this.octave - 1); return; }
-      if (key === 'x') { if (!e.repeat) this.setOctave(this.octave + 1); return; }
+      if (key === 'z' || key === 'x') {
+        e.preventDefault();
+        if (!e.repeat) this.setOctave(this.octave + (key === 'z' ? -1 : 1));
+        return;
+      }
       const i = COMPUTER_KEYS.indexOf(key);
       if (i < 0) return;
       e.preventDefault();

@@ -40,7 +40,7 @@ export class Recorder {
   }
 }
 
-function encodeWav(leftChunks, rightChunks, sampleRate) {
+export function encodeWav(leftChunks, rightChunks, sampleRate) {
   const frames = leftChunks.reduce((n, c) => n + c.length, 0);
   const buf = new ArrayBuffer(44 + frames * 4);
   const view = new DataView(buf);

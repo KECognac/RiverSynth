@@ -1,4 +1,4 @@
-import { PARAMS, SECTIONS, formatValue, toValue, toNorm } from './params.js';
+import { PARAMS, SECTIONS, formatValue, toValue, toNorm, defaultValues } from './params.js';
 import { Synth } from './synth.js';
 import { createControl } from './ui/controls.js';
 import { Keyboard, noteName } from './ui/keyboard.js';
@@ -8,11 +8,23 @@ import { DataPlayer, DataChart, SCALES, RATES } from './data/player.js';
 import { fetchDaily, fetchSiteName, parseCsv } from './data/usgs.js';
 import { SOURCES } from './data/features.js';
 import { GAUGES } from './data/gauges.js';
+import { RIVER_FACTORY, loadRiverPresets, saveRiverPresets } from './data/river-presets.js';
+import { buildMidi } from './data/midi.js';
+import { randomPatch, mutate } from './randomize.js';
+import { MidiInput } from './ui/midi-input.js';
 
 const synth = new Synth();
 window.synth = synth; // handy for experimenting from the browser console
 
 const $ = (sel) => document.querySelector(sel);
+const slug = (s) => s.replace(/[^\w-]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+function download(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
 const scope = new Scope($('#scope'), $('#readout'));
 
 // --- Front panel ---------------------------------------------------------------
@@ -28,6 +40,7 @@ for (const sec of SECTIONS) {
   for (const id of sec.controls) {
     const c = createControl(id, (v) => {
       synth.setParam(id, v);
+      commitSoon();
       scope.show(`${sec.title} · ${PARAMS[id].label}`, formatValue(id, v, synth.values));
     });
     c.el.dataset.param = id;
@@ -85,6 +98,7 @@ function loadPreset(key) {
   synth.setParams(resolvePreset(preset.values));
   player.rebase();
   presetName.value = preset.name;
+  commitNow();
   $('#delete-preset').disabled = kind !== 'u';
   scope.show('Program', preset.name);
 }
@@ -114,12 +128,7 @@ $('#delete-preset').addEventListener('click', () => {
 
 $('#export-preset').addEventListener('click', () => {
   const name = presetName.value.trim() || 'Untitled';
-  const blob = new Blob([JSON.stringify({ name, values: synth.values }, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${name.replace(/[^\w-]+/g, '_')}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  download(new Blob([JSON.stringify({ name, values: synth.values }, null, 2)], { type: 'application/json' }), `${slug(name)}.json`);
 });
 
 $('#import-preset').addEventListener('change', async (e) => {
@@ -130,6 +139,7 @@ $('#import-preset').addEventListener('change', async (e) => {
     const data = JSON.parse(await file.text());
     synth.setParams(resolvePreset(data.values));
     presetName.value = data.name || file.name.replace(/\.json$/, '');
+    commitNow();
     scope.show('Imported', presetName.value);
   } catch {
     scope.show('Import failed', 'Not a preset file');
@@ -137,6 +147,114 @@ $('#import-preset').addEventListener('change', async (e) => {
 });
 
 fillPresetList('f:0');
+
+// --- Undo / redo -------------------------------------------------------------------
+// History holds settled patches (with their names): a knob drag counts once it has been
+// still for 400 ms.
+// Changes made by the river data player during playback aren't recorded.
+const undoBtn = $('#undo'), redoBtn = $('#redo');
+const hist = { past: [], future: [], current: null };
+let commitTimer = null;
+const snapshot = () => JSON.stringify({ n: presetName.value, v: synth.values });
+function updateUndoButtons() {
+  undoBtn.disabled = !hist.past.length && !commitTimer;
+  redoBtn.disabled = !hist.future.length;
+}
+function commitNow() {
+  clearTimeout(commitTimer);
+  commitTimer = null;
+  const snap = snapshot();
+  if (snap !== hist.current) {
+    if (hist.current) hist.past.push(hist.current);
+    if (hist.past.length > 100) hist.past.shift();
+    hist.current = snap;
+    hist.future = [];
+  }
+  updateUndoButtons();
+}
+function commitSoon() {
+  clearTimeout(commitTimer);
+  commitTimer = setTimeout(commitNow, 400);
+  updateUndoButtons();
+}
+function restore(snap, label) {
+  const { n, v } = JSON.parse(snap);
+  synth.setParams(v);
+  presetName.value = n;
+  player.rebase();
+  updateUndoButtons();
+  scope.show(label, presetName.value);
+}
+function undo() {
+  if (commitTimer) commitNow();
+  if (!hist.past.length) return;
+  hist.future.push(hist.current);
+  hist.current = hist.past.pop();
+  restore(hist.current, 'Undo');
+}
+function redo() {
+  if (!hist.future.length) return;
+  hist.past.push(hist.current);
+  hist.current = hist.future.pop();
+  restore(hist.current, 'Redo');
+}
+undoBtn.addEventListener('click', undo);
+redoBtn.addEventListener('click', redo);
+window.addEventListener('keydown', (e) => {
+  if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k !== 'z' && k !== 'y') return;
+  if (e.target.matches?.('input[type="text"], input[type="number"], textarea')) return; // let text fields undo
+  e.preventDefault();
+  if (k === 'y' || e.shiftKey) redo(); else undo();
+});
+
+// --- Randomize / mutate ------------------------------------------------------------
+let randomCount = 0;
+$('#randomize').addEventListener('click', () => {
+  if (commitTimer) commitNow();
+  synth.setParams(randomPatch(synth.values));
+  player.rebase();
+  presetName.value = `Random ${++randomCount}`;
+  presetSelect.selectedIndex = -1;
+  commitNow();
+  scope.show('Random sound', presetName.value);
+});
+$('#mutate').addEventListener('click', () => {
+  if (commitTimer) commitNow();
+  synth.setParams(mutate(synth.values));
+  player.rebase();
+  if (!presetName.value.endsWith('~')) presetName.value = `${presetName.value.trim()} ~`;
+  commitNow();
+  scope.show('Mutated', presetName.value);
+});
+
+// --- Share a sound by link -----------------------------------------------------------
+// The link's #sound= part holds the settings that differ from the defaults, as base64url JSON.
+function encodeShare() {
+  const defaults = defaultValues();
+  const diff = {};
+  for (const [id, v] of Object.entries(synth.values)) {
+    if (v !== defaults[id]) diff[id] = Number(Number(v).toPrecision(4));
+  }
+  const bytes = new TextEncoder().encode(JSON.stringify({ n: presetName.value.trim(), v: diff }));
+  let bin = '';
+  bytes.forEach((b) => { bin += String.fromCharCode(b); });
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function decodeShare(str) {
+  const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/'));
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
+}
+$('#share').addEventListener('click', async () => {
+  const url = `${location.origin}${location.pathname}#sound=${encodeShare()}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    scope.show('Link copied', 'Paste it anywhere to share this sound');
+  } catch {
+    window.prompt('Copy this link to share the sound:', url);
+  }
+});
 
 // --- Keyboard ------------------------------------------------------------------
 const octaveLabel = $('#octave');
@@ -149,6 +267,34 @@ octaveLabel.textContent = noteName(keyboard.base);
 $('#oct-down').addEventListener('click', () => keyboard.setOctave(keyboard.octave - 1));
 $('#oct-up').addEventListener('click', () => keyboard.setOctave(keyboard.octave + 1));
 $('#panic').addEventListener('click', () => { keyboard.releaseAll(); synth.allNotesOff(); });
+
+// --- MIDI keyboard input -------------------------------------------------------------
+const midiBtn = $('#midi');
+const midi = new MidiInput({
+  press: (src, n) => keyboard.press(src, n),
+  release: (src) => keyboard.release(src),
+  onStatus: (status) => {
+    midiBtn.textContent = status ? `MIDI: ${status.length > 28 ? `${status.slice(0, 27)}…` : status}` : 'MIDI';
+  },
+});
+if (!MidiInput.supported) {
+  midiBtn.disabled = true;
+  midiBtn.title = 'This browser has no Web MIDI (try Chrome or Edge)';
+}
+midiBtn.addEventListener('click', async () => {
+  if (midi.enabled) {
+    midi.disable();
+    midiBtn.setAttribute('aria-pressed', 'false');
+    return;
+  }
+  try {
+    await ensureAudio();
+    await midi.enable();
+    midiBtn.setAttribute('aria-pressed', 'true');
+  } catch (err) {
+    scope.show('MIDI unavailable', err.message || 'Permission was not granted');
+  }
+});
 
 // --- Audio start (browsers require a click or key press first) -------------------
 const power = $('#power');
@@ -190,13 +336,9 @@ recBtn.addEventListener('click', async () => {
   recBtn.textContent = '● Rec';
   const blob = await rec.stop();
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-  const name = (presetName.value.trim() || 'synthwork').replace(/[^\w-]+/g, '_');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${name}-${stamp}.wav`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  scope.show('Saved recording', a.download);
+  const filename = `${slug(presetName.value.trim() || 'synthwork')}-${stamp}.wav`;
+  download(blob, filename);
+  scope.show('Saved recording', filename);
 });
 
 // --- River data player -----------------------------------------------------------
@@ -258,7 +400,9 @@ chart.onFrame = (step) => {
   dataNow.textContent = `${row.date} · ${row.value == null ? 'no data' : `${row.value.toLocaleString()} cfs${pctNormal}`} · ${note == null ? 'rest' : noteName(note)}`;
 };
 
+let riverLabel = '';
 function showSeries(rows, label, history = null) {
+  riverLabel = label;
   player.setSeries(rows);
   player.setHistory(history);
   renderRoutes();
@@ -315,18 +459,26 @@ async function loadFromUsgs() {
 }
 $('#data-load').addEventListener('click', loadFromUsgs);
 
-// River picker: choosing one fills in the gauge number and loads it.
+// River picker (grouped by region): choosing one fills in the gauge number and loads it.
 const gaugeSel = $('#data-gauge');
-fillSelect(gaugeSel, [...GAUGES.map((g) => [g.id, `${g.name} — ${g.note}`]), ['', 'Other (type a gauge number)']], GAUGES[0].id);
+for (const group of new Set(GAUGES.map((g) => g.group))) {
+  const og = document.createElement('optgroup');
+  og.label = group;
+  for (const g of GAUGES.filter((x) => x.group === group)) og.append(new Option(`${g.name} — ${g.note}`, g.id));
+  gaugeSel.append(og);
+}
+gaugeSel.append(new Option('Other (type a gauge number)', ''));
+gaugeSel.value = GAUGES[0].id;
+const syncGaugeSel = () => {
+  const v = $('#data-site').value.trim();
+  gaugeSel.value = GAUGES.some((g) => g.id === v) ? v : '';
+};
 gaugeSel.addEventListener('change', () => {
   if (!gaugeSel.value) { $('#data-site').focus(); return; }
   $('#data-site').value = gaugeSel.value;
   loadFromUsgs();
 });
-$('#data-site').addEventListener('input', () => {
-  const v = $('#data-site').value.trim();
-  gaugeSel.value = GAUGES.some((g) => g.id === v) ? v : '';
-});
+$('#data-site').addEventListener('input', syncGaugeSel);
 $('#data-site').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadFromUsgs(); });
 
 $('#data-csv').addEventListener('change', async (e) => {
@@ -346,7 +498,7 @@ const ROUTE_EXCLUDE = new Set(['reverb.time', 'reverb.depth']);
 const ROUTE_TARGETS = SECTIONS.flatMap((sec) => sec.controls
   .filter((id) => PARAMS[id].min !== undefined && !ROUTE_EXCLUDE.has(id))
   .map((id) => [id, `${sec.title} · ${PARAMS[id].label}`]));
-const FX_NAMES = { mod: 'Mod FX', delay: 'Delay', reverb: 'Reverb' };
+const FX_NAMES = { crush: 'Crush', dist: 'Distortion', tape: 'Tape', mod: 'Mod FX', delay: 'Delay', reverb: 'Reverb', pump: 'Pump' };
 const routesEl = $('#routes');
 // Defaults use three different sources so the sound has more than one dimension.
 let routes = [
@@ -425,7 +577,151 @@ $('#route-add').addEventListener('click', () => {
 synth.listeners.add((id) => { if (id.endsWith('.on')) updateRouteWarnings(); });
 applyRoutes();
 
-loadPreset('f:0'); // open with program 001 (Glockenspiel)
+// --- River presets ---------------------------------------------------------------------
+const riverSel = $('#river-preset');
+const riverName = $('#river-preset-name');
+let riverUser = loadRiverPresets();
+const DATA_CONTROLS = {
+  scale: '#data-scale', root: '#data-root', low: '#data-low', high: '#data-high', rate: '#data-rate',
+  bpm: '#data-bpm', gate: '#data-gate', tie: '#data-tie', loop: '#data-loop', log: '#data-log',
+  spread: '#data-spread', roar: '#data-roar', roarLevel: '#data-roar-level',
+};
+function setDataControl(key, value) {
+  const el = DATA_CONTROLS[key] && $(DATA_CONTROLS[key]);
+  if (!el) return;
+  if (el.type === 'checkbox') el.checked = !!value; else el.value = String(value);
+}
+
+function fillRiverPresets(selected = '') {
+  riverSel.innerHTML = '';
+  riverSel.append(new Option('Choose…', ''));
+  const group = (label, list, prefix) => {
+    if (!list.length) return;
+    const og = document.createElement('optgroup');
+    og.label = label;
+    list.forEach((rp, i) => og.append(new Option(rp.name, `${prefix}:${i}`)));
+    riverSel.append(og);
+  };
+  group('Factory', RIVER_FACTORY, 'rf');
+  group('Yours', riverUser, 'ru');
+  riverSel.value = selected;
+  $('#river-preset-delete').disabled = !selected.startsWith('ru:');
+}
+
+function applyRiverPreset(key) {
+  const [kind, i] = key.split(':');
+  const rp = (kind === 'rf' ? RIVER_FACTORY : riverUser)[Number(i)];
+  if (!rp) return;
+  player.stop();
+  const prog = rp.program ? FACTORY.find((p) => p.name === rp.program) : null;
+  synth.setParams(resolvePreset({ ...(prog?.values ?? {}), ...(rp.values ?? {}) }));
+  presetName.value = rp.program ?? rp.name;
+  if (prog) presetSelect.value = `f:${FACTORY.indexOf(prog)}`; else presetSelect.selectedIndex = -1;
+  for (const [k, v] of Object.entries(rp.settings ?? {})) { player.set(k, v); setDataControl(k, v); }
+  routes = (rp.routes ?? []).map((r) => ({ ...r }));
+  applyRoutes();
+  riverName.value = rp.name;
+  $('#river-preset-delete').disabled = kind !== 'ru';
+  commitNow();
+  if (rp.gauge) {
+    $('#data-site').value = rp.gauge.site;
+    $('#data-start').value = rp.gauge.start;
+    $('#data-end').value = rp.gauge.end;
+    syncGaugeSel();
+    loadFromUsgs();
+  }
+  scope.show('River preset', rp.name);
+}
+riverSel.addEventListener('change', () => { if (riverSel.value) applyRiverPreset(riverSel.value); });
+
+$('#river-preset-save').addEventListener('click', () => {
+  const name = riverName.value.trim() || 'My river';
+  const entry = {
+    name,
+    values: { ...synth.values, ...(player.playing ? player.base : {}) }, // the patch without live data changes
+    settings: { ...player.settings },
+    routes: routes.map((r) => ({ ...r })),
+    gauge: { site: $('#data-site').value.trim(), start: $('#data-start').value, end: $('#data-end').value },
+  };
+  const existing = riverUser.findIndex((p) => p.name === name);
+  if (existing >= 0) riverUser[existing] = entry; else riverUser.push(entry);
+  const ok = saveRiverPresets(riverUser);
+  fillRiverPresets(`ru:${existing >= 0 ? existing : riverUser.length - 1}`);
+  scope.show(ok ? 'River preset saved' : 'Not saved (storage blocked)', name);
+});
+$('#river-preset-delete').addEventListener('click', () => {
+  const [kind, i] = riverSel.value.split(':');
+  if (kind !== 'ru') return;
+  const [removed] = riverUser.splice(Number(i), 1);
+  saveRiverPresets(riverUser);
+  fillRiverPresets('');
+  scope.show('Deleted', removed.name);
+});
+fillRiverPresets('');
+
+// --- Export the river song -------------------------------------------------------------
+function songName(ext) {
+  const g = GAUGES.find((x) => x.id === $('#data-site').value.trim());
+  const river = (g?.name ?? riverLabel ?? 'river').split(',')[0];
+  const rows = player.rows;
+  return `${slug(river)}-${rows[0].date}_${rows[rows.length - 1].date}.${ext}`;
+}
+
+$('#export-wav').addEventListener('click', async () => {
+  if (!player.rows.length) return;
+  const btn = $('#export-wav');
+  if (player.playing) player.stop();
+  btn.disabled = true;
+  try {
+    const ev = player.collectEvents();
+    const values = { ...synth.values };
+    const tail = Math.min(12, 3 + values['ampeg.release'] * 1.5 + (values['reverb.on'] ? 3 : 0));
+    const blob = await synth.renderOffline({
+      values,
+      notes: ev.notes,
+      params: ev.params,
+      roar: player.settings.roar ? { level: player.settings.roarLevel, steps: ev.roar } : null,
+      duration: ev.duration + tail,
+      onProgress: (f) => { btn.textContent = `Rendering ${Math.round(f * 100)}%`; },
+    });
+    const filename = songName('wav');
+    download(blob, filename);
+    scope.show('Saved', filename);
+  } catch (err) {
+    console.error(err);
+    dataStatus.textContent = `Export failed: ${err.message}`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Export WAV';
+  }
+});
+
+$('#export-midi').addEventListener('click', () => {
+  if (!player.rows.length) return;
+  const ev = player.collectEvents();
+  const blob = buildMidi({ notes: ev.notes, steps: ev.steps, sources: player.sources, bpm: player.settings.bpm, name: riverLabel || 'River' });
+  const filename = songName('mid');
+  download(blob, filename);
+  scope.show('Saved', filename);
+});
+
+// --- Start up: a shared link's sound, or program 001 ------------------------------------
+const shared = location.hash.match(/^#sound=([\w-]+)/);
+let sharedLoaded = false;
+if (shared) {
+  try {
+    const data = decodeShare(shared[1]);
+    synth.setParams(resolvePreset(data.v));
+    presetName.value = data.n || 'Shared sound';
+    presetSelect.selectedIndex = -1;
+    commitNow();
+    scope.show('Shared sound', presetName.value);
+    sharedLoaded = true;
+  } catch {
+    // a broken link: fall back to the default program
+  }
+}
+if (!sharedLoaded) loadPreset('f:0'); // open with program 001 (Glockenspiel)
 loadFromUsgs(); // start with the Poudre River at Fort Collins
 window.addEventListener('pointerdown', () => ensureAudio(), { once: true });
 window.addEventListener('keydown', () => ensureAudio(), { once: true });

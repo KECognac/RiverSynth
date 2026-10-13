@@ -2,8 +2,9 @@
 
 **▶ Play it live: https://kecognac.github.io/SynthWork/**
 
-A 4-voice polyphonic synthesizer that runs in the web browser, modelled on the KORG minilogue (xd).
-The long-term goal is to drive it with data time series such as USGS streamflow.
+An 8-voice polyphonic synthesizer that runs in the web browser. It started from the KORG minilogue
+(xd) layout and has grown modern extras (supersaw, vowel filter, shimmer reverb, sidechain pump),
+with a Moog Grandmother-inspired look. It can also turn USGS streamflow data into music.
 
 Everything runs in the browser using the Web Audio API. There's no build step and no
 dependencies, so it can be hosted for free on GitHub Pages.
@@ -28,22 +29,25 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 - **Programs:** choose a factory preset, save your own (stored in this browser), or export and
   import them as `.json` files.
 
-## What's implemented (v1)
+## What's implemented
 
 | Section | Controls |
 |---|---|
-| VCO 1 / VCO 2 | Saw / Tri / Square, octave (16'–2'), pitch ±1200¢, continuous **Shape** (saw→square morph, triangle wavefold, pulse width); VCO 2 **Sync** and **Ring** |
+| VCO 1 / VCO 2 | Saw / Tri / Square / **Super** (7 detuned saws), octave (16'–2'), pitch ±1200¢, continuous **Shape** (saw→square morph, triangle wavefold, pulse width, supersaw detune); VCO 2 **Sync** and **Ring** |
 | Multi Engine | **Noise** (High, Low, Peak, Decim) or **VPM** (2-operator phase modulation: Sine, Octave, Bell, Metal, Sub) |
 | Mixer | VCO 1, VCO 2, Multi levels |
-| Filter | 2-pole 12 dB/oct low-pass, cutoff, resonance, drive, key tracking 0/50/100% |
+| Filter | **LP 12**, **LP 24** (ladder-style, saturating), **HP**, **BP**, **Notch** and **Vowel** (three formants morphing A–E–I–O–U; EG/LFO cutoff modulation sweeps the vowel, Cutoff shifts the voice size); cutoff, resonance, drive, key tracking |
 | Amp EG | Attack, Decay, Sustain, Release |
 | EG | Attack, Decay, bipolar Intensity → Cutoff, Pitch 2 or Pitch |
-| LFO | Saw / Tri / Square, rate, bipolar intensity → Pitch, Shape or Cutoff |
-| Voice Mode | **Poly** (depth = detune), **Unison** (all 4 voices stacked, depth = detune), **Chord** (depth selects 1 of 14 chord types), **Arp** (depth selects 1 of 13 patterns) |
-| Arpeggiator | Manual / Rise / Fall / Rise Fall / Poly over 1–2 octaves, Random over 1–3 octaves; Latch, Tempo (40–300 BPM), Rate (1/4–1/32 incl. triplets), Gate |
-| Effects | **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser, Spring |
+| LFO | Saw / Tri / Square / **S&H** (stepped random) / **Drift** (smooth random), free rate or **tempo sync** (2 bars–1/16), **key sync**, bipolar intensity → Pitch, Shape or Cutoff |
+| Voice Mode | **Poly** (depth = detune), **Unison** (all 8 voices stacked, depth = detune), **Chord** (depth selects 1 of 14 chord types), **Arp** (depth selects 1 of 13 patterns) |
+| Arpeggiator | Manual / Rise / Fall / Rise Fall / Poly over 1–2 octaves, Random over 1–3 octaves; Latch, Rate (1/4–1/32 incl. triplets), Gate |
+| Pump | Tempo-synced sidechain-style ducking (1/2, 1/4, 1/8) with depth and release; restarts on the first note you play |
+| Tempo | One global tempo (Master section) for the arpeggiator, synced LFO and pump |
+| Effects | **Crush:** bit depth + downsampling · **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser, Spring, **Shimmer** (octave-up feedback; Tone = shimmer amount) |
 | Display | Live oscilloscope with a readout of the parameter you're changing |
-| Programs | 21 factory presets, unlimited user presets, JSON export/import |
+| Programs | 32 factory presets, unlimited user presets, JSON export/import |
+| Record | **● Rec** saves the output (keyboard, data player, everything) as a WAV file |
 | River Data | Play any USGS stream gauge's daily discharge as notes (see below) |
 
 ### Planned next
@@ -59,9 +63,11 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 index.html                      page layout
 css/style.css                   styling
 js/params.js                    every parameter: range, default, label, panel layout
-js/worklet/synth-processor.js   the voice engine (oscillators, filter, envelopes, LFO, voice modes, arpeggiator)
+js/worklet/synth-processor.js   the voice engine (oscillators, filters, envelopes, LFO, voice modes, arpeggiator, pump)
+js/worklet/fx-processors.js     audio-thread effects: shimmer pitch shifter, bitcrusher, recorder
+js/recorder.js                  WAV export
                                 runs on the audio thread as an AudioWorklet
-js/fx.js                        mod FX, delay and reverb (native Web Audio nodes)
+js/fx.js                        crush, mod FX, delay, reverb (incl. shimmer) and the river roar
 js/synth.js                     ties it together; the one API every input uses
 js/presets.js                   factory presets and saved user presets
 js/ui/                          knobs and switches, keyboard, oscilloscope

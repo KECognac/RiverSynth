@@ -1,8 +1,11 @@
 // Voice engine: runs on the audio thread inside an AudioWorklet.
 //
-// Signal path per voice (like the minilogue):
-//   VCO1 + VCO2 + Multi Engine -> Mixer -> Drive -> 2-pole low-pass filter -> Amp EG
-// Modulation: EG (cutoff / pitch / pitch 2) and LFO (pitch / shape / cutoff).
+// Signal path per voice:
+//   VCO1 + VCO2 + Multi Engine -> Mixer -> Drive -> Filter -> Amp EG
+// Filter types: 12 dB low-pass, 24 dB "ladder" low-pass, high-pass, band-pass, notch,
+// and a vowel (formant) filter.
+// Modulation: EG (cutoff / pitch / pitch 2) and LFO (pitch / shape / cutoff), with
+// tempo sync and random shapes. A tempo-synced "pump" ducks the output like a sidechain.
 //
 // The main thread talks to this file only through messages:
 //   { type: 'noteOn', note, velocity } | { type: 'noteOff', note } | { type: 'allOff' }
@@ -10,16 +13,32 @@
 
 import { CHORDS, chordIndex, ARP_TYPES, arpIndex, ARP_RATES, defaultValues } from '../params.js';
 
-const NUM_VOICES = 4;
+const NUM_VOICES = 8;
 const TWO_PI = Math.PI * 2;
 const OCTAVE_OFFSET = [-1, 0, 1, 2]; // 16' 8' 4' 2'
 const KEYTRACK = [0, 0.5, 1];
 const VPM_RATIO = [1, 2, 3.5, 1.414, 0.5];
-const POLY_SPREAD = [-1, 0.33, -0.33, 1]; // per-voice detune shape in Poly mode
-const UNISON_SPREAD = [-1, -0.33, 0.33, 1];
+const POLY_SPREAD = [-1, 0.33, -0.33, 1, -0.66, 0.66, 0.1, -0.1]; // per-voice detune shape in Poly mode
+const UNISON_SPREAD = Array.from({ length: NUM_VOICES }, (_, i) => -1 + (2 * i) / (NUM_VOICES - 1));
+const LFO_SYNC_BEATS = [0, 8, 4, 2, 1, 0.5, 0.25]; // Free, 2 bars, 1 bar, 1/2, 1/4, 1/8, 1/16
+const PUMP_BEATS = [2, 1, 0.5]; // 1/2, 1/4, 1/8
+
+// Filter types (index of 'filter.type')
+const LP12 = 0, LP24 = 1, HP = 2, BP = 3, NOTCH = 4, VOWEL = 5;
+// Vowel formants (Hz) and their relative levels: A E I O U
+const FORMANTS = [
+  [730, 1090, 2440], [530, 1840, 2480], [270, 2290, 3010], [570, 840, 2410], [300, 870, 2240],
+];
+const FORMANT_GAIN = [1, 0.6, 0.4];
+
+// Supersaw: seven saws spread around the note, the centre one loudest.
+const SUPER_OFFSETS = [-1, -0.66, -0.33, 0, 0.33, 0.66, 1];
+const SUPER_GAIN = SUPER_OFFSETS.map((o) => (o === 0 ? 0.55 : 0.32));
+const SUPER_NORM = 1.6 / SUPER_GAIN.reduce((a, b) => a + b, 0);
 
 const midiToHz = (n) => 440 * Math.pow(2, (n - 69) / 12);
 const frac = (x) => x - Math.floor(x);
+const clamp01 = (x) => Math.min(1, Math.max(0, x));
 
 function polyBlep(t, dt) {
   if (t < dt) { t /= dt; return t + t - t * t - 1; }
@@ -33,6 +52,7 @@ const saw = (p, dt) => 2 * p - 1 - polyBlep(p, dt);
 //  Saw: morphs toward a square by subtracting a half-cycle-shifted saw.
 //  Tri: wavefolding.
 //  Sqr: pulse width 50% -> 95%.
+//  (Super is handled separately: it needs seven phases.)
 function osc(wave, p, dt, shape) {
   if (wave === 0) {
     return shape > 0 ? saw(p, dt) - shape * saw(frac(p + 0.5), dt) : saw(p, dt);
@@ -48,6 +68,38 @@ function osc(wave, p, dt, shape) {
   y += polyBlep(p, dt);
   y -= polyBlep(frac(p - pw + 1), dt);
   return y - (2 * pw - 1);
+}
+
+// Seven detuned saws; SHAPE sets the detune spread (up to about +/-0.7 semitones).
+function superSaw(phases, dt, shape) {
+  const spread = Math.pow(shape, 1.5) * 0.04;
+  let y = 0;
+  for (let j = 0; j < 7; j++) {
+    const d = dt * (1 + SUPER_OFFSETS[j] * spread);
+    let ph = phases[j] + d;
+    if (ph >= 1) ph -= 1;
+    phases[j] = ph;
+    y += saw(ph, d) * SUPER_GAIN[j];
+  }
+  return y * SUPER_NORM * 1.35; // about as loud as a single saw
+}
+
+// One step of a topology-preserving state-variable filter. `c` holds
+// [a1, a2, a3] at offset `o`; `st` holds [ic1, ic2] at offset `so`. Returns band (v1)
+// and low (v2) through `out`.
+function svf(x, c, o, st, so, out) {
+  const v3 = x - st[so + 1];
+  const v1 = c[o] * st[so] + c[o + 1] * v3;
+  const v2 = st[so + 1] + c[o + 1] * st[so] + c[o + 2] * v3;
+  st[so] = 2 * v1 - st[so];
+  st[so + 1] = 2 * v2 - st[so + 1];
+  out[0] = v1; out[1] = v2;
+}
+
+function svfCoefs(c, o, fc, sr, k) {
+  const g = Math.tan(Math.PI * fc / sr);
+  const a1 = 1 / (1 + g * (g + k));
+  c[o] = a1; c[o + 1] = g * a1; c[o + 2] = g * g * a1;
 }
 
 class Envelope {
@@ -81,10 +133,14 @@ class Voice {
     this.gate = false;
     this.started = 0;   // allocation order, for voice stealing
     this.p1 = Math.random(); this.p2 = Math.random();
+    this.ss1 = Float64Array.from({ length: 7 }, Math.random); // supersaw phases
+    this.ss2 = Float64Array.from({ length: 7 }, Math.random);
     this.pc = 0; this.pm = 0;
     this.amp = new Envelope();
     this.eg = new Envelope();
-    this.ic1 = 0; this.ic2 = 0; // filter state
+    this.st = new Float64Array(10);  // filter states: main, ladder 2nd stage, 3 formants
+    this.c = new Float64Array(15);   // filter coefficients (same layout)
+    this.k = 2;                      // main filter damping
     // noise state
     this.nLp = 0; this.nBand = 0; this.nLow = 0; this.nHold = 0; this.nCount = 0;
   }
@@ -111,11 +167,16 @@ export class SynthEngine {
     this.arpStep = 0;
     this.arpCount = 0;         // samples until the next step
     this.arpGateCount = 0;     // samples until the current step is released
+    // LFO state (S&H and Drift pick new random values each cycle)
     this.lfoPhase = 0;
+    this.lfoHold = 0; this.lfoPrev = 0; this.lfoNext = Math.random() * 2 - 1;
+    this.pumpPhase = 0;        // position in the pump cycle, reset by the first note
+    this.tick = 0;             // sample counter, for control-rate filter updates
+    this.tmp = new Float64Array(2);
     this.smoothCoef = 1 - Math.exp(-1 / (0.005 * sr));
     this.s = {}; // smoothed copies of continuous params
-    for (const k of ['filter.cutoff', 'filter.resonance', 'filter.drive', 'mixer.vco1', 'mixer.vco2',
-      'mixer.multi', 'vco1.shape', 'vco2.shape', 'multi.shape']) this.s[k] = this.p[k];
+    for (const k of ['filter.cutoff', 'filter.resonance', 'filter.drive', 'filter.vowel', 'mixer.vco1',
+      'mixer.vco2', 'mixer.multi', 'vco1.shape', 'vco2.shape', 'multi.shape', 'pump.depth']) this.s[k] = this.p[k];
     this.updateCoefs();
   }
 
@@ -151,11 +212,25 @@ export class SynthEngine {
     this.egD = decay(p['eg.decay']);
   }
 
+  get beatSamples() { return (this.sr * 60) / this.p['arp.tempo']; }
+
+  // Called whenever a note (or arp step) starts. The first note after silence (or the
+  // first step of an arpeggio) restarts the pump cycle and any tempo-synced LFO, so they
+  // line up with what you play.
+  onTrigger(fromSilence) {
+    if (fromSilence) {
+      this.pumpPhase = 0;
+      if (this.p['lfo.sync'] > 0) this.lfoPhase = 0;
+    }
+    if (this.p['lfo.keysync']) this.lfoPhase = 0;
+  }
+
   // --- Note handling / voice modes ----------------------------------------
   noteOn(key) {
     const mode = this.p['voice.mode'];
     const depth = this.p['voice.depth'];
     if (mode === 0) {
+      this.onTrigger(!this.voices.some((v) => v.gate));
       const v = this.allocate(key);
       v.trigger(key, key, POLY_SPREAD[this.voices.indexOf(v)] * depth * 20, ++this.order);
       return;
@@ -165,13 +240,14 @@ export class SynthEngine {
       if (this.p['arp.latch'] && this.arpDown.size === 0) this.arpNotes = [];
       this.arpDown.add(key);
       if (!this.arpNotes.includes(key)) {
-        if (this.arpNotes.length === 0) { this.arpStep = 0; this.arpCount = 0; } // start on the beat
+        if (this.arpNotes.length === 0) { this.arpStep = 0; this.arpCount = 0; this.arpFresh = true; } // start on the beat
         this.arpNotes.push(key);
       }
       return;
     }
     this.held = this.held.filter((k) => k !== key);
     this.held.push(key);
+    this.onTrigger(!this.voices.some((v) => v.gate));
     this.playMono(key);
   }
 
@@ -193,7 +269,7 @@ export class SynthEngine {
     else for (const v of this.voices) v.release();
   }
 
-  // Unison and Chord modes: all four voices respond to the most recent key.
+  // Unison and Chord modes: the voices respond to the most recent key.
   playMono(key) {
     const mode = this.p['voice.mode'];
     const depth = this.p['voice.depth'];
@@ -239,9 +315,11 @@ export class SynthEngine {
     if (--this.arpCount > 0) return;
 
     const p = this.p;
-    const stepLen = (this.sr * 60) / p['arp.tempo'] / ARP_RATES[p['arp.rate']];
+    const stepLen = this.beatSamples / ARP_RATES[p['arp.rate']];
     this.arpCount = Math.max(1, Math.round(stepLen));
     this.arpRelease();
+    this.onTrigger(this.arpFresh);
+    this.arpFresh = false;
 
     const seq = this.arpSequence();
     const notes = seq[this.arpStep % seq.length];
@@ -293,6 +371,21 @@ export class SynthEngine {
     }
   }
 
+  // --- LFO -----------------------------------------------------------------
+  lfoValue(wave) {
+    const lp = this.lfoPhase;
+    switch (wave) {
+      case 0: return 1 - 2 * lp;                         // saw
+      case 1: return lp < 0.5 ? 4 * lp - 1 : 3 - 4 * lp; // triangle
+      case 2: return lp < 0.5 ? 1 : -1;                   // square
+      case 3: return this.lfoHold;                        // sample & hold
+      default: {                                          // drift: smooth random
+        const t = (1 - Math.cos(Math.PI * lp)) / 2;
+        return this.lfoPrev + (this.lfoNext - this.lfoPrev) * t;
+      }
+    }
+  }
+
   // --- Audio ---------------------------------------------------------------
   render(outL, outR) {
     const p = this.p, s = this.s, sr = this.sr, sm = this.smoothCoef;
@@ -303,34 +396,47 @@ export class SynthEngine {
     const sync = p['vco2.sync'], ring = p['vco2.ring'];
     const multiType = p['multi.type'], noiseType = p['multi.noise'];
     const vpmRatio = VPM_RATIO[p['multi.vpm']];
+    const ftype = p['filter.type'];
     const kt = KEYTRACK[p['filter.keytrack']];
     const egInt = p['eg.int'], egTarget = p['eg.target'];
-    const lfoWave = p['lfo.wave'], lfoInc = p['lfo.rate'] / sr;
+    const lfoWave = p['lfo.wave'];
+    const syncBeats = LFO_SYNC_BEATS[p['lfo.sync']];
+    const lfoInc = (syncBeats ? sr / this.beatSamples / syncBeats : p['lfo.rate']) / sr;
     const lfoInt = p['lfo.int'], lfoTarget = p['lfo.target'];
     const sus = p['ampeg.sustain'];
     const keys = Object.keys(s);
     const arp = p['voice.mode'] === 3;
+    const voiceGain = p['voice.mode'] === 1 ? 0.6 : 1; // Unison stacks all 8 voices
+    const pumpOn = p['pump.on'];
+    const pumpInc = 1 / (this.beatSamples * PUMP_BEATS[p['pump.rate']]);
+    const pumpAttack = Math.min(0.2, 0.004 * sr * pumpInc); // ~4 ms dip, as a fraction of the cycle
+    const pumpRelease = Math.max(0.01, p['pump.release'] * 0.35);
+    const tmp = this.tmp;
 
     for (let i = 0; i < outL.length; i++) {
       if (arp) this.arpTick();
       for (const k of keys) s[k] += (p[k] - s[k]) * sm;
 
       // Global LFO, -1..1
+      const before = this.lfoPhase;
       this.lfoPhase = frac(this.lfoPhase + lfoInc);
-      const lp = this.lfoPhase;
-      const lfo = lfoWave === 0 ? 1 - 2 * lp : lfoWave === 1 ? (lp < 0.5 ? 4 * lp - 1 : 3 - 4 * lp) : (lp < 0.5 ? 1 : -1);
-      const lfoMod = lfo * lfoInt;
+      if (this.lfoPhase < before) { // new cycle: new random values
+        this.lfoHold = Math.random() * 2 - 1;
+        this.lfoPrev = this.lfoNext;
+        this.lfoNext = Math.random() * 2 - 1;
+      }
+      const lfoMod = this.lfoValue(lfoWave) * lfoInt;
       const lfoPitch = lfoTarget === 0 ? lfoMod * 12 : 0;
       const lfoShape = lfoTarget === 1 ? lfoMod : 0;
       const lfoCut = lfoTarget === 2 ? lfoMod * 48 : 0;
 
-      const sh1 = Math.min(1, Math.max(0, s['vco1.shape'] + lfoShape));
-      const sh2 = Math.min(1, Math.max(0, s['vco2.shape'] + lfoShape));
-      const shM = Math.min(1, Math.max(0, s['multi.shape'] + lfoShape));
+      const sh1 = clamp01(s['vco1.shape'] + lfoShape);
+      const sh2 = clamp01(s['vco2.shape'] + lfoShape);
+      const shM = clamp01(s['multi.shape'] + lfoShape);
       const res = s['filter.resonance'];
-      const k = 2 - 1.97 * res;
       const drive = 1 + s['filter.drive'] * 5;
       const driveComp = 1 / Math.tanh(drive);
+      const control = (this.tick++ & 7) === 0; // update filter coefficients every 8 samples
 
       let out = 0;
       for (const v of this.voices) {
@@ -349,13 +455,13 @@ export class SynthEngine {
         v.p1 += dt1;
         let wrapped = false;
         if (v.p1 >= 1) { v.p1 -= 1; wrapped = true; }
-        const o1 = osc(w1, v.p1, dt1, sh1);
+        const o1 = w1 === 3 ? superSaw(v.ss1, dt1, sh1) : osc(w1, v.p1, dt1, sh1);
 
         // VCO 2 (with hard sync to VCO 1 and ring modulation)
         v.p2 += dt2;
         if (v.p2 >= 1) v.p2 -= 1;
         if (sync && wrapped) v.p2 = v.p1 * (dt2 / dt1);
-        let o2 = osc(w2, v.p2, dt2, sh2);
+        let o2 = w2 === 3 ? superSaw(v.ss2, dt2, sh2) : osc(w2, v.p2, dt2, sh2);
         if (ring) o2 *= o1;
 
         // Multi engine
@@ -374,24 +480,68 @@ export class SynthEngine {
         let x = (o1 * s['mixer.vco1'] + o2 * s['mixer.vco2'] + om * s['mixer.multi']) * 0.5;
         if (drive > 1.001) x = Math.tanh(x * drive) * driveComp;
 
-        // 2-pole (12 dB/oct) low-pass, topology-preserving state-variable filter
+        // Filter
         const cutSemis = (v.note - 60) * kt + (egTarget === 0 ? eg * 72 : 0) + lfoCut;
-        const fc = Math.min(nyq, Math.max(20, s['filter.cutoff'] * Math.pow(2, cutSemis / 12)));
-        const g = Math.tan(Math.PI * fc / sr);
-        const a1 = 1 / (1 + g * (g + k));
-        const a2 = g * a1, a3 = g * a2;
-        const v3 = x - v.ic2;
-        const v1 = a1 * v.ic1 + a2 * v3;
-        const v2 = v.ic2 + a2 * v.ic1 + a3 * v3;
-        v.ic1 = 2 * v1 - v.ic1;
-        v.ic2 = 2 * v2 - v.ic2;
+        let y;
+        if (ftype === VOWEL) {
+          // Three resonant band-passes at the formants of a vowel. VOWEL picks the vowel
+          // (EG and LFO "cutoff" modulation sweep it); CUTOFF shifts the formants up or
+          // down like a bigger or smaller voice; RESONANCE narrows them.
+          if (control) {
+            const pos = clamp01(s['filter.vowel'] + (egTarget === 0 ? eg : 0) + lfoCut / 48) * 4;
+            const a = Math.min(3, Math.floor(pos)), t = pos - a;
+            const shift = Math.pow(2, Math.log2(s['filter.cutoff'] / 1000) * 0.25);
+            const kf = 1 / (4 + res * 16);
+            for (let f = 0; f < 3; f++) {
+              const hz = (FORMANTS[a][f] * (1 - t) + FORMANTS[a + 1][f] * t) * shift;
+              svfCoefs(v.c, 6 + f * 3, Math.min(nyq, hz), sr, kf);
+            }
+            v.k = kf;
+          }
+          y = 0;
+          for (let f = 0; f < 3; f++) {
+            svf(x, v.c, 6 + f * 3, v.st, 4 + f * 2, tmp);
+            y += tmp[0] * v.k * FORMANT_GAIN[f];
+          }
+          y *= 7; // narrow band-passes pass little energy; bring it up to match the other types
+        } else {
+          if (control) {
+            const fc = Math.min(nyq, Math.max(20, s['filter.cutoff'] * Math.pow(2, cutSemis / 12)));
+            v.k = 2 - 1.97 * res;
+            svfCoefs(v.c, 0, fc, sr, v.k);
+            if (ftype === LP24) svfCoefs(v.c, 3, fc, sr, 1.414);
+          }
+          if (ftype === LP24) {
+            // Ladder-style 24 dB: a gentle first stage into the resonant one, with input
+            // saturation and some bass make-up as resonance rises.
+            svf(Math.tanh(x * 1.5) / 1.2, v.c, 3, v.st, 2, tmp);
+            svf(tmp[1], v.c, 0, v.st, 0, tmp);
+            y = tmp[1] * (1 + res * 0.8);
+          } else {
+            svf(x, v.c, 0, v.st, 0, tmp);
+            const band = tmp[0], low = tmp[1];
+            y = ftype === HP ? x - v.k * band - low
+              : ftype === BP ? band * v.k * 1.3
+              : ftype === NOTCH ? x - v.k * band
+              : low;
+          }
+        }
 
-        out += v2 * amp;
+        out += y * amp;
       }
 
-      const y = Math.tanh(out * 0.6);
-      outL[i] = y;
-      if (outR) outR[i] = y;
+      // Pump: duck the output at the start of each beat and let it swell back.
+      if (pumpOn) {
+        this.pumpPhase += pumpInc;
+        if (this.pumpPhase >= 1) this.pumpPhase -= 1;
+        const ph = this.pumpPhase;
+        const dip = ph < pumpAttack ? ph / pumpAttack : Math.exp(-(ph - pumpAttack) / pumpRelease);
+        out *= 1 - s['pump.depth'] * dip;
+      }
+
+      const yOut = Math.tanh(out * 0.6 * voiceGain);
+      outL[i] = yOut;
+      if (outR) outR[i] = yOut;
     }
   }
 

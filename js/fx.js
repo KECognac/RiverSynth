@@ -1,5 +1,7 @@
-// Effects chain (main thread, built from native Web Audio nodes):
-//   Mod FX (chorus / ensemble / phaser / flanger) -> Delay -> Reverb
+// Effects chain (main thread, built from Web Audio nodes):
+//   Crush -> Mod FX (chorus / ensemble / phaser / flanger) -> Delay -> Reverb
+// The bitcrusher and the shimmer reverb's pitch shifter run as AudioWorklets
+// (js/worklet/fx-processors.js).
 // Each unit has an input, an output, a dry path and a wet path.
 
 class FXUnit {
@@ -21,7 +23,7 @@ class FXUnit {
     this.p[key] = value;
     if (key === 'type' && value !== prev && this.built) this.rebuild();
     else if (key === 'on' && value && !this.built) this.rebuild();
-    else if (this.built && (key === 'time' || key === 'depth')) this.update();
+    else if (this.built && key !== 'on' && key !== 'type' && key !== 'mix') this.update();
     this.applyMix();
   }
 
@@ -40,9 +42,12 @@ class FXUnit {
   rebuild() {
     for (const n of this.parts) {
       try { n.stop?.(); } catch { /* not started */ }
+      n.port?.postMessage('end'); // let worklet processors shut down
       n.disconnect();
     }
     this.parts = [];
+    this.input.disconnect(); // drop links into the old nodes, keep the dry path
+    this.input.connect(this.dry);
     this.build();
     this.built = true;
     this.update();
@@ -182,15 +187,38 @@ const REVERB_TYPES = [
   { len: 2.2, pre: 0, bright: 12000, dark: 4000, early: 0 },         // Plate
   { len: 3.0, pre: 0, bright: 9000, dark: 3000, early: 0, rise: 1 }, // Riser
   { len: 1.8, pre: 0.004, bright: 4500, dark: 1800, early: 0, spring: 1 }, // Spring
+  { len: 4.0, pre: 0.02, bright: 9000, dark: 4000, early: 0, shimmer: 1 }, // Shimmer
 ];
 
 export class ReverbFX extends FXUnit {
   build() {
-    this.conv = this.node(this.ctx.createConvolver());
-    this.input.connect(this.conv).connect(this.wet);
+    const ctx = this.ctx;
+    this.conv = this.node(ctx.createConvolver());
+    this.fb = null;
+    if (!REVERB_TYPES[this.p.type].shimmer) {
+      this.input.connect(this.conv).connect(this.wet);
+      return;
+    }
+    // Shimmer: the reverb's output is pitched up an octave and fed back into it, so
+    // each pass rises higher as it fades. Filters in the loop keep it from building up mud
+    // or harshness; TONE sets how much is fed back.
+    const sum = this.node(ctx.createGain());
+    this.input.connect(sum).connect(this.conv).connect(this.wet);
+    const hp = this.node(ctx.createBiquadFilter());
+    hp.type = 'highpass'; hp.frequency.value = 250;
+    const lp = this.node(ctx.createBiquadFilter());
+    lp.type = 'lowpass'; lp.frequency.value = 7000;
+    const shift = this.node(new AudioWorkletNode(ctx, 'pitch-shift', {
+      numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2],
+    }));
+    this.fb = this.node(ctx.createGain());
+    const loopDelay = this.node(ctx.createDelay(0.1));
+    loopDelay.delayTime.value = 0.03;
+    this.conv.connect(hp).connect(lp).connect(shift).connect(this.fb).connect(loopDelay).connect(sum);
   }
 
   update() {
+    if (this.fb) this.fb.gain.setTargetAtTime(0.2 + this.p.depth * 0.4, this.ctx.currentTime, 0.05);
     clearTimeout(this.timer); // regenerate at most every 120 ms while a knob turns
     this.timer = setTimeout(() => { this.conv.buffer = this.makeIR(); }, this.conv.buffer ? 120 : 0);
   }
@@ -305,5 +333,22 @@ export class RiverRoar {
     const now = this.ctx.currentTime;
     for (const p of [this.vca.gain, this.lp1.frequency, this.lp2.frequency]) p.cancelScheduledValues(now);
     this.vca.gain.setTargetAtTime(0, now, 0.3);
+  }
+}
+
+// --- Crush ---------------------------------------------------------------------
+// Bit-depth and sample-rate reduction for lo-fi, chiptune and "data" textures.
+export class CrushFX extends FXUnit {
+  build() {
+    this.crusher = this.node(new AudioWorkletNode(this.ctx, 'crusher', {
+      numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2],
+    }));
+    this.input.connect(this.crusher).connect(this.wet);
+  }
+
+  update() {
+    const t = this.ctx.currentTime;
+    this.crusher.parameters.get('bits').setValueAtTime(this.p.bits ?? 8, t);
+    this.crusher.parameters.get('down').setValueAtTime(this.p.rate ?? 4, t);
   }
 }

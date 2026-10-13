@@ -162,7 +162,7 @@ kbd {
 }
 .section-filter { --sec-bg: var(--moog-red); --sec-fg: #fff; --sec-arc: var(--moog-yellow); }
 .section-ampeg, .section-eg { --sec-bg: var(--moog-yellow); --sec-fg: var(--text); --sec-arc: var(--moog-red); }
-.section-lfo, .section-voice { --sec-bg: var(--moog-green); --sec-fg: #fff; --sec-arc: var(--moog-yellow); }
+.section-lfo, .section-voice, .section-pump { --sec-bg: var(--moog-green); --sec-fg: #fff; --sec-arc: var(--moog-yellow); }
 
 .section h2 {
   margin: 0 0 8px;
@@ -313,3 +313,4 @@ kbd {
   .key .hint { display: none; }
 }
 #data-gauge { max-width: 280px; }
+.record[aria-pressed="true"] { background: var(--moog-red); border-color: #8f2618; color: #fff; font-variant-numeric: tabular-nums; }

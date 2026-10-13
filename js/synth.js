@@ -6,7 +6,8 @@
 //   synth.noteOn(note), synth.noteOff(note), synth.setParam(id, value)
 
 import { defaultValues, isFxParam } from './params.js';
-import { ModFX, DelayFX, ReverbFX, RiverRoar } from './fx.js';
+import { CrushFX, ModFX, DelayFX, ReverbFX, RiverRoar } from './fx.js';
+import { Recorder } from './recorder.js';
 
 export class Synth {
   constructor() {
@@ -23,13 +24,14 @@ export class Synth {
     const ctx = new AudioContext({ latencyHint: 'interactive' });
     this.ctx = ctx;
     await ctx.audioWorklet.addModule(new URL('./worklet/synth-processor.js', import.meta.url));
+    await ctx.audioWorklet.addModule(new URL('./worklet/fx-processors.js', import.meta.url));
     this.node = new AudioWorkletNode(ctx, 'synth-processor', {
       numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2],
     });
 
     this.analyser = ctx.createAnalyser();
     this.analyser.fftSize = 4096;
-    this.fx = { mod: new ModFX(ctx), delay: new DelayFX(ctx), reverb: new ReverbFX(ctx) };
+    this.fx = { crush: new CrushFX(ctx), mod: new ModFX(ctx), delay: new DelayFX(ctx), reverb: new ReverbFX(ctx) };
     this.master = ctx.createGain();
     const limiter = ctx.createDynamicsCompressor();
     limiter.threshold.value = -3;
@@ -39,12 +41,14 @@ export class Synth {
     limiter.release.value = 0.1;
 
     this.node.connect(this.analyser);
-    this.node.connect(this.fx.mod.input);
+    this.node.connect(this.fx.crush.input);
+    this.fx.crush.output.connect(this.fx.mod.input);
     this.fx.mod.output.connect(this.fx.delay.input);
     this.fx.delay.output.connect(this.fx.reverb.input);
     this.fx.reverb.output.connect(this.master).connect(limiter).connect(ctx.destination);
     // The data player's rushing-water layer joins before the reverb, so it shares the room.
     this.roar = new RiverRoar(ctx, this.fx.reverb.input);
+    this.recorder = new Recorder(ctx, limiter);
 
     this.setParams(this.values);
     for (const msg of this.pending ?? []) this.node.port.postMessage(msg);

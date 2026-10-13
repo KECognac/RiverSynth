@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SynthWork</title>
-  <meta name="description" content="A 4-voice browser synthesizer modelled on the KORG minilogue.">
+  <meta name="description" content="An 8-voice browser synthesizer inspired by the KORG minilogue and Moog Grandmother, with river-data sonification.">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,7 +15,7 @@
           <span class="led"></span>
         </button>
         <h1>SynthWork</h1>
-        <span class="sub">4-voice polyphonic synthesizer</span>
+        <span class="sub">8-voice polyphonic synthesizer</span>
       </div>
 
       <div class="display">
@@ -36,6 +36,7 @@
           <button id="export-preset" type="button">Export</button>
           <label class="button">Import<input id="import-preset" type="file" accept=".json,application/json" hidden></label>
           <button id="panic" type="button" title="Stop all notes">Panic</button>
+          <button id="record" type="button" class="record" aria-pressed="false" title="Record the output to a WAV file">● Rec</button>
         </div>
       </div>
     </header>

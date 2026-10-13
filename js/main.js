@@ -50,7 +50,7 @@ function refreshVisibility() {
 // Keep the panel in sync with any change, including presets and code.
 synth.listeners.add((id, v) => {
   controls[id]?.set(v);
-  if (id === 'multi.type' || id === 'voice.mode') refreshVisibility();
+  if (PARAMS[id]?.choices) refreshVisibility(); // switches can show or hide other controls
 });
 refreshVisibility();
 
@@ -166,6 +166,38 @@ function ensureAudio() {
   return starting;
 }
 power.addEventListener('click', () => ensureAudio());
+
+// --- Record to WAV -----------------------------------------------------------------
+const recBtn = $('#record');
+let recTimer = null;
+recBtn.addEventListener('click', async () => {
+  await ensureAudio();
+  const rec = synth.recorder;
+  if (!rec) return;
+  if (!rec.recording) {
+    rec.start();
+    recBtn.setAttribute('aria-pressed', 'true');
+    const tick = () => {
+      const secs = Math.floor(synth.ctx.currentTime - rec.startedAt);
+      recBtn.textContent = `■ ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+    };
+    tick();
+    recTimer = setInterval(tick, 250);
+    return;
+  }
+  clearInterval(recTimer);
+  recBtn.setAttribute('aria-pressed', 'false');
+  recBtn.textContent = '● Rec';
+  const blob = await rec.stop();
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  const name = (presetName.value.trim() || 'synthwork').replace(/[^\w-]+/g, '_');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${name}-${stamp}.wav`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  scope.show('Saved recording', a.download);
+});
 
 // --- River data player -----------------------------------------------------------
 const player = new DataPlayer(synth, ensureAudio);

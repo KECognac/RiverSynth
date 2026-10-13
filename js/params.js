@@ -11,6 +11,14 @@ const pct = (v) => `${Math.round(v * 100)}%`;
 const bipct = (v) => `${v > 0 ? '+' : ''}${Math.round(v * 100)}%`;
 const cents = (v) => `${v > 0 ? '+' : ''}${Math.round(v)} ¢`;
 
+const VOWELS = ['A', 'E', 'I', 'O', 'U'];
+function vowelName(v) {
+  const pos = v * 4, a = Math.min(3, Math.floor(pos)), t = pos - a;
+  if (t < 0.15) return VOWELS[a];
+  if (t > 0.85) return VOWELS[a + 1];
+  return `${VOWELS[a]}→${VOWELS[a + 1]}`;
+}
+
 export const CHORDS = [
   ['5th', [0, 7]],
   ['sus2', [0, 2, 7]],
@@ -46,12 +54,12 @@ export const ARP_RATES = [1, 2, 3, 4, 6, 8]; // steps per beat for each 'arp.rat
 
 export const PARAMS = {
   // --- Oscillators ---------------------------------------------------------
-  'vco1.wave':   { label: 'Wave', choices: ['Saw', 'Tri', 'Sqr'], def: 0 },
+  'vco1.wave':   { label: 'Wave', choices: ['Saw', 'Tri', 'Sqr', 'Super'], def: 0 }, // Super: 7 detuned saws, Shape = detune
   'vco1.octave': { label: 'Octave', choices: ["16'", "8'", "4'", "2'"], def: 1 },
   'vco1.pitch':  { label: 'Pitch', min: -1200, max: 1200, def: 0, curve: 'lin', fmt: cents },
   'vco1.shape':  { label: 'Shape', min: 0, max: 1, def: 0, curve: 'lin', fmt: pct },
 
-  'vco2.wave':   { label: 'Wave', choices: ['Saw', 'Tri', 'Sqr'], def: 0 },
+  'vco2.wave':   { label: 'Wave', choices: ['Saw', 'Tri', 'Sqr', 'Super'], def: 0 },
   'vco2.octave': { label: 'Octave', choices: ["16'", "8'", "4'", "2'"], def: 1 },
   'vco2.pitch':  { label: 'Pitch', min: -1200, max: 1200, def: 0, curve: 'lin', fmt: cents },
   'vco2.shape':  { label: 'Shape', min: 0, max: 1, def: 0, curve: 'lin', fmt: pct },
@@ -73,6 +81,8 @@ export const PARAMS = {
   'filter.resonance': { label: 'Resonance', min: 0, max: 1, def: 0.1, curve: 'lin', fmt: pct },
   'filter.drive':     { label: 'Drive', min: 0, max: 1, def: 0, curve: 'lin', fmt: pct },
   'filter.keytrack':  { label: 'Key Track', choices: ['0%', '50%', '100%'], def: 1 },
+  'filter.type':      { label: 'Type', choices: ['LP 12', 'LP 24', 'HP', 'BP', 'Notch', 'Vowel'], def: 0 },
+  'filter.vowel':     { label: 'Vowel', min: 0, max: 1, def: 0, curve: 'lin', fmt: (v) => vowelName(v) },
 
   // --- Envelopes -----------------------------------------------------------
   'ampeg.attack':  { label: 'Attack', min: 0.001, max: 10, def: 0.005, curve: 'exp', fmt: sec },
@@ -86,10 +96,12 @@ export const PARAMS = {
   'eg.target': { label: 'Target', choices: ['Cutoff', 'Pitch 2', 'Pitch'], def: 0 },
 
   // --- LFO -----------------------------------------------------------------
-  'lfo.wave':   { label: 'Wave', choices: ['Saw', 'Tri', 'Sqr'], def: 1 },
+  'lfo.wave':   { label: 'Wave', choices: ['Saw', 'Tri', 'Sqr', 'S&H', 'Drift'], def: 1 },
   'lfo.rate':   { label: 'Rate', min: 0.05, max: 30, def: 2, curve: 'exp', fmt: hz },
   'lfo.int':    { label: 'Int', min: -1, max: 1, def: 0, curve: 'lin', fmt: bipct },
   'lfo.target': { label: 'Target', choices: ['Pitch', 'Shape', 'Cutoff'], def: 2 },
+  'lfo.sync':   { label: 'Sync', choices: ['Free', '2 bars', '1 bar', '1/2', '1/4', '1/8', '1/16'], def: 0 },
+  'lfo.keysync': { label: 'Key Sync', toggle: true, def: 0 },
 
   // --- Voice mode ----------------------------------------------------------
   'voice.mode':  { label: 'Mode', choices: ['Poly', 'Unison', 'Chord', 'Arp'], def: 0 },
@@ -115,12 +127,24 @@ export const PARAMS = {
   'delay.mix':   { label: 'Mix', min: 0, max: 1, def: 0.3, curve: 'lin', fmt: pct },
 
   'reverb.on':    { label: 'On', toggle: true, def: 0 },
-  'reverb.type':  { label: 'Type', choices: ['Hall', 'Room', 'Plate', 'Riser', 'Spring'], def: 0 },
+  'reverb.type':  { label: 'Type', choices: ['Hall', 'Room', 'Plate', 'Riser', 'Spring', 'Shimmer'], def: 0 }, // Shimmer: Tone = shimmer amount
   'reverb.time':  { label: 'Decay', min: 0, max: 1, def: 0.5, curve: 'lin', fmt: pct },
   'reverb.depth': { label: 'Tone', min: 0, max: 1, def: 0.5, curve: 'lin', fmt: pct },
   'reverb.mix':   { label: 'Mix', min: 0, max: 1, def: 0.3, curve: 'lin', fmt: pct },
 
   'master.volume': { label: 'Volume', min: 0, max: 1, def: 0.7, curve: 'lin', fmt: pct },
+
+  // --- Pump: tempo-synced sidechain-style ducking ---------------------------------
+  'pump.on':      { label: 'On', toggle: true, def: 0 },
+  'pump.rate':    { label: 'Rate', choices: ['1/2', '1/4', '1/8'], def: 1 },
+  'pump.depth':   { label: 'Depth', min: 0, max: 1, def: 0.6, curve: 'lin', fmt: pct },
+  'pump.release': { label: 'Release', min: 0.05, max: 1, def: 0.5, curve: 'lin', fmt: pct },
+
+  // --- Crush: bitcrusher / sample-rate reducer ----------------------------------
+  'crush.on':   { label: 'On', toggle: true, def: 0 },
+  'crush.bits': { label: 'Bits', min: 1, max: 16, def: 8, curve: 'lin', fmt: (v) => `${v.toFixed(1)} bit` },
+  'crush.rate': { label: 'Downsample', min: 1, max: 40, def: 4, curve: 'exp', fmt: (v) => `÷${v.toFixed(1)}` },
+  'crush.mix':  { label: 'Mix', min: 0, max: 1, def: 0.8, curve: 'lin', fmt: pct },
 };
 
 // Voice-mode depth means something different in each mode.
@@ -141,17 +165,28 @@ export const SECTIONS = [
     showIf: { 'multi.noise': (v) => v['multi.type'] === 0, 'multi.vpm': (v) => v['multi.type'] === 1 },
   },
   { id: 'mixer', title: 'Mixer', controls: ['mixer.vco1', 'mixer.vco2', 'mixer.multi'] },
-  { id: 'filter', title: 'Filter', controls: ['filter.cutoff', 'filter.resonance', 'filter.drive', 'filter.keytrack'] },
+  {
+    id: 'filter', title: 'Filter',
+    controls: ['filter.type', 'filter.cutoff', 'filter.resonance', 'filter.drive', 'filter.vowel', 'filter.keytrack'],
+    showIf: { 'filter.vowel': (v) => v['filter.type'] === 5 },
+  },
   { id: 'ampeg', title: 'Amp EG', controls: ['ampeg.attack', 'ampeg.decay', 'ampeg.sustain', 'ampeg.release'] },
   { id: 'eg', title: 'EG', controls: ['eg.attack', 'eg.decay', 'eg.int', 'eg.target'] },
-  { id: 'lfo', title: 'LFO', controls: ['lfo.wave', 'lfo.rate', 'lfo.int', 'lfo.target'] },
+  {
+    id: 'lfo', title: 'LFO',
+    controls: ['lfo.wave', 'lfo.sync', 'lfo.rate', 'lfo.int', 'lfo.target', 'lfo.keysync'],
+    showIf: { 'lfo.rate': (v) => v['lfo.sync'] === 0 },
+  },
   {
     id: 'voice', title: 'Voice Mode',
-    controls: ['voice.mode', 'voice.depth', 'arp.latch', 'arp.tempo', 'arp.rate', 'arp.gate'],
-    showIf: Object.fromEntries(['arp.latch', 'arp.tempo', 'arp.rate', 'arp.gate']
+    controls: ['voice.mode', 'voice.depth', 'arp.latch', 'arp.rate', 'arp.gate'],
+    showIf: Object.fromEntries(['arp.latch', 'arp.rate', 'arp.gate']
       .map((id) => [id, (v) => v['voice.mode'] === 3])),
   },
-  { id: 'master', title: 'Master', controls: ['master.volume'] },
+  { id: 'pump', title: 'Pump', controls: ['pump.on', 'pump.rate', 'pump.depth', 'pump.release'] },
+  // Tempo is global: it drives the arpeggiator, tempo-synced LFO and the pump.
+  { id: 'master', title: 'Master', controls: ['master.volume', 'arp.tempo'] },
+  { id: 'crush', title: 'Crush', controls: ['crush.on', 'crush.bits', 'crush.rate', 'crush.mix'] },
   { id: 'mod', title: 'Mod FX', controls: ['mod.on', 'mod.type', 'mod.time', 'mod.depth', 'mod.mix'] },
   { id: 'delay', title: 'Delay', controls: ['delay.on', 'delay.type', 'delay.time', 'delay.depth', 'delay.mix'] },
   { id: 'reverb', title: 'Reverb', controls: ['reverb.on', 'reverb.type', 'reverb.time', 'reverb.depth', 'reverb.mix'] },
@@ -184,4 +219,4 @@ export function formatValue(id, v, all) {
 }
 
 // Which params are handled by the main-thread effects chain vs. the voice engine.
-export const isFxParam = (id) => /^(mod|delay|reverb|master)\./.test(id);
+export const isFxParam = (id) => /^(crush|mod|delay|reverb|master)\./.test(id);

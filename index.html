@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SynthWork</title>
+  <meta name="description" content="A 4-voice browser synthesizer modelled on the KORG minilogue.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="synth">
+    <header class="topbar">
+      <div class="brand">
+        <button id="power" class="power" type="button" aria-pressed="false" title="Start audio">
+          <span class="led"></span>
+        </button>
+        <h1>SynthWork</h1>
+        <span class="sub">4-voice polyphonic synthesizer</span>
+      </div>
+
+      <div class="display">
+        <canvas id="scope" aria-label="Oscilloscope"></canvas>
+        <div id="readout" class="readout" aria-live="polite"></div>
+        <div class="hint-start">Press a key or click the power button to start audio</div>
+      </div>
+
+      <div class="programs">
+        <label for="preset" class="small">Program</label>
+        <select id="preset"></select>
+        <div class="row">
+          <input id="preset-name" type="text" value="Init Program" aria-label="Preset name" maxlength="40">
+          <button id="save-preset" type="button">Save</button>
+          <button id="delete-preset" type="button" disabled>Delete</button>
+        </div>
+        <div class="row">
+          <button id="export-preset" type="button">Export</button>
+          <label class="button">Import<input id="import-preset" type="file" accept=".json,application/json" hidden></label>
+          <button id="panic" type="button" title="Stop all notes">Panic</button>
+        </div>
+      </div>
+    </header>
+
+    <div id="panel" class="panel"></div>
+
+    <section class="keyboard-area">
+      <div class="kb-controls">
+        <button id="oct-down" type="button" title="Octave down (Z)">−</button>
+        <div class="oct"><span class="small">Octave</span><strong id="octave">C4</strong></div>
+        <button id="oct-up" type="button" title="Octave up (X)">+</button>
+        <p class="small kb-help">Play with <kbd>A</kbd>–<kbd>'</kbd> (black keys on <kbd>W</kbd> <kbd>E</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> <kbd>O</kbd> <kbd>P</kbd>) · <kbd>Z</kbd>/<kbd>X</kbd> octave · drag or double-click knobs, hold <kbd>Shift</kbd> for fine control</p>
+      </div>
+      <div id="keys" class="keys" role="group" aria-label="Piano keyboard"></div>
+    </section>
+  </main>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

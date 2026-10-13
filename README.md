@@ -51,7 +51,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | Tempo | One global tempo (Master section) for the arpeggiator, synced LFO and pump |
 | Effects | **Crush:** bit depth + downsampling · **Distortion:** Tube, Fuzz, Fold · **Tape:** wow & flutter · **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser, Spring, **Shimmer** (octave-up feedback; Tone = shimmer amount) |
 | Display | Live oscilloscope with a readout of the parameter you're changing |
-| Programs | 32 factory presets, unlimited user presets, JSON export/import |
+| Programs | 37 factory presets, unlimited user presets, JSON export/import |
 | Record | **● Rec** saves the output (keyboard, data player, everything) as a WAV file |
 | River Data | Play any USGS stream gauge's daily discharge as notes (see below) |
 

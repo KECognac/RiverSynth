@@ -396,6 +396,89 @@ export const FACTORY = [
       'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.35,
     },
   },
+  // --- Inspired by Four Tet, "There Is Love in You" (2010) and nearby work -----------
+  {
+    // "Angel Echoes": a chopped, pitched vocal fragment swimming in echoes. A soft supersaw
+    // through the vowel filter ("ah" toward "eh"), a quick vowel move on each note, a synced
+    // sample-and-hold LFO for small chopped vowel jumps, tape wobble and long ping-pong echoes.
+    name: 'Angel Echoes Vox',
+    values: {
+      'arp.tempo': 124,
+      'vco1.wave': 3, 'vco1.shape': 0.25, 'mixer.vco1': 0.7,
+      'vco2.wave': 1, 'vco2.octave': 2, 'mixer.vco2': 0.25,
+      'filter.type': 5, 'filter.vowel': 0.1, 'filter.cutoff': 1400, 'filter.resonance': 0.55,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.25, 'eg.int': 0.15,
+      'ampeg.attack': 0.01, 'ampeg.decay': 0.5, 'ampeg.sustain': 0.6, 'ampeg.release': 0.35,
+      'lfo.wave': 3, 'lfo.sync': 5, 'lfo.int': 0.12, 'lfo.target': 2, 'lfo.keysync': 1,
+      'tape.on': 1, 'tape.wow': 0.35, 'tape.flutter': 0.2, 'tape.mix': 1,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.363, 'delay.depth': 0.5, 'delay.mix': 0.35, // dotted 1/8 at 124
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.6, 'reverb.mix': 0.3,
+    },
+  },
+  {
+    // "Sing": glassy, slightly metallic plucks. A low-index FM "metal" tone plus a soft
+    // triangle and a faint high pulse glint, a quick filter pluck, drifting pitch, ping-pong
+    // eighths, tape and a touch of bitcrush grit.
+    name: 'Sing Plucks',
+    values: {
+      'arp.tempo': 124,
+      'multi.type': 1, 'multi.vpm': 3, 'multi.shape': 0.22, 'mixer.multi': 0.7,
+      'vco1.wave': 1, 'vco1.octave': 2, 'vco1.shape': 0.15, 'mixer.vco1': 0.45,
+      'vco2.wave': 2, 'vco2.octave': 3, 'vco2.shape': 0.7, 'mixer.vco2': 0.1,
+      'filter.cutoff': 5000, 'filter.keytrack': 2,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.12, 'eg.int': 0.25,
+      'ampeg.attack': 0.001, 'ampeg.decay': 0.7, 'ampeg.sustain': 0, 'ampeg.release': 0.6,
+      'lfo.wave': 4, 'lfo.rate': 0.4, 'lfo.int': 0.01, 'lfo.target': 0,
+      'crush.on': 1, 'crush.bits': 11, 'crush.rate': 2, 'crush.mix': 0.35,
+      'tape.on': 1, 'tape.wow': 0.2, 'tape.flutter': 0.15, 'tape.mix': 1,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.242, 'delay.depth': 0.4, 'delay.mix': 0.3, // 1/8 at 124
+      'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.35, 'reverb.mix': 0.25,
+    },
+  },
+  {
+    // Gamelan-like bells ("Plastic People"): two triangles ring-modulated at a non-integer
+    // ratio for inharmonic, gong-ish partials, plus a soft FM bell, slow beating drift.
+    name: 'Plastic People Gamelan',
+    values: {
+      'vco1.wave': 1, 'vco1.octave': 2, 'mixer.vco1': 0.7,
+      'vco2.wave': 1, 'vco2.octave': 3, 'vco2.pitch': 386, 'vco2.ring': 1, 'mixer.vco2': 0.5,
+      'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.15, 'mixer.multi': 0.4,
+      'filter.cutoff': 6000, 'filter.keytrack': 2,
+      'ampeg.attack': 0.001, 'ampeg.decay': 1.6, 'ampeg.sustain': 0, 'ampeg.release': 1.4,
+      'lfo.wave': 4, 'lfo.rate': 0.5, 'lfo.int': 0.008, 'lfo.target': 0,
+      'tape.on': 1, 'tape.wow': 0.15, 'tape.flutter': 0.1, 'tape.mix': 1,
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.5, 'reverb.mix': 0.3,
+    },
+  },
+  {
+    // Hammered dulcimer (in the spirit of "Two Thousand and Seventeen"): a bright folded
+    // triangle doubled by a slightly detuned saw like paired strings, a sharp hammer of
+    // filter envelope, long natural decay, a little room.
+    name: 'Hammered Dulcimer',
+    values: {
+      'vco1.wave': 1, 'vco1.shape': 0.25, 'mixer.vco1': 0.95,
+      'vco2.wave': 0, 'vco2.pitch': 7, 'mixer.vco2': 0.45,
+      'filter.cutoff': 1800, 'filter.resonance': 0.15, 'filter.keytrack': 2,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.18, 'eg.int': 0.45,
+      'ampeg.attack': 0.001, 'ampeg.decay': 1.4, 'ampeg.sustain': 0, 'ampeg.release': 1.2,
+      'delay.on': 1, 'delay.type': 0, 'delay.time': 0.3, 'delay.depth': 0.2, 'delay.mix': 0.15,
+      'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.45, 'reverb.mix': 0.3,
+      'master.volume': 0.95,
+    },
+  },
+  {
+    // Warm, round bass ("Love Cry"): triangle plus a soft pulse an octave down through the
+    // saturating 24 dB ladder, a gentle filter thump, and tape for warmth.
+    name: 'Love Cry Sub',
+    values: {
+      'vco1.wave': 1, 'vco1.octave': 0, 'mixer.vco1': 0.9,
+      'vco2.wave': 2, 'vco2.octave': 0, 'vco2.shape': 0.3, 'mixer.vco2': 0.25,
+      'filter.type': 1, 'filter.cutoff': 500, 'filter.resonance': 0.2, 'filter.drive': 0.35,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.25, 'eg.int': 0.2,
+      'ampeg.attack': 0.003, 'ampeg.decay': 0.8, 'ampeg.sustain': 0.7, 'ampeg.release': 0.2,
+      'tape.on': 1, 'tape.wow': 0.1, 'tape.flutter': 0.05, 'tape.mix': 1,
+    },
+  },
   {
     name: 'FM Bells',
     values: {

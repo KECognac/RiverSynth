@@ -174,6 +174,46 @@ kbd {
 
 .toggle button { display: flex; align-items: center; gap: 6px; font-size: 11px; padding: 4px 8px; }
 
+/* --- River data -------------------------------------------------------------- */
+.data-area {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.data-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.data-head h2 {
+  margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--accent);
+}
+.data-status { margin: 0; text-transform: none; letter-spacing: 0; }
+.data-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 12px; }
+.data-row label:not(.button) {
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+}
+.data-row label.check { flex-direction: row; align-items: center; gap: 6px; padding-bottom: 6px; }
+.data-row input[type="text"], .data-row input[type="number"], .data-row input[type="date"], .data-row select {
+  padding: 4px 6px; text-transform: none; letter-spacing: 0;
+}
+.data-row input[type="number"] { width: 5em; }
+.data-row input[type="range"] { width: 90px; accent-color: var(--accent); }
+.data-row input[type="checkbox"] { accent-color: var(--accent); margin: 0; }
+.data-row .divider { width: 1px; align-self: stretch; background: #34363b; }
+.play { min-width: 84px; }
+.play[aria-pressed="true"] { background: var(--accent-dim); border-color: var(--accent); }
+.data-chart-wrap { position: relative; }
+#data-chart {
+  display: block; width: 100%; height: 120px;
+  border: 2px solid #000; border-radius: 6px; cursor: pointer; touch-action: none;
+}
+.data-now {
+  position: absolute; top: 6px; right: 10px;
+  font: 12px ui-monospace, Menlo, monospace; color: var(--screen-text);
+  pointer-events: none;
+}
+
 /* --- Keyboard -------------------------------------------------------------- */
 .keyboard-area {
   background: var(--panel);
@@ -213,6 +253,8 @@ kbd {
 }
 .key.white.down { background: #ffc7a8; }
 .key.black.down { background: var(--accent); }
+.key.white.data { background: #c8f1ff; }
+.key.black.data { background: #3d8fae; }
 .key .hint { font: 10px ui-monospace, Menlo, monospace; }
 .key .name { font-size: 10px; color: #44423d; }
 

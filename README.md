@@ -42,6 +42,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | Effects | **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser |
 | Display | Live oscilloscope with a readout of the parameter you're changing |
 | Programs | 12 factory presets, unlimited user presets, JSON export/import |
+| River Data | Play any USGS stream gauge's daily discharge as notes (see below) |
 
 ### Planned next
 
@@ -49,7 +50,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 - Joystick (pitch bend / modulation)
 - User oscillator and effect slots
 - MIDI keyboard input (Web MIDI)
-- **Data player:** load a streamflow CSV and map it onto notes and parameters
+- Map data onto other parameters too (e.g. flow → filter cutoff)
 
 ## Code layout
 
@@ -64,6 +65,8 @@ js/synth.js                     ties it together; the one API every input uses
 js/presets.js                   factory presets and saved user presets
 js/ui/                          knobs and switches, keyboard, oscilloscope
 js/main.js                      builds the page and connects everything
+js/data/usgs.js                 fetch USGS daily values in the browser; parse CSVs
+js/data/player.js               data → notes mapping, scheduler and chart
 data_helper/                    Python: fetch USGS data for sonification
 ```
 
@@ -78,6 +81,29 @@ synth.setParam('filter.cutoff', 1200);  // any id from js/params.js
 
 You can try these in the browser's developer console, where the synth is available as
 `window.synth`.
+
+## River Data: play a stream gauge
+
+The **River Data** panel loads daily mean discharge for any USGS gauge, straight from the
+[USGS Water Data API](https://api.waterdata.usgs.gov) in the browser. No Python is needed for
+this part. It starts with the **Cache la Poudre River at Fort Collins, CO (06752260)** for 2024.
+
+- Each day becomes one step. Flow is rescaled to 0–1 over the whole period (log scale by
+  default, so low flows still move) and mapped onto the notes of the chosen **Scale** and
+  **Key** between **Low** and **High**.
+- **Tempo** and **Step** set the speed (at 120 BPM in 1/16 steps, a year of data plays in about
+  46 seconds). **Gate** sets note length, and **Tie repeats** holds a note while the flow stays
+  on the same pitch.
+- Click the chart to move the playhead. Notes play through the current program and voice mode,
+  so Chord or Arp mode turn each day into a chord or an arpeggio.
+- **Load CSV** accepts files from the Python helper below, or any CSV with a date column and a
+  value column.
+
+Notes from the data are scheduled with exact audio-clock times
+(`synth.noteOn(note, velocity, time)`), so playback stays in time.
+
+Note: the better-known *Cache la Poudre at Mouth of Canyon* gauge (06752000) has no USGS daily
+discharge for recent years, which is why the Fort Collins gauge is the default.
 
 ## USGS streamflow helper (Python)
 

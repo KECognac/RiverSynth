@@ -1,0 +1,242 @@
+// Data player: turns a daily time series into notes and plays them through the synth.
+//
+// Each data point is one step. Its value is rescaled to 0..1 over the whole series
+// (log or linear), then mapped onto the notes of a scale between a low and high note.
+// Notes are scheduled slightly ahead with exact AudioContext times, so timing stays
+// steady even if the page is busy.
+
+export const SCALES = {
+  'Major pentatonic': [0, 2, 4, 7, 9],
+  'Minor pentatonic': [0, 3, 5, 7, 10],
+  'Major': [0, 2, 4, 5, 7, 9, 11],
+  'Natural minor': [0, 2, 3, 5, 7, 8, 10],
+  'Dorian': [0, 2, 3, 5, 7, 9, 10],
+  'Whole tone': [0, 2, 4, 6, 8, 10],
+  'Chromatic': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+};
+
+export const RATES = { '1/4': 1, '1/8': 2, '1/16': 4, '1/32': 8 }; // steps per beat
+
+const LOOKAHEAD = 0.15; // seconds of notes scheduled in advance
+const TICK_MS = 25;
+
+export class DataPlayer {
+  constructor(synth, ensureAudio) {
+    this.synth = synth;
+    this.ensureAudio = ensureAudio;
+    this.rows = [];
+    this.settings = {
+      scale: 'Major pentatonic', root: 0, low: 48, high: 84, log: true,
+      bpm: 120, rate: '1/16', gate: 0.6, tie: false, loop: false,
+    };
+    this.position = 0;     // step to start from
+    this.playing = false;
+    this.timeline = [];    // [{ time, step }] of scheduled steps, for the playhead
+    this.listeners = new Set(); // called with ({ playing }) when play state changes
+  }
+
+  setSeries(rows) {
+    this.stop();
+    this.rows = rows;
+    this.position = 0;
+    this.invalidate();
+  }
+
+  set(key, value) {
+    this.settings[key] = value;
+    this.invalidate();
+  }
+
+  invalidate() { this._notes = null; }
+
+  get stepDur() { return 60 / this.settings.bpm / RATES[this.settings.rate]; }
+
+  // Notes allowed by the scale, root and range.
+  allowedNotes() {
+    const { scale, root, low, high } = this.settings;
+    const degrees = SCALES[scale];
+    const out = [];
+    for (let n = Math.min(low, high); n <= Math.max(low, high); n++) {
+      if (degrees.includes((((n - root) % 12) + 12) % 12)) out.push(n);
+    }
+    return out;
+  }
+
+  // One MIDI note (or null for a missing value) per data point.
+  get notes() {
+    if (this._notes) return this._notes;
+    const allowed = this.allowedNotes();
+    const tr = (x) => (this.settings.log ? Math.log10(Math.max(x, 0.01)) : x);
+    const vals = this.rows.map((r) => (r.value == null ? null : tr(r.value)));
+    const present = vals.filter((v) => v != null);
+    const lo = Math.min(...present), hi = Math.max(...present);
+    this._notes = vals.map((v) => {
+      if (v == null || !allowed.length) return null;
+      const t = hi > lo ? (v - lo) / (hi - lo) : 0.5;
+      return allowed[Math.round(t * (allowed.length - 1))];
+    });
+    return this._notes;
+  }
+
+  async play() {
+    if (this.playing || !this.rows.length) return;
+    await this.ensureAudio();
+    const ctx = this.synth.ctx;
+    if (!ctx) return;
+    this.playing = true;
+    this.sounding = null;
+    this.nextStep = this.position;
+    this.nextTime = ctx.currentTime + 0.05;
+    this.timeline = [];
+    this.timer = setInterval(() => this.tick(), TICK_MS);
+    this.tick();
+    this.emit();
+  }
+
+  stop() {
+    if (!this.playing) return;
+    clearInterval(this.timer);
+    this.position = this.currentStep() ?? this.position;
+    this.playing = false;
+    this.synth.clearScheduled();
+    this.synth.allNotesOff();
+    this.sounding = null;
+    this.emit();
+  }
+
+  seek(step) {
+    step = Math.max(0, Math.min(this.rows.length - 1, step));
+    if (!this.playing) { this.position = step; return; }
+    this.synth.clearScheduled();
+    this.synth.allNotesOff();
+    this.sounding = null;
+    this.nextStep = step;
+    this.nextTime = this.synth.ctx.currentTime + 0.05;
+    this.timeline = [];
+  }
+
+  tick() {
+    const ctx = this.synth.ctx;
+    const n = this.rows.length;
+    while (this.nextTime < ctx.currentTime + LOOKAHEAD) {
+      if (this.nextStep >= n) {
+        if (!this.settings.loop) {
+          // Let the last note finish, then stop and rewind.
+          if (ctx.currentTime >= this.nextTime) { this.stop(); this.position = 0; }
+          return;
+        }
+        this.nextStep = 0;
+      }
+      this.scheduleStep(this.nextStep, this.nextTime);
+      this.timeline.push({ time: this.nextTime, step: this.nextStep });
+      if (this.timeline.length > 64) this.timeline.shift();
+      this.nextStep++;
+      this.nextTime += this.stepDur;
+    }
+  }
+
+  scheduleStep(i, t) {
+    const notes = this.notes;
+    const { tie, gate } = this.settings;
+    const note = notes[i];
+    const next = notes[i + 1];
+    // A note tied over from the previous step either continues or ends here.
+    if (this.sounding != null && !(tie && note === this.sounding)) {
+      this.synth.noteOff(this.sounding, t);
+      this.sounding = null;
+    }
+    if (note == null) return;
+    if (this.sounding !== note) this.synth.noteOn(note, 1, t);
+    if (tie && next === note) {
+      this.sounding = note; // hold into the next step
+    } else {
+      this.synth.noteOff(note, t + this.stepDur * gate);
+      this.sounding = null;
+    }
+  }
+
+  // The step currently sounding (from the scheduled timeline), or null.
+  currentStep() {
+    if (!this.playing || !this.synth.ctx) return null;
+    const now = this.synth.ctx.currentTime;
+    let cur = null;
+    for (const e of this.timeline) if (e.time <= now) cur = e.step;
+    return cur ?? this.position;
+  }
+
+  emit() { for (const fn of this.listeners) fn({ playing: this.playing }); }
+}
+
+// --- Chart ---------------------------------------------------------------------
+export class DataChart {
+  constructor(canvas, player, onSeek) {
+    this.canvas = canvas;
+    this.g = canvas.getContext('2d');
+    this.player = player;
+    canvas.addEventListener('pointerdown', (e) => {
+      const n = player.rows.length;
+      if (!n) return;
+      const r = canvas.getBoundingClientRect();
+      onSeek(Math.round(((e.clientX - r.left) / r.width) * (n - 1)));
+    });
+    requestAnimationFrame(() => this.draw());
+  }
+
+  draw() {
+    requestAnimationFrame(() => this.draw());
+    const { canvas, g, player } = this;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, Math.round(rect.width * dpr));
+    const h = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    g.fillStyle = '#05080a';
+    g.fillRect(0, 0, w, h);
+    const rows = player.rows;
+    if (!rows.length) return;
+
+    const log = player.settings.log;
+    const tr = (x) => (log ? Math.log10(Math.max(x, 0.01)) : x);
+    const vals = rows.map((r) => (r.value == null ? null : tr(r.value)));
+    const present = vals.filter((v) => v != null);
+    const lo = Math.min(...present), hi = Math.max(...present);
+    const pad = 8 * dpr;
+    const x = (i) => (rows.length === 1 ? w / 2 : (i / (rows.length - 1)) * w);
+    const y = (v) => h - pad - ((hi > lo ? (v - lo) / (hi - lo) : 0.5) * (h - 2 * pad));
+
+    // Filled area under the hydrograph
+    g.beginPath();
+    let started = false;
+    vals.forEach((v, i) => {
+      if (v == null) return;
+      if (!started) { g.moveTo(x(i), h); g.lineTo(x(i), y(v)); started = true; } else g.lineTo(x(i), y(v));
+    });
+    g.lineTo(w, h);
+    g.closePath();
+    g.fillStyle = 'rgba(255, 122, 61, 0.15)';
+    g.fill();
+
+    g.beginPath();
+    started = false;
+    vals.forEach((v, i) => {
+      if (v == null) { started = false; return; }
+      if (!started) { g.moveTo(x(i), y(v)); started = true; } else g.lineTo(x(i), y(v));
+    });
+    g.strokeStyle = '#ff7a3d';
+    g.lineWidth = 1.5 * dpr;
+    g.stroke();
+
+    // Playhead
+    const step = player.playing ? player.currentStep() : player.position;
+    if (step != null) {
+      g.fillStyle = 'rgba(191, 243, 255, 0.9)';
+      g.fillRect(x(step) - dpr / 2, 0, dpr * 1.5, h);
+      if (vals[step] != null) {
+        g.beginPath();
+        g.arc(x(step), y(vals[step]), 3.5 * dpr, 0, Math.PI * 2);
+        g.fill();
+      }
+    }
+    this.onFrame?.(step);
+  }
+}

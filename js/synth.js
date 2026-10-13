@@ -78,9 +78,12 @@ export class Synth {
     else this.fx[unit].set(key, value);
   }
 
-  noteOn(note, velocity = 1) { this.send({ type: 'noteOn', note, velocity }); }
-  noteOff(note) { this.send({ type: 'noteOff', note }); }
+  // `time` (optional, AudioContext seconds) schedules the event sample-accurately.
+  noteOn(note, velocity = 1, time) { this.send({ type: 'noteOn', note, velocity, time }); }
+  noteOff(note, time) { this.send({ type: 'noteOff', note, time }); }
   allNotesOff() { this.send({ type: 'allOff' }); }
+  // Drop notes that were scheduled for the future but haven't played yet.
+  clearScheduled() { this.send({ type: 'clearScheduled' }); }
 
   // Notes played while audio is still starting up are queued, not dropped.
   send(msg) {

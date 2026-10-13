@@ -428,11 +428,32 @@ if (typeof registerProcessor === 'function') {
     constructor() {
       super();
       this.engine = new SynthEngine(sampleRate);
-      this.port.onmessage = (e) => this.engine.handle(e.data);
+      this.queue = []; // timestamped messages, sorted by frame
+      this.port.onmessage = (e) => {
+        const msg = e.data;
+        if (msg.type === 'clearScheduled') { this.queue = []; return; }
+        if (msg.time == null) { this.engine.handle(msg); return; }
+        // Messages with a `time` (AudioContext seconds) are applied at that exact sample.
+        const frame = Math.round(msg.time * sampleRate);
+        let i = this.queue.length;
+        while (i > 0 && this.queue[i - 1].frame > frame) i--;
+        this.queue.splice(i, 0, { frame, msg });
+      };
     }
     process(_inputs, outputs) {
-      const out = outputs[0];
-      this.engine.render(out[0], out[1]);
+      const [L, R] = outputs[0];
+      const n = L.length;
+      let pos = 0;
+      while (this.queue.length && this.queue[0].frame < currentFrame + n) {
+        const ev = this.queue.shift();
+        const at = Math.max(pos, ev.frame - currentFrame);
+        if (at > pos) {
+          this.engine.render(L.subarray(pos, at), R?.subarray(pos, at));
+          pos = at;
+        }
+        this.engine.handle(ev.msg);
+      }
+      if (pos < n) this.engine.render(L.subarray(pos), R?.subarray(pos));
       return true;
     }
   }

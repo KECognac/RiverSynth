@@ -42,6 +42,41 @@
 
     <div id="panel" class="panel"></div>
 
+    <section class="data-area" aria-labelledby="data-title">
+      <div class="data-head">
+        <h2 id="data-title">River Data</h2>
+        <p id="data-status" class="data-status small" aria-live="polite"></p>
+      </div>
+
+      <div class="data-row">
+        <label>USGS gauge<input id="data-site" type="text" value="06752260" inputmode="numeric" maxlength="15" size="10"></label>
+        <label>Start<input id="data-start" type="date" value="2024-01-01"></label>
+        <label>End<input id="data-end" type="date" value="2024-12-31"></label>
+        <button id="data-load" type="button">Load from USGS</button>
+        <label class="button">Load CSV<input id="data-csv" type="file" accept=".csv,text/csv" hidden></label>
+      </div>
+
+      <div class="data-chart-wrap">
+        <canvas id="data-chart" aria-label="Streamflow chart. Click to move the playhead."></canvas>
+        <div id="data-now" class="data-now"></div>
+      </div>
+
+      <div class="data-row">
+        <button id="data-play" type="button" class="play" aria-pressed="false">▶ Play</button>
+        <label class="check"><input id="data-loop" type="checkbox">Loop</label>
+        <label>Tempo<input id="data-bpm" type="number" min="20" max="400" value="120" size="4"></label>
+        <label>Step<select id="data-rate"></select></label>
+        <label>Gate<input id="data-gate" type="range" min="0.05" max="1" step="0.05" value="0.6"></label>
+        <label class="check"><input id="data-tie" type="checkbox">Tie repeats</label>
+        <span class="divider" aria-hidden="true"></span>
+        <label>Scale<select id="data-scale"></select></label>
+        <label>Key<select id="data-root"></select></label>
+        <label>Low<select id="data-low"></select></label>
+        <label>High<select id="data-high"></select></label>
+        <label class="check"><input id="data-log" type="checkbox" checked>Log scale</label>
+      </div>
+    </section>
+
     <section class="keyboard-area">
       <div class="kb-controls">
         <button id="oct-down" type="button" title="Octave down (Z)">−</button>

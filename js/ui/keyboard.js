@@ -53,6 +53,7 @@ export class Keyboard {
       const hint = COMPUTER_KEYS[i];
       k.innerHTML = `<span class="hint">${hint ? hint.toUpperCase() : ''}</span>${note % 12 === 0 ? `<span class="name">${noteName(note)}</span>` : ''}`;
       if (this.counts.get(note)) k.classList.add('down');
+      if (this.highlighted === note) k.classList.add('data');
       this.container.appendChild(k);
       this.keyEls.set(note, k);
     }
@@ -79,6 +80,14 @@ export class Keyboard {
       this.keyEls.get(note)?.classList.remove('down');
       this.noteOff(note);
     }
+  }
+
+  // Light up a key played by something other than the user (e.g. the data player).
+  highlight(note) {
+    if (note === this.highlighted) return;
+    this.keyEls.get(this.highlighted)?.classList.remove('data');
+    this.highlighted = note;
+    this.keyEls.get(note)?.classList.add('data');
   }
 
   releaseAll() { for (const s of [...this.down.keys()]) this.release(s); }

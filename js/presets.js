@@ -110,6 +110,26 @@ export const FACTORY = [
     },
   },
   {
+    // Watery and magical. Droplets: a fast downward pitch blip on every note (EG -> Pitch),
+    // played by a latched Random arp. Current: resonant "Peak" noise for a babbling-brook texture
+    // and a slow LFO sweeping the cutoff. Shimmer: folded triangles, phaser, ping-pong, big hall.
+    name: 'River Shimmer',
+    values: {
+      'voice.mode': 3, 'voice.depth': 11 / 12, 'arp.latch': 1, 'arp.tempo': 90, 'arp.rate': 3, 'arp.gate': 0.3,
+      'vco1.wave': 1, 'vco1.shape': 0.2, 'mixer.vco1': 0.9,
+      'vco2.wave': 1, 'vco2.octave': 2, 'vco2.pitch': 5, 'mixer.vco2': 0.4,
+      'multi.type': 0, 'multi.noise': 2, 'multi.shape': 0.55, 'mixer.multi': 0.25,
+      'filter.cutoff': 2200, 'filter.resonance': 0.55, 'filter.keytrack': 2,
+      'eg.target': 2, 'eg.attack': 0.001, 'eg.decay': 0.06, 'eg.int': 0.12,
+      'ampeg.attack': 0.003, 'ampeg.decay': 0.5, 'ampeg.sustain': 0, 'ampeg.release': 0.7,
+      'lfo.wave': 1, 'lfo.rate': 0.2, 'lfo.int': 0.25, 'lfo.target': 2,
+      'mod.on': 1, 'mod.type': 2, 'mod.time': 0.25, 'mod.depth': 0.7, 'mod.mix': 0.5,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.333, 'delay.depth': 0.5, 'delay.mix': 0.35, // 1/8 at 90 BPM
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.9, 'reverb.depth': 0.7, 'reverb.mix': 0.5,
+      'master.volume': 0.95,
+    },
+  },
+  {
     name: 'FM Bells',
     values: {
       'mixer.vco1': 0, 'mixer.multi': 0.9, 'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.45,

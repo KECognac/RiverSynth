@@ -41,7 +41,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | Arpeggiator | Manual / Rise / Fall / Rise Fall / Poly over 1–2 octaves, Random over 1–3 octaves; Latch, Tempo (40–300 BPM), Rate (1/4–1/32 incl. triplets), Gate |
 | Effects | **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser |
 | Display | Live oscilloscope with a readout of the parameter you're changing |
-| Programs | 13 factory presets, unlimited user presets, JSON export/import |
+| Programs | 14 factory presets, unlimited user presets, JSON export/import |
 | River Data | Play any USGS stream gauge's daily discharge as notes (see below) |
 
 ### Planned next

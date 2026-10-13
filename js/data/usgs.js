@@ -28,11 +28,11 @@ export async function fetchDaily(site, start, end, parameterCode = DISCHARGE) {
     time: `${start}/${end}`,
     properties: 'time,value',
     skipGeometry: 'true',
-    sortby: 'time',
     limit: '10000',
   });
   let url = `${API}/daily/items?${params}`;
   const rows = [];
+  // No server-side sortby: the API refuses to page sorted results, so we sort below.
   while (url) { // follow paging links for long date ranges
     const res = await fetch(url);
     if (!res.ok) throw new Error(`USGS request failed (${res.status})`);

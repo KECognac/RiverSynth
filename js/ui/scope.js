@@ -36,9 +36,9 @@ export class Scope {
     requestAnimationFrame(() => this.draw());
     const { g, canvas } = this;
     const w = canvas.width, h = canvas.height;
-    g.fillStyle = '#05080a';
+    g.fillStyle = '#0b0e10';
     g.fillRect(0, 0, w, h);
-    g.strokeStyle = 'rgba(120, 220, 255, 0.12)';
+    g.strokeStyle = 'rgba(246, 231, 182, 0.12)';
     g.lineWidth = 1;
     g.beginPath();
     g.moveTo(0, h / 2); g.lineTo(w, h / 2);
@@ -53,9 +53,9 @@ export class Scope {
     for (let i = 1; i < buf.length - span; i++) {
       if (buf[i - 1] < 0 && buf[i] >= 0) { start = i; break; }
     }
-    g.strokeStyle = '#bff3ff';
+    g.strokeStyle = '#f6e7b6';
     g.lineWidth = 1.5 * (window.devicePixelRatio || 1);
-    g.shadowColor = '#5fd8ff';
+    g.shadowColor = '#f0b62f';
     g.shadowBlur = 6;
     g.beginPath();
     const view = Math.floor(span / 2);

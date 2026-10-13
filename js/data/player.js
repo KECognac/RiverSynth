@@ -229,7 +229,7 @@ export class DataChart {
     const w = Math.max(1, Math.round(rect.width * dpr));
     const h = Math.max(1, Math.round(rect.height * dpr));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
-    g.fillStyle = '#05080a';
+    g.fillStyle = '#0b0e10';
     g.fillRect(0, 0, w, h);
     const rows = player.rows;
     if (!rows.length) return;
@@ -252,7 +252,7 @@ export class DataChart {
     });
     g.lineTo(w, h);
     g.closePath();
-    g.fillStyle = 'rgba(255, 122, 61, 0.15)';
+    g.fillStyle = 'rgba(240, 182, 47, 0.18)';
     g.fill();
 
     g.beginPath();
@@ -261,14 +261,14 @@ export class DataChart {
       if (v == null) { started = false; return; }
       if (!started) { g.moveTo(x(i), y(v)); started = true; } else g.lineTo(x(i), y(v));
     });
-    g.strokeStyle = '#ff7a3d';
+    g.strokeStyle = '#f0b62f';
     g.lineWidth = 1.5 * dpr;
     g.stroke();
 
     // Playhead
     const step = player.playing ? player.currentStep() : player.position;
     if (step != null) {
-      g.fillStyle = 'rgba(191, 243, 255, 0.9)';
+      g.fillStyle = 'rgba(246, 231, 182, 0.9)';
       g.fillRect(x(step) - dpr / 2, 0, dpr * 1.5, h);
       if (vals[step] != null) {
         g.beginPath();

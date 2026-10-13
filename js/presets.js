@@ -224,6 +224,25 @@ export const FACTORY = [
     },
   },
   {
+    // Flowing Moog-style pad: warm detuned saws and a soft triangle an octave up, a resonant
+    // filter that swells open on each note and drifts with a slow LFO like a current, slow
+    // phaser swirl, tape echo and spring reverb. Long attack and release so notes run together.
+    name: 'Grandmother Flow',
+    values: {
+      'voice.depth': 0.25,
+      'vco1.wave': 0, 'mixer.vco1': 0.7,
+      'vco2.wave': 0, 'vco2.pitch': -9, 'mixer.vco2': 0.55,
+      'multi.type': 1, 'multi.vpm': 1, 'multi.shape': 0.05, 'mixer.multi': 0.25,
+      'filter.cutoff': 900, 'filter.resonance': 0.45, 'filter.drive': 0.25,
+      'eg.target': 0, 'eg.attack': 1.2, 'eg.decay': 2.5, 'eg.int': 0.3,
+      'ampeg.attack': 0.6, 'ampeg.decay': 2, 'ampeg.sustain': 0.85, 'ampeg.release': 2.2,
+      'lfo.wave': 1, 'lfo.rate': 0.12, 'lfo.int': 0.3, 'lfo.target': 2,
+      'mod.on': 1, 'mod.type': 2, 'mod.time': 0.15, 'mod.depth': 0.6, 'mod.mix': 0.35,
+      'delay.on': 1, 'delay.type': 1, 'delay.time': 0.45, 'delay.depth': 0.45, 'delay.mix': 0.25,
+      'reverb.on': 1, 'reverb.type': 4, 'reverb.time': 0.7, 'reverb.mix': 0.3,
+    },
+  },
+  {
     name: 'FM Bells',
     values: {
       'mixer.vco1': 0, 'mixer.multi': 0.9, 'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.45,

@@ -130,6 +130,26 @@ export const FACTORY = [
     },
   },
   {
+    // Glittery, delicate sibling of River Shimmer: glassy FM bell + folded triangle + thin pulse
+    // up high, scattered by a latched Random 3 arp in 1/16 triplets with very short notes; a slow
+    // LFO on Shape keeps the sparkle changing; ensemble, scattering ping-pong and a bright plate.
+    name: 'River Shimmer 2',
+    values: {
+      'voice.mode': 3, 'voice.depth': 12 / 12, 'arp.latch': 1, 'arp.tempo': 96, 'arp.rate': 4, 'arp.gate': 0.2,
+      'vco1.wave': 1, 'vco1.octave': 2, 'vco1.shape': 0.35, 'mixer.vco1': 0.55,
+      'vco2.wave': 2, 'vco2.octave': 3, 'vco2.shape': 0.6, 'vco2.pitch': 7, 'mixer.vco2': 0.2,
+      'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.3, 'mixer.multi': 0.6,
+      'filter.cutoff': 9000, 'filter.resonance': 0.15, 'filter.keytrack': 2,
+      'eg.target': 2, 'eg.attack': 0.001, 'eg.decay': 0.03, 'eg.int': 0.04,
+      'ampeg.attack': 0.002, 'ampeg.decay': 0.35, 'ampeg.sustain': 0, 'ampeg.release': 0.9,
+      'lfo.wave': 1, 'lfo.rate': 0.35, 'lfo.int': 0.3, 'lfo.target': 1,
+      'mod.on': 1, 'mod.type': 1, 'mod.time': 0.3, 'mod.depth': 0.6, 'mod.mix': 0.45,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.234, 'delay.depth': 0.55, 'delay.mix': 0.35, // dotted 1/16 at 96 BPM
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.85, 'reverb.depth': 0.85, 'reverb.mix': 0.5,
+      'master.volume': 0.9,
+    },
+  },
+  {
     name: 'FM Bells',
     values: {
       'mixer.vco1': 0, 'mixer.multi': 0.9, 'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.45,

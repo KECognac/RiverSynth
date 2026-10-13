@@ -243,6 +243,159 @@ export const FACTORY = [
       'reverb.on': 1, 'reverb.type': 4, 'reverb.time': 0.7, 'reverb.mix': 0.3,
     },
   },
+  // --- Showcase presets for the new features ------------------------------------
+  {
+    // Huge trance/EDM supersaw: two supersaws (one an octave up) through the 24 dB ladder.
+    name: 'Supersaw Anthem',
+    values: {
+      'arp.tempo': 128, 'voice.depth': 0.2,
+      'vco1.wave': 3, 'vco1.shape': 0.55, 'mixer.vco1': 0.8,
+      'vco2.wave': 3, 'vco2.octave': 2, 'vco2.shape': 0.4, 'mixer.vco2': 0.45,
+      'filter.type': 1, 'filter.cutoff': 4500, 'filter.resonance': 0.15,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.6, 'eg.int': 0.15,
+      'ampeg.attack': 0.01, 'ampeg.decay': 1, 'ampeg.sustain': 0.85, 'ampeg.release': 0.6,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.352, 'delay.depth': 0.35, 'delay.mix': 0.25, // dotted 1/8 at 128
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.mix': 0.3,
+    },
+  },
+  {
+    // Fred again..-style euphoric chords: one key = a supersaw m7 chord, with a real
+    // tempo-locked pump that restarts on the first note you play.
+    name: 'Euphoric Pump',
+    values: {
+      'arp.tempo': 126, 'voice.mode': 2, 'voice.depth': 5 / 13,
+      'vco1.wave': 3, 'vco1.shape': 0.5, 'mixer.vco1': 0.75,
+      'vco2.wave': 3, 'vco2.shape': 0.35, 'mixer.vco2': 0.5,
+      'filter.type': 1, 'filter.cutoff': 2600, 'filter.resonance': 0.2,
+      'ampeg.attack': 0.005, 'ampeg.decay': 0.8, 'ampeg.sustain': 0.8, 'ampeg.release': 0.3,
+      'pump.on': 1, 'pump.rate': 1, 'pump.depth': 0.75, 'pump.release': 0.5,
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.5, 'reverb.mix': 0.25,
+    },
+  },
+  {
+    // Vocal-style chops: hold a chord and the arp re-triggers it every 1/16 while a
+    // tempo-synced sample-and-hold LFO jumps the vowel filter to a new vowel each step.
+    name: 'Vowel Chops',
+    values: {
+      'arp.tempo': 124, 'voice.mode': 3, 'voice.depth': 8 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.5,
+      'vco1.wave': 0, 'mixer.vco1': 0.8,
+      'vco2.wave': 2, 'vco2.pitch': 7, 'mixer.vco2': 0.6,
+      'filter.type': 5, 'filter.vowel': 0.3, 'filter.cutoff': 1000, 'filter.resonance': 0.55,
+      'lfo.wave': 3, 'lfo.sync': 6, 'lfo.int': 0.5, 'lfo.target': 2,
+      'ampeg.attack': 0.002, 'ampeg.decay': 0.25, 'ampeg.sustain': 0.6, 'ampeg.release': 0.12,
+      'pump.on': 1, 'pump.rate': 1, 'pump.depth': 0.5, 'pump.release': 0.4,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.242, 'delay.depth': 0.3, 'delay.mix': 0.2, // 1/8 at 124
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.45, 'reverb.mix': 0.2,
+    },
+  },
+  {
+    // "Ooh" choir: soft supersaw through the vowel filter set near O/U, slowly drifting
+    // between vowels, into the shimmer reverb.
+    name: 'Choir Pad',
+    values: {
+      'vco1.wave': 3, 'vco1.shape': 0.35, 'mixer.vco1': 0.8,
+      'vco2.wave': 1, 'vco2.octave': 2, 'mixer.vco2': 0.3,
+      'filter.type': 5, 'filter.vowel': 0.75, 'filter.cutoff': 800, 'filter.resonance': 0.45,
+      'lfo.wave': 4, 'lfo.rate': 0.2, 'lfo.int': 0.15, 'lfo.target': 2,
+      'ampeg.attack': 1.2, 'ampeg.decay': 2, 'ampeg.sustain': 0.9, 'ampeg.release': 2.5,
+      'mod.on': 1, 'mod.type': 1, 'mod.mix': 0.4,
+      'reverb.on': 1, 'reverb.type': 5, 'reverb.time': 0.6, 'reverb.depth': 0.5, 'reverb.mix': 0.35,
+    },
+  },
+  {
+    // Ambient wash: soft triangles and a sine layer in a long shimmer reverb that rises
+    // an octave as it fades.
+    name: 'Shimmer Cathedral',
+    values: {
+      'vco1.wave': 1, 'mixer.vco1': 0.7,
+      'vco2.wave': 1, 'vco2.octave': 3, 'vco2.pitch': 5, 'mixer.vco2': 0.35,
+      'multi.type': 1, 'multi.vpm': 0, 'multi.shape': 0.1, 'mixer.multi': 0.3,
+      'filter.cutoff': 3000,
+      'ampeg.attack': 0.8, 'ampeg.decay': 3, 'ampeg.sustain': 0.7, 'ampeg.release': 4,
+      'lfo.wave': 4, 'lfo.rate': 0.3, 'lfo.int': 0.01, 'lfo.target': 0,
+      'delay.on': 1, 'delay.type': 0, 'delay.time': 0.5, 'delay.depth': 0.4, 'delay.mix': 0.2,
+      'reverb.on': 1, 'reverb.type': 5, 'reverb.time': 0.9, 'reverb.depth': 0.85, 'reverb.mix': 0.55,
+    },
+  },
+  {
+    // Lo-fi electric piano: soft FM tine, a drifting-pitch LFO for tape wobble, and the
+    // bitcrusher for dusty grit.
+    name: 'Lo-Fi Keys',
+    values: {
+      'multi.type': 1, 'multi.vpm': 0, 'multi.shape': 0.25, 'mixer.multi': 0.8,
+      'vco1.wave': 1, 'mixer.vco1': 0.35,
+      'filter.cutoff': 2500, 'filter.resonance': 0.1,
+      'ampeg.attack': 0.003, 'ampeg.decay': 1.5, 'ampeg.sustain': 0.3, 'ampeg.release': 0.5,
+      'lfo.wave': 4, 'lfo.rate': 0.6, 'lfo.int': 0.015, 'lfo.target': 0,
+      'crush.on': 1, 'crush.bits': 9, 'crush.rate': 3, 'crush.mix': 0.6,
+      'mod.on': 1, 'mod.type': 0, 'mod.mix': 0.3,
+      'delay.on': 1, 'delay.type': 1, 'delay.time': 0.33, 'delay.depth': 0.3, 'delay.mix': 0.2,
+      'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.3, 'reverb.mix': 0.25,
+    },
+  },
+  {
+    // Acid line: squelchy resonant 24 dB ladder with a snappy filter envelope on a
+    // latched rising arp, plus a slow tempo-synced filter sweep over two bars.
+    name: 'Ladder Acid',
+    values: {
+      'arp.tempo': 128, 'voice.mode': 3, 'voice.depth': 3 / 12, 'arp.latch': 1, 'arp.rate': 3, 'arp.gate': 0.55,
+      'vco1.wave': 0, 'mixer.vco1': 0.9,
+      'filter.type': 1, 'filter.cutoff': 380, 'filter.resonance': 0.82, 'filter.drive': 0.5,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.2, 'eg.int': 0.55,
+      'ampeg.attack': 0.001, 'ampeg.decay': 0.3, 'ampeg.sustain': 0.6, 'ampeg.release': 0.08,
+      'lfo.wave': 1, 'lfo.sync': 1, 'lfo.int': 0.25, 'lfo.target': 2,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.352, 'delay.depth': 0.35, 'delay.mix': 0.2,
+    },
+  },
+  {
+    // FM bells with gently drifting pitch, scattering into shimmer.
+    name: 'Drift Bells',
+    values: {
+      'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.4, 'mixer.multi': 0.85,
+      'vco1.wave': 1, 'vco1.octave': 2, 'mixer.vco1': 0.25,
+      'filter.cutoff': 10000,
+      'ampeg.attack': 0.002, 'ampeg.decay': 2.5, 'ampeg.sustain': 0, 'ampeg.release': 2.5,
+      'lfo.wave': 4, 'lfo.rate': 0.3, 'lfo.int': 0.012, 'lfo.target': 0,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.4, 'delay.depth': 0.4, 'delay.mix': 0.25,
+      'reverb.on': 1, 'reverb.type': 5, 'reverb.time': 0.6, 'reverb.depth': 0.5, 'reverb.mix': 0.4,
+    },
+  },
+  {
+    // 8-bit game music: pulse waves, a very fast 1/32 arpeggio and the bitcrusher.
+    name: 'Chiptune Arp',
+    values: {
+      'arp.tempo': 140, 'voice.mode': 3, 'voice.depth': 2 / 12, 'arp.latch': 1, 'arp.rate': 5, 'arp.gate': 0.8,
+      'vco1.wave': 2, 'vco1.shape': 0.5, 'mixer.vco1': 0.8,
+      'vco2.wave': 2, 'vco2.octave': 2, 'vco2.shape': 0.2, 'mixer.vco2': 0.3,
+      'filter.cutoff': 12000,
+      'ampeg.attack': 0.001, 'ampeg.decay': 0.1, 'ampeg.sustain': 0.8, 'ampeg.release': 0.05,
+      'crush.on': 1, 'crush.bits': 5, 'crush.rate': 6, 'crush.mix': 0.9,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.214, 'delay.depth': 0.25, 'delay.mix': 0.15,
+    },
+  },
+  {
+    // 808-style sub bass: a deep triangle with a quick downward pitch drop at the start
+    // and a long decay, lightly saturated by the ladder filter.
+    name: '808 Sub',
+    values: {
+      'vco1.wave': 1, 'vco1.octave': 0, 'mixer.vco1': 1,
+      'filter.type': 1, 'filter.cutoff': 900, 'filter.resonance': 0.05, 'filter.drive': 0.3,
+      'eg.target': 2, 'eg.attack': 0.001, 'eg.decay': 0.08, 'eg.int': 0.25,
+      'ampeg.attack': 0.001, 'ampeg.decay': 1.8, 'ampeg.sustain': 0.25, 'ampeg.release': 0.4,
+    },
+  },
+  {
+    // Hollow, phaser-like pad: supersaw through the notch filter, swept by a triangle
+    // LFO locked to one bar.
+    name: 'Notch Sweep Pad',
+    values: {
+      'vco1.wave': 3, 'vco1.shape': 0.5, 'mixer.vco1': 0.8,
+      'filter.type': 4, 'filter.cutoff': 900, 'filter.resonance': 0.3,
+      'lfo.wave': 1, 'lfo.sync': 2, 'lfo.int': 0.45, 'lfo.target': 2,
+      'ampeg.attack': 0.5, 'ampeg.decay': 2, 'ampeg.sustain': 0.85, 'ampeg.release': 1.5,
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.35,
+    },
+  },
   {
     name: 'FM Bells',
     values: {

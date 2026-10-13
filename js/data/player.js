@@ -4,6 +4,11 @@
 // (log or linear), then mapped onto the notes of a scale between a low and high note.
 // Notes are scheduled slightly ahead with exact AudioContext times, so timing stays
 // steady even if the page is busy.
+//
+// "Routes" let the same 0..1 value move other controls too (e.g. brighter filter and more
+// reverb at high flow). Routed knobs are restored when playback stops.
+
+import { PARAMS, toValue } from '../params.js';
 
 export const SCALES = {
   'Major pentatonic': [0, 2, 4, 7, 9],
@@ -33,6 +38,8 @@ export class DataPlayer {
     this.playing = false;
     this.timeline = [];    // [{ time, step }] of scheduled steps, for the playhead
     this.listeners = new Set(); // called with ({ playing }) when play state changes
+    this.routes = [];      // [{ id, from, to }]: knob position (0..1) at the lowest and highest value
+    this.base = {};        // routed params' values before playback, restored on stop
   }
 
   setSeries(rows) {
@@ -47,7 +54,7 @@ export class DataPlayer {
     this.invalidate();
   }
 
-  invalidate() { this._notes = null; }
+  invalidate() { this._notes = null; this._norms = null; }
 
   get stepDur() { return 60 / this.settings.bpm / RATES[this.settings.rate]; }
 
@@ -62,20 +69,46 @@ export class DataPlayer {
     return out;
   }
 
-  // One MIDI note (or null for a missing value) per data point.
-  get notes() {
-    if (this._notes) return this._notes;
-    const allowed = this.allowedNotes();
+  // Each value rescaled to 0..1 over the series (null where data is missing).
+  get norms() {
+    if (this._norms) return this._norms;
     const tr = (x) => (this.settings.log ? Math.log10(Math.max(x, 0.01)) : x);
     const vals = this.rows.map((r) => (r.value == null ? null : tr(r.value)));
     const present = vals.filter((v) => v != null);
     const lo = Math.min(...present), hi = Math.max(...present);
-    this._notes = vals.map((v) => {
-      if (v == null || !allowed.length) return null;
-      const t = hi > lo ? (v - lo) / (hi - lo) : 0.5;
-      return allowed[Math.round(t * (allowed.length - 1))];
-    });
+    this._norms = vals.map((v) => (v == null ? null : hi > lo ? (v - lo) / (hi - lo) : 0.5));
+    return this._norms;
+  }
+
+  // One MIDI note (or null for a missing value) per data point.
+  get notes() {
+    if (this._notes) return this._notes;
+    const allowed = this.allowedNotes();
+    this._notes = this.norms.map((t) => (t == null || !allowed.length ? null : allowed[Math.round(t * (allowed.length - 1))]));
     return this._notes;
+  }
+
+  routeValue(route, t) {
+    return toValue(PARAMS[route.id], route.from + t * (route.to - route.from));
+  }
+
+  // Replace the routes. While playing, a param that is no longer routed goes back to its
+  // pre-playback value, and a newly routed one has its current value remembered.
+  setRoutes(routes) {
+    if (this.playing) {
+      const ids = new Set(routes.map((r) => r.id));
+      for (const id of Object.keys(this.base)) {
+        if (!ids.has(id)) { this.synth.setParam(id, this.base[id]); delete this.base[id]; }
+      }
+      for (const id of ids) if (!(id in this.base)) this.base[id] = this.synth.values[id];
+    }
+    this.routes = routes;
+  }
+
+  // After a preset loads mid-playback, remember its values as the ones to restore.
+  rebase() {
+    if (!this.playing) return;
+    for (const id of Object.keys(this.base)) this.base[id] = this.synth.values[id];
   }
 
   async play() {
@@ -85,6 +118,8 @@ export class DataPlayer {
     if (!ctx) return;
     this.playing = true;
     this.sounding = null;
+    this.base = {};
+    for (const r of this.routes) this.base[r.id] = this.synth.values[r.id];
     this.nextStep = this.position;
     this.nextTime = ctx.currentTime + 0.05;
     this.timeline = [];
@@ -101,6 +136,8 @@ export class DataPlayer {
     this.synth.clearScheduled();
     this.synth.allNotesOff();
     this.sounding = null;
+    this.synth.setParams(this.base);
+    this.base = {};
     this.emit();
   }
 
@@ -140,6 +177,8 @@ export class DataPlayer {
     const { tie, gate } = this.settings;
     const note = notes[i];
     const next = notes[i + 1];
+    const t0 = this.norms[i];
+    if (t0 != null) for (const r of this.routes) this.synth.setParamAt(r.id, this.routeValue(r, t0), t);
     // A note tied over from the previous step either continues or ends here.
     if (this.sounding != null && !(tie && note === this.sounding)) {
       this.synth.noteOff(this.sounding, t);

@@ -50,7 +50,6 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 - Joystick (pitch bend / modulation)
 - User oscillator and effect slots
 - MIDI keyboard input (Web MIDI)
-- Map data onto other parameters too (e.g. flow → filter cutoff)
 
 ## Code layout
 
@@ -96,6 +95,12 @@ this part. It starts with the **Cache la Poudre River at Fort Collins, CO (06752
   on the same pitch.
 - Click the chart to move the playhead. Notes play through the current program and voice mode,
   so Chord or Arp mode turn each day into a chord or an arpeggio.
+- **Data → Sound** lets the flow move other controls as well: pick any knob (filter cutoff,
+  resonance, reverb or delay mix, delay feedback, LFO rate, voice detune and so on) and set its
+  position at the lowest and highest flow. By default, higher flow opens the filter and adds
+  reverb. Routed knobs move on the panel while playing and return to where they were when you
+  stop. (Reverb Decay and Tone aren't available because they rebuild the reverb on every
+  change.)
 - **Load CSV** accepts files from the Python helper below, or any CSV with a date column and a
   value column.
 

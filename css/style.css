@@ -214,6 +214,26 @@ kbd {
   pointer-events: none;
 }
 
+.routes-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; border-top: 1px solid #34363b; padding-top: 10px; }
+.routes-head h3 { margin: 0; color: var(--accent); font-weight: 700; }
+.routes-help { margin: 0; text-transform: none; letter-spacing: 0; }
+.routes { display: flex; flex-direction: column; gap: 6px; }
+.route {
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px 14px;
+  background: var(--section); border-radius: 8px; padding: 6px 10px;
+}
+.route label {
+  display: grid; grid-template-columns: auto auto; gap: 3px 8px; align-items: center;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+}
+.route label > :first-child { grid-column: 1 / -1; }
+.route label:first-child { display: flex; flex-direction: column; align-items: stretch; }
+.route select { padding: 4px 6px; text-transform: none; letter-spacing: 0; }
+.route input[type="range"] { width: 120px; accent-color: var(--accent); }
+.route output { min-width: 5.5em; font: 11px ui-monospace, Menlo, monospace; color: var(--text); text-transform: none; }
+.route-warn { color: var(--accent); text-transform: none; letter-spacing: 0; padding-bottom: 4px; }
+.route-remove { margin-left: auto; width: 28px; padding: 3px 0; }
+
 /* --- Keyboard -------------------------------------------------------------- */
 .keyboard-area {
   background: var(--panel);

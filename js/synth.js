@@ -13,6 +13,7 @@ export class Synth {
     this.values = defaultValues();
     this.ctx = null;
     this.listeners = new Set(); // called with (id, value) on every param change
+    this.paramTimers = new Set();
   }
 
   get running() { return this.ctx?.state === 'running'; }
@@ -82,8 +83,20 @@ export class Synth {
   noteOn(note, velocity = 1, time) { this.send({ type: 'noteOn', note, velocity, time }); }
   noteOff(note, time) { this.send({ type: 'noteOff', note, time }); }
   allNotesOff() { this.send({ type: 'allOff' }); }
-  // Drop notes that were scheduled for the future but haven't played yet.
-  clearScheduled() { this.send({ type: 'clearScheduled' }); }
+  // Change a parameter at a future AudioContext time (used by the data player, so knobs
+  // move in step with the notes). Timer-based, which is plenty for parameter changes.
+  setParamAt(id, value, time) {
+    const ms = this.ctx ? (time - this.ctx.currentTime) * 1000 : 0;
+    const timer = setTimeout(() => { this.paramTimers.delete(timer); this.setParam(id, value); }, Math.max(0, ms));
+    this.paramTimers.add(timer);
+  }
+
+  // Drop notes and parameter changes scheduled for the future that haven't happened yet.
+  clearScheduled() {
+    this.send({ type: 'clearScheduled' });
+    for (const t of this.paramTimers) clearTimeout(t);
+    this.paramTimers.clear();
+  }
 
   // Notes played while audio is still starting up are queued, not dropped.
   send(msg) {

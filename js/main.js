@@ -1,4 +1,4 @@
-import { PARAMS, SECTIONS, formatValue } from './params.js';
+import { PARAMS, SECTIONS, formatValue, toValue, toNorm } from './params.js';
 import { Synth } from './synth.js';
 import { createControl } from './ui/controls.js';
 import { Keyboard, noteName } from './ui/keyboard.js';
@@ -81,6 +81,7 @@ function loadPreset(key) {
   if (!preset) return;
   synth.allNotesOff();
   synth.setParams(resolvePreset(preset.values));
+  player.rebase();
   presetName.value = preset.name;
   $('#delete-preset').disabled = kind !== 'u';
   scope.show('Program', preset.name);
@@ -257,6 +258,79 @@ $('#data-csv').addEventListener('change', async (e) => {
   if (rows.length) showSeries(rows, file.name);
   else dataStatus.textContent = `${file.name}: no date/value rows found.`;
 });
+
+// --- Data → Sound routes -----------------------------------------------------------
+// Any continuous control can follow the data, except reverb Decay/Tone, which rebuild the
+// reverb's impulse response and can't keep up with per-step changes.
+const ROUTE_EXCLUDE = new Set(['reverb.time', 'reverb.depth']);
+const ROUTE_TARGETS = SECTIONS.flatMap((sec) => sec.controls
+  .filter((id) => PARAMS[id].min !== undefined && !ROUTE_EXCLUDE.has(id))
+  .map((id) => [id, `${sec.title} · ${PARAMS[id].label}`]));
+const FX_NAMES = { mod: 'Mod FX', delay: 'Delay', reverb: 'Reverb' };
+const routesEl = $('#routes');
+let routes = [
+  { id: 'filter.cutoff', from: 0.45, to: 0.9 },
+  { id: 'reverb.mix', from: 0.1, to: 0.6 },
+];
+
+function renderRoutes() {
+  routesEl.innerHTML = '';
+  routes.forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'route';
+    row.innerHTML = `
+      <label>Control<select class="route-target"></select></label>
+      <label>Low flow<input class="route-from" type="range" min="0" max="1" step="0.01"><output></output></label>
+      <label>High flow<input class="route-to" type="range" min="0" max="1" step="0.01"><output></output></label>
+      <span class="route-warn small"></span>
+      <button class="route-remove" type="button" aria-label="Remove ${PARAMS[r.id].label}">×</button>`;
+    const sel = row.querySelector('.route-target');
+    fillSelect(sel, ROUTE_TARGETS, r.id);
+    const from = row.querySelector('.route-from'), to = row.querySelector('.route-to');
+    from.value = r.from; to.value = r.to;
+    const outs = row.querySelectorAll('output');
+    const label = () => {
+      outs[0].textContent = formatValue(r.id, toValue(PARAMS[r.id], r.from), synth.values);
+      outs[1].textContent = formatValue(r.id, toValue(PARAMS[r.id], r.to), synth.values);
+    };
+    label();
+    sel.addEventListener('change', () => {
+      // Start a new target at its current knob position, sweeping upward from there.
+      const cur = toNorm(PARAMS[sel.value], synth.values[sel.value]);
+      routes[i] = { id: sel.value, from: cur, to: Math.min(1, cur + 0.4) };
+      applyRoutes();
+    });
+    from.addEventListener('input', () => { r.from = Number(from.value); label(); player.setRoutes(routes); });
+    to.addEventListener('input', () => { r.to = Number(to.value); label(); player.setRoutes(routes); });
+    row.querySelector('.route-remove').addEventListener('click', () => { routes.splice(i, 1); applyRoutes(); });
+    routesEl.appendChild(row);
+  });
+  updateRouteWarnings();
+}
+
+// An effect knob does nothing while that effect is switched off; say so.
+function updateRouteWarnings() {
+  routesEl.querySelectorAll('.route').forEach((row, i) => {
+    const unit = routes[i]?.id.split('.')[0];
+    const off = FX_NAMES[unit] && !synth.values[`${unit}.on`];
+    row.querySelector('.route-warn').textContent = off ? `${FX_NAMES[unit]} is off` : '';
+  });
+}
+
+function applyRoutes() {
+  player.setRoutes(routes);
+  renderRoutes();
+}
+
+$('#route-add').addEventListener('click', () => {
+  const used = new Set(routes.map((r) => r.id));
+  const id = (ROUTE_TARGETS.find(([t]) => !used.has(t)) ?? ROUTE_TARGETS[0])[0];
+  const cur = toNorm(PARAMS[id], synth.values[id]);
+  routes.push({ id, from: cur, to: Math.min(1, cur + 0.4) });
+  applyRoutes();
+});
+synth.listeners.add((id) => { if (id.endsWith('.on')) updateRouteWarnings(); });
+applyRoutes();
 
 loadFromUsgs(); // start with the Poudre River at Fort Collins
 window.addEventListener('pointerdown', () => ensureAudio(), { once: true });

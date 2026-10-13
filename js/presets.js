@@ -55,6 +55,24 @@ export const FACTORY = [
     },
   },
   {
+    // Inspired by the shimmering, bell-like arpeggio in Grimes' "Genesis" (2012):
+    // FM bell + soft square + high triangle sparkle, rising arp, chorus, ping-pong and big hall.
+    name: 'Genesis Shimmer',
+    values: {
+      'voice.mode': 3, 'voice.depth': 3 / 12, 'arp.latch': 1, 'arp.tempo': 84, 'arp.rate': 3, 'arp.gate': 0.35,
+      'vco1.wave': 2, 'vco1.octave': 2, 'vco1.shape': 0.15, 'mixer.vco1': 0.45,
+      'vco2.wave': 1, 'vco2.octave': 3, 'vco2.pitch': 7, 'mixer.vco2': 0.25,
+      'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.35, 'mixer.multi': 0.7,
+      'filter.cutoff': 6500, 'filter.resonance': 0.1, 'filter.keytrack': 2,
+      'ampeg.attack': 0.002, 'ampeg.decay': 0.6, 'ampeg.sustain': 0, 'ampeg.release': 0.6,
+      'eg.attack': 0.001, 'eg.decay': 0.25, 'eg.int': 0.2,
+      'lfo.target': 0, 'lfo.wave': 1, 'lfo.rate': 5, 'lfo.int': 0.01,
+      'mod.on': 1, 'mod.type': 1, 'mod.time': 0.35, 'mod.depth': 0.5, 'mod.mix': 0.45,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.536, 'delay.depth': 0.45, 'delay.mix': 0.3, // dotted 1/8 at 84 BPM
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.8, 'reverb.depth': 0.65, 'reverb.mix': 0.45,
+    },
+  },
+  {
     name: 'FM Bells',
     values: {
       'mixer.vco1': 0, 'mixer.multi': 0.9, 'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.45,

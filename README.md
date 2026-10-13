@@ -1,5 +1,7 @@
 # SynthWork
 
+**▶ Play it live: https://kecognac.github.io/SynthWork/**
+
 A 4-voice polyphonic synthesizer that runs in the web browser, modelled on the KORG minilogue (xd).
 The long-term goal is to drive it with data time series such as USGS streamflow.
 

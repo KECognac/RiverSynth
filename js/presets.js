@@ -90,6 +90,26 @@ export const FACTORY = [
     },
   },
   {
+    // Inspired by the chopped, euphoric energy of Fred again..'s "Delilah (pull me out of this)".
+    // The arp's Poly pattern re-triggers the held chord every 1/16 like sample chops (hold the
+    // keys; latch is off). Saw LFO on cutoff at quarter notes (140 BPM) imitates sidechain pumping.
+    name: 'Delilah Chop Stabs',
+    values: {
+      'voice.mode': 3, 'voice.depth': 8 / 12, 'arp.latch': 0, 'arp.tempo': 140, 'arp.rate': 3, 'arp.gate': 0.45,
+      'vco1.wave': 0, 'mixer.vco1': 0.6,
+      'vco2.wave': 0, 'vco2.octave': 2, 'vco2.pitch': 9, 'mixer.vco2': 0.35,
+      'multi.type': 0, 'multi.noise': 0, 'multi.shape': 0.75, 'mixer.multi': 0.04,
+      'filter.cutoff': 2400, 'filter.resonance': 0.35, 'filter.drive': 0.3,
+      'eg.attack': 0.001, 'eg.decay': 0.15, 'eg.int': 0.3,
+      'ampeg.attack': 0.002, 'ampeg.decay': 0.2, 'ampeg.sustain': 0.5, 'ampeg.release': 0.12,
+      'lfo.wave': 0, 'lfo.rate': 140 / 60, 'lfo.int': -0.3, 'lfo.target': 2,
+      'mod.on': 1, 'mod.type': 0, 'mod.mix': 0.3,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.214, 'delay.depth': 0.3, 'delay.mix': 0.2, // 1/8 at 140 BPM
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.45, 'reverb.mix': 0.2,
+      'master.volume': 0.55,
+    },
+  },
+  {
     name: 'FM Bells',
     values: {
       'mixer.vco1': 0, 'mixer.multi': 0.9, 'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.45,

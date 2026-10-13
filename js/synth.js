@@ -6,7 +6,7 @@
 //   synth.noteOn(note), synth.noteOff(note), synth.setParam(id, value)
 
 import { defaultValues, isFxParam } from './params.js';
-import { ModFX, DelayFX, ReverbFX } from './fx.js';
+import { ModFX, DelayFX, ReverbFX, RiverRoar } from './fx.js';
 
 export class Synth {
   constructor() {
@@ -43,6 +43,8 @@ export class Synth {
     this.fx.mod.output.connect(this.fx.delay.input);
     this.fx.delay.output.connect(this.fx.reverb.input);
     this.fx.reverb.output.connect(this.master).connect(limiter).connect(ctx.destination);
+    // The data player's rushing-water layer joins before the reverb, so it shares the room.
+    this.roar = new RiverRoar(ctx, this.fx.reverb.input);
 
     this.setParams(this.values);
     for (const msg of this.pending ?? []) this.node.port.postMessage(msg);

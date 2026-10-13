@@ -43,7 +43,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | Arpeggiator | Manual / Rise / Fall / Rise Fall / Poly over 1–2 octaves, Random over 1–3 octaves; Latch, Tempo (40–300 BPM), Rate (1/4–1/32 incl. triplets), Gate |
 | Effects | **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser, Spring |
 | Display | Live oscilloscope with a readout of the parameter you're changing |
-| Programs | 20 factory presets, unlimited user presets, JSON export/import |
+| Programs | 21 factory presets, unlimited user presets, JSON export/import |
 | River Data | Play any USGS stream gauge's daily discharge as notes (see below) |
 
 ### Planned next
@@ -68,6 +68,8 @@ js/ui/                          knobs and switches, keyboard, oscilloscope
 js/main.js                      builds the page and connects everything
 js/data/usgs.js                 fetch USGS daily values in the browser; parse CSVs
 js/data/player.js               data → notes mapping, scheduler and chart
+js/data/features.js             derived signals: change, anomaly vs normal, trend, turbulence
+js/data/gauges.js               the River menu's starter gauges
 data_helper/                    Python: fetch USGS data for sonification
 ```
 
@@ -87,22 +89,37 @@ You can try these in the browser's developer console, where the synth is availab
 
 The **River Data** panel loads daily mean discharge for any USGS gauge, straight from the
 [USGS Water Data API](https://api.waterdata.usgs.gov) in the browser. No Python is needed for
-this part. It starts with the **Cache la Poudre River at Fort Collins, CO (06752260)** for 2024.
+this part. It starts with the **Cache la Poudre River at Fort Collins, CO (06752260)** for 2024,
+and the **River** menu has a dozen more with very different characters (snowmelt, tropical flash
+floods, giant rivers, dam-controlled flow, arctic ice breakup), or type any gauge number.
 
-- Each day becomes one step. Flow is rescaled to 0–1 over the whole period (log scale by
-  default, so low flows still move) and mapped onto the notes of the chosen **Scale** and
-  **Key** between **Low** and **High**.
+After loading, the app also fetches the gauge's full daily record in the background to work out
+the **normal** (median) flow for each date, drawn as a dashed line on the chart.
+
+- Each day becomes one step and its flow picks a note from the chosen **Scale** and **Key**
+  between **Low** and **High**. With **Note spread: Even** (the default) the days are ranked,
+  so every note gets used about equally; **Proportional** follows the flow's actual size
+  (log scale by default).
 - **Tempo** and **Step** set the speed (at 120 BPM in 1/16 steps, a year of data plays in about
   46 seconds). **Gate** sets note length, and **Tie repeats** holds a note while the flow stays
   on the same pitch.
 - Click the chart to move the playhead. Notes play through the current program and voice mode,
   so Chord or Arp mode turn each day into a chord or an arpeggio.
-- **Data → Sound** lets the flow move other controls as well: pick any knob (filter cutoff,
-  resonance, reverb or delay mix, delay feedback, LFO rate, voice detune and so on) and set its
-  position at the lowest and highest flow. By default, higher flow opens the filter and adds
-  reverb. Routed knobs move on the panel while playing and return to where they were when you
-  stop. (Reverb Decay and Tone aren't available because they rebuild the reverb on every
-  change.)
+- **Data → Sound** lets the river move other controls too. Each row picks a control (filter
+  cutoff, resonance, reverb or delay mix, delay feedback, LFO rate, voice detune and so on) and
+  what it **follows**:
+  - **Flow**: the flow itself
+  - **Change**: falling vs rising
+  - **Anomaly vs normal**: drier vs wetter than the median for that date
+  - **Trend (30-day)**: the slow, seasonal movement
+  - **Turbulence (7-day)**: calm vs stormy weeks
+
+  Because these move independently, the sound gets more than one dimension. The defaults:
+  flow opens the filter, wetter-than-normal adds reverb, turbulence adds resonance. Routed
+  knobs move on the panel while playing and return to where they were when you stop. (Reverb
+  Decay and Tone aren't available because they rebuild the reverb on every change.)
+- **River roar** adds a continuous rushing-water layer whose loudness and brightness follow the
+  flow: a quiet trickle at low flow, a bright roar at high flow.
 - **Load CSV** accepts files from the Python helper below, or any CSV with a date column and a
   value column.
 

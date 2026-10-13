@@ -251,7 +251,7 @@ kbd {
   font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
 }
 .route label > :first-child { grid-column: 1 / -1; }
-.route label:first-child { display: flex; flex-direction: column; align-items: stretch; }
+.route label:has(select) { display: flex; flex-direction: column; align-items: stretch; }
 .route select { padding: 4px 6px; text-transform: none; letter-spacing: 0; }
 .route input[type="range"] { width: 120px; accent-color: var(--moog-green); }
 .route output { min-width: 5.5em; font: 11px ui-monospace, Menlo, monospace; color: var(--text); text-transform: none; }
@@ -312,3 +312,4 @@ kbd {
   .keys { height: 130px; }
   .key .hint { display: none; }
 }
+#data-gauge { max-width: 280px; }

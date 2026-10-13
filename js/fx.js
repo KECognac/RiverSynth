@@ -244,3 +244,66 @@ export class ReverbFX extends FXUnit {
     }
   }
 }
+
+// --- River roar ------------------------------------------------------------------
+// A continuous rushing-water layer for the data player: looped stereo pink noise through
+// two low-pass filters. Flow sets loudness and brightness (a trickle at low flow, a roar
+// at high flow), and two slow LFOs make it surge and babble.
+export class RiverRoar {
+  constructor(ctx, destination) {
+    this.ctx = ctx;
+    this.level = 0.6;
+    const sr = ctx.sampleRate;
+    const buf = ctx.createBuffer(2, sr * 6, sr);
+    for (let ch = 0; ch < 2; ch++) { // Paul Kellet's pink noise filter, independent per channel
+      const d = buf.getChannelData(ch);
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < d.length; i++) {
+        const w = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759;
+        b2 = 0.96900 * b2 + w * 0.1538520; b3 = 0.86650 * b3 + w * 0.3104856;
+        b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980;
+        d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11;
+        b6 = w * 0.115926;
+      }
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    this.lp1 = ctx.createBiquadFilter();
+    this.lp2 = ctx.createBiquadFilter();
+    for (const f of [this.lp1, this.lp2]) { f.type = 'lowpass'; f.Q.value = 0.5; f.frequency.value = 400; }
+    const trem = ctx.createGain();
+    this.vca = ctx.createGain();
+    this.vca.gain.value = 0;
+    src.connect(this.lp1).connect(this.lp2).connect(trem).connect(this.vca).connect(destination);
+
+    // Surging: slow LFO on the filters' detune; babble: faster, gentle tremolo.
+    const surge = ctx.createOscillator(), surgeAmt = ctx.createGain();
+    surge.frequency.value = 0.13; surgeAmt.gain.value = 350; // cents
+    surge.connect(surgeAmt);
+    surgeAmt.connect(this.lp1.detune);
+    surgeAmt.connect(this.lp2.detune);
+    const babble = ctx.createOscillator(), babbleAmt = ctx.createGain();
+    babble.frequency.value = 0.71; babbleAmt.gain.value = 0.12;
+    babble.connect(babbleAmt).connect(trem.gain);
+    src.start(); surge.start(); babble.start();
+  }
+
+  setLevel(level) { this.level = level; }
+
+  // t: 0..1 flow; time: when (AudioContext seconds); smooth: glide time constant (s)
+  setFlow(t, time, smooth) {
+    const gain = this.level * (0.03 + 0.5 * t * t);
+    const fc = 250 * Math.pow(32, t); // 250 Hz trickle -> 8 kHz roar
+    this.vca.gain.setTargetAtTime(gain, time, smooth);
+    this.lp1.frequency.setTargetAtTime(fc, time, smooth);
+    this.lp2.frequency.setTargetAtTime(fc, time, smooth);
+  }
+
+  silence() {
+    const now = this.ctx.currentTime;
+    for (const p of [this.vca.gain, this.lp1.frequency, this.lp2.frequency]) p.cancelScheduledValues(now);
+    this.vca.gain.setTargetAtTime(0, now, 0.3);
+  }
+}

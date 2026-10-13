@@ -49,6 +49,7 @@
       </div>
 
       <div class="data-row">
+        <label>River<select id="data-gauge"></select></label>
         <label>USGS gauge<input id="data-site" type="text" value="06752260" inputmode="numeric" maxlength="15" size="10"></label>
         <label>Start<input id="data-start" type="date" value="2024-01-01"></label>
         <label>End<input id="data-end" type="date" value="2024-12-31"></label>
@@ -73,12 +74,19 @@
         <label>Key<select id="data-root"></select></label>
         <label>Low<select id="data-low"></select></label>
         <label>High<select id="data-high"></select></label>
+        <label>Note spread<select id="data-spread">
+          <option value="even">Even</option>
+          <option value="proportional">Proportional</option>
+        </select></label>
         <label class="check"><input id="data-log" type="checkbox" checked>Log scale</label>
+        <span class="divider" aria-hidden="true"></span>
+        <label class="check"><input id="data-roar" type="checkbox">River roar</label>
+        <label>Roar level<input id="data-roar-level" type="range" min="0" max="1" step="0.05" value="0.6"></label>
       </div>
 
       <div class="routes-head">
         <h3 class="small">Data → Sound</h3>
-        <p class="small routes-help">Each control moves from its <em>Low flow</em> setting to its <em>High flow</em> setting as the river rises. Knobs go back to where they were when you stop.</p>
+        <p class="small routes-help">Pick what each control follows: the flow itself, whether it's rising or falling, how it compares with the normal flow for that date, its 30-day trend, or how turbulent the last week was. Knobs go back to where they were when you stop.</p>
       </div>
       <div id="routes" class="routes"></div>
       <div><button id="route-add" type="button">+ Add control</button></div>

@@ -9,6 +9,7 @@
 // reverb at high flow). Routed knobs are restored when playback stops.
 
 import { PARAMS, toValue } from '../params.js';
+import { computeSources, evenSpread } from './features.js';
 
 export const SCALES = {
   'Major pentatonic': [0, 2, 4, 7, 9],
@@ -33,12 +34,15 @@ export class DataPlayer {
     this.settings = {
       scale: 'Major pentatonic', root: 0, low: 48, high: 84, log: true,
       bpm: 120, rate: '1/16', gate: 0.6, tie: false, loop: false,
+      spread: 'even',      // 'even': every scale note used about equally; 'proportional': follows the flow
+      roar: false, roarLevel: 0.6,
     };
+    this.history = null;   // long daily record for the same gauge, for "normal" flows
     this.position = 0;     // step to start from
     this.playing = false;
     this.timeline = [];    // [{ time, step }] of scheduled steps, for the playhead
     this.listeners = new Set(); // called with ({ playing }) when play state changes
-    this.routes = [];      // [{ id, from, to }]: knob position (0..1) at the lowest and highest value
+    this.routes = [];      // [{ id, source, from, to }]: knob position (0..1) at the source's low and high end
     this.base = {};        // routed params' values before playback, restored on stop
   }
 
@@ -49,12 +53,31 @@ export class DataPlayer {
     this.invalidate();
   }
 
-  set(key, value) {
-    this.settings[key] = value;
+  setHistory(history) {
+    this.history = history;
     this.invalidate();
   }
 
-  invalidate() { this._notes = null; this._norms = null; }
+  set(key, value) {
+    this.settings[key] = value;
+    this.invalidate();
+    if (this.playing && (key === 'roar' || key === 'roarLevel')) this.updateRoar();
+  }
+
+  invalidate() { this._notes = null; this._norms = null; this._sources = null; }
+
+  // Derived 0..1 signals: flow, change, anomaly, trend, turbulence (see features.js).
+  get sources() {
+    this._sources ??= computeSources(this.rows, { log: this.settings.log, history: this.history });
+    return this._sources;
+  }
+
+  updateRoar() {
+    const roar = this.synth.roar;
+    if (!roar) return;
+    roar.setLevel(this.settings.roarLevel);
+    if (!this.settings.roar) roar.silence();
+  }
 
   get stepDur() { return 60 / this.settings.bpm / RATES[this.settings.rate]; }
 
@@ -69,14 +92,10 @@ export class DataPlayer {
     return out;
   }
 
-  // Each value rescaled to 0..1 over the series (null where data is missing).
+  // The 0..1 value that picks each step's note. "Even" ranks the values so every scale
+  // note gets used about equally; "proportional" follows the flow's actual size.
   get norms() {
-    if (this._norms) return this._norms;
-    const tr = (x) => (this.settings.log ? Math.log10(Math.max(x, 0.01)) : x);
-    const vals = this.rows.map((r) => (r.value == null ? null : tr(r.value)));
-    const present = vals.filter((v) => v != null);
-    const lo = Math.min(...present), hi = Math.max(...present);
-    this._norms = vals.map((v) => (v == null ? null : hi > lo ? (v - lo) / (hi - lo) : 0.5));
+    this._norms ??= this.settings.spread === 'even' ? evenSpread(this.sources.flow) : this.sources.flow;
     return this._norms;
   }
 
@@ -120,6 +139,7 @@ export class DataPlayer {
     this.sounding = null;
     this.base = {};
     for (const r of this.routes) this.base[r.id] = this.synth.values[r.id];
+    this.updateRoar();
     this.nextStep = this.position;
     this.nextTime = ctx.currentTime + 0.05;
     this.timeline = [];
@@ -138,6 +158,7 @@ export class DataPlayer {
     this.sounding = null;
     this.synth.setParams(this.base);
     this.base = {};
+    this.synth.roar?.silence();
     this.emit();
   }
 
@@ -177,8 +198,15 @@ export class DataPlayer {
     const { tie, gate } = this.settings;
     const note = notes[i];
     const next = notes[i + 1];
-    const t0 = this.norms[i];
-    if (t0 != null) for (const r of this.routes) this.synth.setParamAt(r.id, this.routeValue(r, t0), t);
+    const src = this.sources;
+    for (const r of this.routes) {
+      const v = src[r.source ?? 'flow'][i];
+      if (v != null) this.synth.setParamAt(r.id, this.routeValue(r, v), t);
+    }
+    if (this.settings.roar && src.flow[i] != null) {
+      // Smooth over a couple of steps so the roar swells rather than steps.
+      this.synth.roar?.setFlow(src.flow[i], t, Math.max(0.05, this.stepDur * 2));
+    }
     // A note tied over from the previous step either continues or ends here.
     if (this.sounding != null && !(tie && note === this.sounding)) {
       this.synth.noteOff(this.sounding, t);
@@ -264,6 +292,23 @@ export class DataChart {
     g.strokeStyle = '#f0b62f';
     g.lineWidth = 1.5 * dpr;
     g.stroke();
+
+    // Dashed line: the normal (median) flow for each date, when history is available
+    const src = player.sources;
+    if (src.anomalyAvailable) {
+      g.beginPath();
+      started = false;
+      src.normal.forEach((nv, i) => {
+        if (nv == null) { started = false; return; }
+        const yy = Math.min(h, Math.max(0, y(tr(nv))));
+        if (!started) { g.moveTo(x(i), yy); started = true; } else g.lineTo(x(i), yy);
+      });
+      g.setLineDash([4 * dpr, 4 * dpr]);
+      g.strokeStyle = 'rgba(169, 198, 236, 0.75)';
+      g.lineWidth = 1 * dpr;
+      g.stroke();
+      g.setLineDash([]);
+    }
 
     // Playhead
     const step = player.playing ? player.currentStep() : player.position;

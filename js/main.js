@@ -6,6 +6,8 @@ import { Scope } from './ui/scope.js';
 import { FACTORY, loadUserPresets, saveUserPresets, resolvePreset } from './presets.js';
 import { DataPlayer, DataChart, SCALES, RATES } from './data/player.js';
 import { fetchDaily, fetchSiteName, parseCsv } from './data/usgs.js';
+import { SOURCES } from './data/features.js';
+import { GAUGES } from './data/gauges.js';
 
 const synth = new Synth();
 window.synth = synth; // handy for experimenting from the browser console
@@ -167,6 +169,7 @@ power.addEventListener('click', () => ensureAudio());
 
 // --- River data player -----------------------------------------------------------
 const player = new DataPlayer(synth, ensureAudio);
+window.player = player; // for experimenting from the console, like window.synth
 const chart = new DataChart($('#data-chart'), player, (step) => player.seek(step));
 const dataStatus = $('#data-status');
 const dataNow = $('#data-now');
@@ -198,6 +201,9 @@ bindSetting('#data-gate', 'gate', (el) => Number(el.value));
 bindSetting('#data-tie', 'tie', (el) => el.checked);
 bindSetting('#data-loop', 'loop', (el) => el.checked);
 bindSetting('#data-log', 'log', (el) => el.checked);
+bindSetting('#data-spread', 'spread');
+bindSetting('#data-roar', 'roar', (el) => el.checked);
+bindSetting('#data-roar-level', 'roarLevel', (el) => Number(el.value));
 
 playBtn.addEventListener('click', () => (player.playing ? player.stop() : player.play()));
 player.listeners.add(({ playing }) => {
@@ -215,11 +221,15 @@ chart.onFrame = (step) => {
   lastShown = step;
   const row = player.rows[step];
   const note = player.notes[step];
-  dataNow.textContent = `${row.date} · ${row.value == null ? 'no data' : `${row.value.toLocaleString()} cfs`} · ${note == null ? 'rest' : noteName(note)}`;
+  const normal = player.sources.normal[step];
+  const pctNormal = row.value != null && normal ? ` (${Math.round((100 * row.value) / normal)}% of normal)` : '';
+  dataNow.textContent = `${row.date} · ${row.value == null ? 'no data' : `${row.value.toLocaleString()} cfs${pctNormal}`} · ${note == null ? 'rest' : noteName(note)}`;
 };
 
-function showSeries(rows, label) {
+function showSeries(rows, label, history = null) {
   player.setSeries(rows);
+  player.setHistory(history);
+  renderRoutes();
   lastShown = -1;
   const vals = rows.map((r) => r.value).filter((v) => v != null);
   dataStatus.textContent = rows.length
@@ -227,7 +237,29 @@ function showSeries(rows, label) {
     : `${label} · no data`;
 }
 
+// Fetch the gauge's full daily record in the background to work out the normal flow for
+// each date (used by the "Anomaly vs normal" source and the dashed line on the chart).
+let loadToken = 0;
+async function loadHistory(site, label, token) {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const history = await fetchDaily(site, '1900-01-01', today);
+    if (token !== loadToken) return; // a newer load replaced this one
+    const years = new Set(history.map((r) => r.date.slice(0, 4)));
+    player.setHistory(history);
+    renderRoutes();
+    lastShown = -1; // refresh the readout so it can show "% of normal"
+    if (years.size >= 3) {
+      const first = history[0].date.slice(0, 4), last = history[history.length - 1].date.slice(0, 4);
+      dataStatus.textContent += ` · normal from ${first}–${last}`;
+    }
+  } catch {
+    // Not fatal: anomaly falls back to the loaded period itself.
+  }
+}
+
 async function loadFromUsgs() {
+  const token = ++loadToken;
   const site = $('#data-site').value.trim();
   const start = $('#data-start').value, end = $('#data-end').value;
   if (!site || !start || !end) { dataStatus.textContent = 'Enter a gauge number and both dates.'; return; }
@@ -239,7 +271,9 @@ async function loadFromUsgs() {
     if (!rows.length) {
       dataStatus.textContent = `No daily discharge for USGS ${site} between ${start} and ${end}.`;
     } else {
-      showSeries(rows, name ? `${name} (USGS ${site})` : `USGS ${site}`);
+      const label = name ? `${name} (USGS ${site})` : `USGS ${site}`;
+      showSeries(rows, label);
+      loadHistory(site, label, token);
     }
   } catch (err) {
     dataStatus.textContent = `Couldn't load data: ${err.message}`;
@@ -248,6 +282,19 @@ async function loadFromUsgs() {
   }
 }
 $('#data-load').addEventListener('click', loadFromUsgs);
+
+// River picker: choosing one fills in the gauge number and loads it.
+const gaugeSel = $('#data-gauge');
+fillSelect(gaugeSel, [...GAUGES.map((g) => [g.id, `${g.name} — ${g.note}`]), ['', 'Other (type a gauge number)']], GAUGES[0].id);
+gaugeSel.addEventListener('change', () => {
+  if (!gaugeSel.value) { $('#data-site').focus(); return; }
+  $('#data-site').value = gaugeSel.value;
+  loadFromUsgs();
+});
+$('#data-site').addEventListener('input', () => {
+  const v = $('#data-site').value.trim();
+  gaugeSel.value = GAUGES.some((g) => g.id === v) ? v : '';
+});
 $('#data-site').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadFromUsgs(); });
 
 $('#data-csv').addEventListener('change', async (e) => {
@@ -255,6 +302,7 @@ $('#data-csv').addEventListener('change', async (e) => {
   e.target.value = '';
   if (!file) return;
   const rows = parseCsv(await file.text());
+  ++loadToken;
   if (rows.length) showSeries(rows, file.name);
   else dataStatus.textContent = `${file.name}: no date/value rows found.`;
 });
@@ -268,10 +316,13 @@ const ROUTE_TARGETS = SECTIONS.flatMap((sec) => sec.controls
   .map((id) => [id, `${sec.title} · ${PARAMS[id].label}`]));
 const FX_NAMES = { mod: 'Mod FX', delay: 'Delay', reverb: 'Reverb' };
 const routesEl = $('#routes');
+// Defaults use three different sources so the sound has more than one dimension.
 let routes = [
-  { id: 'filter.cutoff', from: 0.45, to: 0.9 },
-  { id: 'reverb.mix', from: 0.1, to: 0.6 },
+  { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.9 },        // brighter at high flow
+  { id: 'reverb.mix', source: 'anomaly', from: 0.08, to: 0.6 },        // drought dry, wet years spacious
+  { id: 'filter.resonance', source: 'turbulence', from: 0.1, to: 0.6 }, // stormy weeks more agitated
 ];
+const SOURCE_OPTIONS = Object.entries(SOURCES).map(([k, s]) => [k, s.label]);
 
 function renderRoutes() {
   routesEl.innerHTML = '';
@@ -279,13 +330,20 @@ function renderRoutes() {
     const row = document.createElement('div');
     row.className = 'route';
     row.innerHTML = `
+      <label>Follows<select class="route-source"></select></label>
       <label>Control<select class="route-target"></select></label>
-      <label>Low flow<input class="route-from" type="range" min="0" max="1" step="0.01"><output></output></label>
-      <label>High flow<input class="route-to" type="range" min="0" max="1" step="0.01"><output></output></label>
+      <label><span class="route-low"></span><input class="route-from" type="range" min="0" max="1" step="0.01"><output></output></label>
+      <label><span class="route-high"></span><input class="route-to" type="range" min="0" max="1" step="0.01"><output></output></label>
       <span class="route-warn small"></span>
       <button class="route-remove" type="button" aria-label="Remove ${PARAMS[r.id].label}">×</button>`;
     const sel = row.querySelector('.route-target');
     fillSelect(sel, ROUTE_TARGETS, r.id);
+    const srcSel = row.querySelector('.route-source');
+    r.source ??= 'flow';
+    fillSelect(srcSel, SOURCE_OPTIONS, r.source);
+    row.querySelector('.route-low').textContent = SOURCES[r.source].low;
+    row.querySelector('.route-high').textContent = SOURCES[r.source].high;
+    srcSel.addEventListener('change', () => { r.source = srcSel.value; applyRoutes(); });
     const from = row.querySelector('.route-from'), to = row.querySelector('.route-to');
     from.value = r.from; to.value = r.to;
     const outs = row.querySelectorAll('output');
@@ -297,7 +355,7 @@ function renderRoutes() {
     sel.addEventListener('change', () => {
       // Start a new target at its current knob position, sweeping upward from there.
       const cur = toNorm(PARAMS[sel.value], synth.values[sel.value]);
-      routes[i] = { id: sel.value, from: cur, to: Math.min(1, cur + 0.4) };
+      routes[i] = { id: sel.value, source: r.source, from: cur, to: Math.min(1, cur + 0.4) };
       applyRoutes();
     });
     from.addEventListener('input', () => { r.from = Number(from.value); label(); player.setRoutes(routes); });
@@ -311,9 +369,12 @@ function renderRoutes() {
 // An effect knob does nothing while that effect is switched off; say so.
 function updateRouteWarnings() {
   routesEl.querySelectorAll('.route').forEach((row, i) => {
-    const unit = routes[i]?.id.split('.')[0];
+    const r = routes[i];
+    const unit = r?.id.split('.')[0];
     const off = FX_NAMES[unit] && !synth.values[`${unit}.on`];
-    row.querySelector('.route-warn').textContent = off ? `${FX_NAMES[unit]} is off` : '';
+    const noNormal = r?.source === 'anomaly' && player.rows.length && !player.sources.anomalyAvailable;
+    row.querySelector('.route-warn').textContent = off ? `${FX_NAMES[unit]} is off`
+      : noNormal ? 'Normal not available yet (needs several years of data)' : '';
   });
 }
 
@@ -326,7 +387,7 @@ $('#route-add').addEventListener('click', () => {
   const used = new Set(routes.map((r) => r.id));
   const id = (ROUTE_TARGETS.find(([t]) => !used.has(t)) ?? ROUTE_TARGETS[0])[0];
   const cur = toNorm(PARAMS[id], synth.values[id]);
-  routes.push({ id, from: cur, to: Math.min(1, cur + 0.4) });
+  routes.push({ id, source: 'flow', from: cur, to: Math.min(1, cur + 0.4) });
   applyRoutes();
 });
 synth.listeners.add((id) => { if (id.endsWith('.on')) updateRouteWarnings(); });

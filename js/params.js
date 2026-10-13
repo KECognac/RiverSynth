@@ -115,7 +115,7 @@ export const PARAMS = {
   'delay.mix':   { label: 'Mix', min: 0, max: 1, def: 0.3, curve: 'lin', fmt: pct },
 
   'reverb.on':    { label: 'On', toggle: true, def: 0 },
-  'reverb.type':  { label: 'Type', choices: ['Hall', 'Room', 'Plate', 'Riser'], def: 0 },
+  'reverb.type':  { label: 'Type', choices: ['Hall', 'Room', 'Plate', 'Riser', 'Spring'], def: 0 },
   'reverb.time':  { label: 'Decay', min: 0, max: 1, def: 0.5, curve: 'lin', fmt: pct },
   'reverb.depth': { label: 'Tone', min: 0, max: 1, def: 0.5, curve: 'lin', fmt: pct },
   'reverb.mix':   { label: 'Mix', min: 0, max: 1, def: 0.3, curve: 'lin', fmt: pct },

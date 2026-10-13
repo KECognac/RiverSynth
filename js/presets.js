@@ -150,6 +150,80 @@ export const FACTORY = [
     },
   },
   {
+    // Glockenspiel: a struck steel bar. VCO 2 is tuned 2.76x above VCO 1 (+2 oct, then
+    // +557 cents relative to VCO 1's 4'), the bar's real first overtone, which gives the
+    // metallic ring. Fast filter-EG strike, long ringing decay, no sustain. Plays an octave up.
+    name: 'Glockenspiel',
+    values: {
+      'vco1.wave': 1, 'vco1.octave': 2, 'vco1.shape': 0.08, 'mixer.vco1': 0.95,
+      'vco2.wave': 1, 'vco2.octave': 3, 'vco2.pitch': 557, 'mixer.vco2': 0.45,
+      'filter.cutoff': 7000, 'filter.resonance': 0.05, 'filter.keytrack': 2,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.04, 'eg.int': 0.3,
+      'ampeg.attack': 0.001, 'ampeg.decay': 2.2, 'ampeg.sustain': 0, 'ampeg.release': 2.2, // keeps ringing after the key is lifted
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.45, 'reverb.depth': 0.75, 'reverb.mix': 0.25,
+      'master.volume': 0.95,
+    },
+  },
+  // --- Inspired by the Moog Grandmother: fat analog mono sounds through a spring reverb ---
+  {
+    // Classic Moog bass: saw + square an octave below, mono (Unison, light detune),
+    // low cutoff with a punchy filter envelope and some drive.
+    name: 'Grandmother Bass',
+    values: {
+      'voice.mode': 1, 'voice.depth': 0.12,
+      'vco1.wave': 0, 'mixer.vco1': 0.8,
+      'vco2.wave': 2, 'vco2.octave': 0, 'vco2.pitch': -5, 'mixer.vco2': 0.7,
+      'filter.cutoff': 280, 'filter.resonance': 0.3, 'filter.drive': 0.5,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.3, 'eg.int': 0.45,
+      'ampeg.attack': 0.001, 'ampeg.decay': 0.5, 'ampeg.sustain': 0.8, 'ampeg.release': 0.1,
+      'reverb.on': 1, 'reverb.type': 4, 'reverb.time': 0.3, 'reverb.mix': 0.1,
+    },
+  },
+  {
+    // Singing mono lead: saw + slightly detuned pulse, resonant filter, light
+    // vibrato, tape echo and the drippy spring reverb.
+    name: 'Grandmother Lead',
+    values: {
+      'voice.mode': 1, 'voice.depth': 0.08,
+      'vco1.wave': 0, 'mixer.vco1': 0.8,
+      'vco2.wave': 2, 'vco2.shape': 0.3, 'vco2.pitch': 7, 'mixer.vco2': 0.6,
+      'filter.cutoff': 1800, 'filter.resonance': 0.45, 'filter.drive': 0.3,
+      'eg.target': 0, 'eg.attack': 0.01, 'eg.decay': 0.5, 'eg.int': 0.25,
+      'ampeg.attack': 0.01, 'ampeg.decay': 0.6, 'ampeg.sustain': 0.85, 'ampeg.release': 0.3,
+      'lfo.wave': 1, 'lfo.rate': 5.2, 'lfo.int': 0.02, 'lfo.target': 0,
+      'delay.on': 1, 'delay.type': 1, 'delay.time': 0.3, 'delay.depth': 0.35, 'delay.mix': 0.2,
+      'reverb.on': 1, 'reverb.type': 4, 'reverb.time': 0.5, 'reverb.mix': 0.3,
+    },
+  },
+  {
+    // The Grandmother's arpeggiator: latched rising plucks with a squelchy resonant
+    // filter envelope, splashing into the spring reverb.
+    name: 'Grandmother Spring Arp',
+    values: {
+      'voice.mode': 3, 'voice.depth': 3 / 12, 'arp.latch': 1, 'arp.tempo': 112, 'arp.rate': 3, 'arp.gate': 0.35,
+      'vco1.wave': 2, 'vco1.shape': 0.2, 'mixer.vco1': 0.8,
+      'vco2.wave': 0, 'vco2.octave': 2, 'mixer.vco2': 0.3,
+      'filter.cutoff': 600, 'filter.resonance': 0.55, 'filter.drive': 0.2,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.18, 'eg.int': 0.5,
+      'ampeg.attack': 0.001, 'ampeg.decay': 0.25, 'ampeg.sustain': 0, 'ampeg.release': 0.2,
+      'reverb.on': 1, 'reverb.type': 4, 'reverb.time': 0.55, 'reverb.mix': 0.35,
+    },
+  },
+  {
+    // Warm brass chords (the Grandmother can play paraphonically): two detuned saws,
+    // a slow-opening filter swell and a touch of spring.
+    name: 'Grandmother Brass',
+    values: {
+      'vco1.wave': 0, 'mixer.vco1': 0.75,
+      'vco2.wave': 0, 'vco2.pitch': 10, 'mixer.vco2': 0.65,
+      'filter.cutoff': 700, 'filter.resonance': 0.2, 'filter.drive': 0.3,
+      'eg.target': 0, 'eg.attack': 0.08, 'eg.decay': 0.6, 'eg.int': 0.45,
+      'ampeg.attack': 0.03, 'ampeg.decay': 0.8, 'ampeg.sustain': 0.75, 'ampeg.release': 0.35,
+      'voice.depth': 0.3,
+      'reverb.on': 1, 'reverb.type': 4, 'reverb.time': 0.4, 'reverb.mix': 0.2,
+    },
+  },
+  {
     name: 'FM Bells',
     values: {
       'mixer.vco1': 0, 'mixer.multi': 0.9, 'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.45,

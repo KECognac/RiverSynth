@@ -181,6 +181,7 @@ const REVERB_TYPES = [
   { len: 0.9, pre: 0.006, bright: 6000, dark: 1800, early: 8 },      // Room
   { len: 2.2, pre: 0, bright: 12000, dark: 4000, early: 0 },         // Plate
   { len: 3.0, pre: 0, bright: 9000, dark: 3000, early: 0, rise: 1 }, // Riser
+  { len: 1.8, pre: 0.004, bright: 4500, dark: 1800, early: 0, spring: 1 }, // Spring
 ];
 
 export class ReverbFX extends FXUnit {
@@ -213,13 +214,33 @@ export class ReverbFX extends FXUnit {
           : Math.exp(-6.9 * x);
         const fc = Math.min(sr * 0.45, cfg.bright * tone * Math.pow(cfg.dark / cfg.bright, x));
         y += (Math.random() * 2 - 1 - y) * (1 - Math.exp(-2 * Math.PI * fc / sr));
-        data[i] = y * env;
+        data[i] = y * env * (cfg.spring ? 0.35 : 1);
       }
+      if (cfg.spring) this.addSpringChirps(data, sr, pre, len, ch);
       for (let e = 0; e < cfg.early; e++) { // discrete early reflections
         const at = pre + Math.floor((0.004 + Math.random() * 0.05) * sr);
         data[at] += (Math.random() < 0.5 ? -1 : 1) * (0.6 - e * 0.05);
       }
     }
     return buf;
+  }
+
+  // A spring tank's "drip": each pass of the wave down the spring returns as a falling
+  // chirp (high frequencies travel faster), repeating every ~30 ms and dying away.
+  addSpringChirps(data, sr, pre, len, ch) {
+    const period = 0.031 + ch * 0.0027; // slightly different springs left and right
+    const n = Math.floor(0.022 * sr);
+    for (let k = 0; ; k++) {
+      const t0 = 0.004 + k * period;
+      if (t0 > len) break;
+      const amp = 0.9 * Math.exp(-6.9 * t0 / len);
+      const start = pre + Math.floor(t0 * sr);
+      let ph = 0;
+      for (let j = 0; j < n && start + j < data.length; j++) {
+        const x = j / n;
+        ph += 2 * Math.PI * (3800 * Math.pow(400 / 3800, x)) / sr;
+        data[start + j] += amp * 0.6 * Math.sin(ph) * Math.sin(Math.PI * x);
+      }
+    }
   }
 }

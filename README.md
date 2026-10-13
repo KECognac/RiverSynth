@@ -41,9 +41,9 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | LFO | Saw / Tri / Square, rate, bipolar intensity → Pitch, Shape or Cutoff |
 | Voice Mode | **Poly** (depth = detune), **Unison** (all 4 voices stacked, depth = detune), **Chord** (depth selects 1 of 14 chord types), **Arp** (depth selects 1 of 13 patterns) |
 | Arpeggiator | Manual / Rise / Fall / Rise Fall / Poly over 1–2 octaves, Random over 1–3 octaves; Latch, Tempo (40–300 BPM), Rate (1/4–1/32 incl. triplets), Gate |
-| Effects | **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser |
+| Effects | **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser, Spring |
 | Display | Live oscilloscope with a readout of the parameter you're changing |
-| Programs | 15 factory presets, unlimited user presets, JSON export/import |
+| Programs | 20 factory presets, unlimited user presets, JSON export/import |
 | River Data | Play any USGS stream gauge's daily discharge as notes (see below) |
 
 ### Planned next

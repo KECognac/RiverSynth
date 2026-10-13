@@ -3,7 +3,23 @@
 
 import { PARAMS, defaultValues } from './params.js';
 
+// The first preset (001) is the sound the app opens with.
 export const FACTORY = [
+  {
+    // Glockenspiel: a struck steel bar. VCO 2 is tuned 2.76x above VCO 1 (+2 oct, then
+    // +557 cents relative to VCO 1's 4'), the bar's real first overtone, which gives the
+    // metallic ring. Fast filter-EG strike, long ringing decay, no sustain. Plays an octave up.
+    name: 'Glockenspiel',
+    values: {
+      'vco1.wave': 1, 'vco1.octave': 2, 'vco1.shape': 0.08, 'mixer.vco1': 0.95,
+      'vco2.wave': 1, 'vco2.octave': 3, 'vco2.pitch': 557, 'mixer.vco2': 0.45,
+      'filter.cutoff': 7000, 'filter.resonance': 0.05, 'filter.keytrack': 2,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.04, 'eg.int': 0.3,
+      'ampeg.attack': 0.001, 'ampeg.decay': 2.2, 'ampeg.sustain': 0, 'ampeg.release': 2.2, // keeps ringing after the key is lifted
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.45, 'reverb.depth': 0.75, 'reverb.mix': 0.25,
+      'master.volume': 0.95,
+    },
+  },
   { name: 'Init Program', values: {} },
   {
     name: 'Warm Poly Pad',
@@ -147,21 +163,6 @@ export const FACTORY = [
       'delay.on': 1, 'delay.type': 0, 'delay.time': 0.409, 'delay.depth': 0.35, 'delay.mix': 0.25, // dotted 1/8 at 110 BPM
       'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.5, 'reverb.depth': 0.5, 'reverb.mix': 0.3,
       'master.volume': 1,
-    },
-  },
-  {
-    // Glockenspiel: a struck steel bar. VCO 2 is tuned 2.76x above VCO 1 (+2 oct, then
-    // +557 cents relative to VCO 1's 4'), the bar's real first overtone, which gives the
-    // metallic ring. Fast filter-EG strike, long ringing decay, no sustain. Plays an octave up.
-    name: 'Glockenspiel',
-    values: {
-      'vco1.wave': 1, 'vco1.octave': 2, 'vco1.shape': 0.08, 'mixer.vco1': 0.95,
-      'vco2.wave': 1, 'vco2.octave': 3, 'vco2.pitch': 557, 'mixer.vco2': 0.45,
-      'filter.cutoff': 7000, 'filter.resonance': 0.05, 'filter.keytrack': 2,
-      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.04, 'eg.int': 0.3,
-      'ampeg.attack': 0.001, 'ampeg.decay': 2.2, 'ampeg.sustain': 0, 'ampeg.release': 2.2, // keeps ringing after the key is lifted
-      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.45, 'reverb.depth': 0.75, 'reverb.mix': 0.25,
-      'master.volume': 0.95,
     },
   },
   // --- Inspired by the Moog Grandmother: fat analog mono sounds through a spring reverb ---

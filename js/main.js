@@ -393,6 +393,7 @@ $('#route-add').addEventListener('click', () => {
 synth.listeners.add((id) => { if (id.endsWith('.on')) updateRouteWarnings(); });
 applyRoutes();
 
+loadPreset('f:0'); // open with program 001 (Glockenspiel)
 loadFromUsgs(); // start with the Poudre River at Fort Collins
 window.addEventListener('pointerdown', () => ensureAudio(), { once: true });
 window.addEventListener('keydown', () => ensureAudio(), { once: true });

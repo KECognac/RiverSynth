@@ -8,7 +8,7 @@
 //   { type: 'noteOn', note, velocity } | { type: 'noteOff', note } | { type: 'allOff' }
 //   { type: 'param', id, value }       | { type: 'params', values }
 
-import { CHORDS, chordIndex, defaultValues } from '../params.js';
+import { CHORDS, chordIndex, ARP_TYPES, arpIndex, ARP_RATES, defaultValues } from '../params.js';
 
 const NUM_VOICES = 4;
 const TWO_PI = Math.PI * 2;
@@ -104,6 +104,13 @@ export class SynthEngine {
     this.voices = Array.from({ length: NUM_VOICES }, () => new Voice());
     this.held = []; // keys held, in press order (for Unison / Chord note priority)
     this.order = 0;
+    // Arpeggiator state
+    this.arpDown = new Set();  // keys physically held right now
+    this.arpNotes = [];        // notes the arp plays, in press order (survives key-up when latched)
+    this.arpVoices = [];       // voices sounding the current step
+    this.arpStep = 0;
+    this.arpCount = 0;         // samples until the next step
+    this.arpGateCount = 0;     // samples until the current step is released
     this.lfoPhase = 0;
     this.smoothCoef = 1 - Math.exp(-1 / (0.005 * sr));
     this.s = {}; // smoothed copies of continuous params
@@ -123,9 +130,13 @@ export class SynthEngine {
   }
 
   setParam(id, value) {
-    const prevMode = this.p['voice.mode'];
+    const prev = this.p[id];
     this.p[id] = value;
-    if (id === 'voice.mode' && value !== prevMode) this.allOff();
+    if (id === 'voice.mode' && value !== prev) this.allOff();
+    // Turning latch off drops notes whose keys are no longer held.
+    if (id === 'arp.latch' && !value && prev) {
+      this.arpNotes = this.arpNotes.filter((n) => this.arpDown.has(n));
+    }
     this.updateCoefs();
   }
 
@@ -149,6 +160,16 @@ export class SynthEngine {
       v.trigger(key, key, POLY_SPREAD[this.voices.indexOf(v)] * depth * 20, ++this.order);
       return;
     }
+    if (mode === 3) {
+      // With latch on, the first key after letting go of everything starts a new set.
+      if (this.p['arp.latch'] && this.arpDown.size === 0) this.arpNotes = [];
+      this.arpDown.add(key);
+      if (!this.arpNotes.includes(key)) {
+        if (this.arpNotes.length === 0) { this.arpStep = 0; this.arpCount = 0; } // start on the beat
+        this.arpNotes.push(key);
+      }
+      return;
+    }
     this.held = this.held.filter((k) => k !== key);
     this.held.push(key);
     this.playMono(key);
@@ -158,6 +179,11 @@ export class SynthEngine {
     const mode = this.p['voice.mode'];
     if (mode === 0) {
       for (const v of this.voices) if (v.gate && v.key === key) v.release();
+      return;
+    }
+    if (mode === 3) {
+      this.arpDown.delete(key);
+      if (!this.p['arp.latch']) this.arpNotes = this.arpNotes.filter((n) => n !== key);
       return;
     }
     const wasCurrent = this.held[this.held.length - 1] === key;
@@ -196,7 +222,75 @@ export class SynthEngine {
 
   allOff() {
     this.held = [];
+    this.arpDown.clear();
+    this.arpNotes = [];
+    this.arpVoices = [];
     for (const v of this.voices) v.release();
+  }
+
+  // --- Arpeggiator -----------------------------------------------------------
+  // Called once per sample in Arp mode.
+  arpTick() {
+    if (this.arpGateCount > 0 && --this.arpGateCount === 0) this.arpRelease();
+    if (this.arpNotes.length === 0) {
+      if (this.arpVoices.length) this.arpRelease();
+      return;
+    }
+    if (--this.arpCount > 0) return;
+
+    const p = this.p;
+    const stepLen = (this.sr * 60) / p['arp.tempo'] / ARP_RATES[p['arp.rate']];
+    this.arpCount = Math.max(1, Math.round(stepLen));
+    this.arpRelease();
+
+    const seq = this.arpSequence();
+    const notes = seq[this.arpStep % seq.length];
+    this.arpStep = (this.arpStep + 1) % seq.length;
+    const order = ++this.order;
+    for (const n of notes) {
+      if (n > 127) continue;
+      const v = this.allocate(n);
+      v.trigger(n, n, 0, order);
+      this.arpVoices.push(v);
+    }
+    // Gate 100% holds each note until the next step (legato).
+    this.arpGateCount = p['arp.gate'] >= 1 ? 0 : Math.max(1, Math.round(stepLen * p['arp.gate']));
+  }
+
+  arpRelease() {
+    for (const v of this.arpVoices) v.release();
+    this.arpVoices = [];
+  }
+
+  // The notes for each step of the current pattern; each step is an array
+  // (one note, or every held note in the Poly patterns).
+  arpSequence() {
+    const [, order, octaves] = ARP_TYPES[arpIndex(this.p['voice.depth'])];
+    const held = this.arpNotes.slice(0, 16);
+    const span = (list) => {
+      const out = [];
+      for (let o = 0; o < octaves; o++) for (const n of list) out.push(n + 12 * o);
+      return out;
+    };
+    const up = [...held].sort((a, b) => a - b);
+    switch (order) {
+      case 'manual': return span(held).map((n) => [n]);
+      case 'rise': return span(up).map((n) => [n]);
+      case 'fall': return span(up).reverse().map((n) => [n]);
+      case 'risefall': {
+        const r = span(up);
+        return r.concat(r.slice(1, -1).reverse()).map((n) => [n]);
+      }
+      case 'poly': {
+        const steps = [];
+        for (let o = 0; o < octaves; o++) steps.push(held.slice(0, NUM_VOICES).map((n) => n + 12 * o));
+        return steps;
+      }
+      default: { // random
+        const r = span(up);
+        return [[r[Math.floor(Math.random() * r.length)]]];
+      }
+    }
   }
 
   // --- Audio ---------------------------------------------------------------
@@ -215,8 +309,10 @@ export class SynthEngine {
     const lfoInt = p['lfo.int'], lfoTarget = p['lfo.target'];
     const sus = p['ampeg.sustain'];
     const keys = Object.keys(s);
+    const arp = p['voice.mode'] === 3;
 
     for (let i = 0; i < outL.length; i++) {
+      if (arp) this.arpTick();
       for (const k of keys) s[k] += (p[k] - s[k]) * sm;
 
       // Global LFO, -1..1

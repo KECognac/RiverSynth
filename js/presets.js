@@ -44,6 +44,17 @@ export const FACTORY = [
     },
   },
   {
+    name: 'Arp Pluck',
+    values: {
+      'voice.mode': 3, 'voice.depth': 7 / 12, 'arp.latch': 1, 'arp.tempo': 118, 'arp.rate': 3, 'arp.gate': 0.4,
+      'vco1.wave': 2, 'vco1.shape': 0.3, 'mixer.vco2': 0.4, 'vco2.octave': 2, 'vco2.wave': 1,
+      'filter.cutoff': 700, 'filter.resonance': 0.45, 'eg.attack': 0.001, 'eg.decay': 0.18, 'eg.int': 0.55,
+      'ampeg.attack': 0.001, 'ampeg.decay': 0.25, 'ampeg.sustain': 0.2, 'ampeg.release': 0.15,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.38, 'delay.depth': 0.4, 'delay.mix': 0.3,
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.mix': 0.25,
+    },
+  },
+  {
     name: 'FM Bells',
     values: {
       'mixer.vco1': 0, 'mixer.multi': 0.9, 'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.45,

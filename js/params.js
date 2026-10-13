@@ -30,6 +30,20 @@ export const CHORDS = [
 
 export const chordIndex = (depth) => Math.round(depth * (CHORDS.length - 1));
 
+// Arpeggiator patterns, selected with the Depth knob in Arp mode (as on the minilogue xd).
+// order: how held notes are sorted; octaves: how many octaves the pattern spans.
+export const ARP_TYPES = [
+  ['Manual 1', 'manual', 1], ['Manual 2', 'manual', 2],
+  ['Rise 1', 'rise', 1], ['Rise 2', 'rise', 2],
+  ['Fall 1', 'fall', 1], ['Fall 2', 'fall', 2],
+  ['Rise Fall 1', 'risefall', 1], ['Rise Fall 2', 'risefall', 2],
+  ['Poly 1', 'poly', 1], ['Poly 2', 'poly', 2],
+  ['Random 1', 'random', 1], ['Random 2', 'random', 2], ['Random 3', 'random', 3],
+];
+
+export const arpIndex = (depth) => Math.round(depth * (ARP_TYPES.length - 1));
+export const ARP_RATES = [1, 2, 3, 4, 6, 8]; // steps per beat for each 'arp.rate' choice
+
 export const PARAMS = {
   // --- Oscillators ---------------------------------------------------------
   'vco1.wave':   { label: 'Wave', choices: ['Saw', 'Tri', 'Sqr'], def: 0 },
@@ -78,8 +92,14 @@ export const PARAMS = {
   'lfo.target': { label: 'Target', choices: ['Pitch', 'Shape', 'Cutoff'], def: 2 },
 
   // --- Voice mode ----------------------------------------------------------
-  'voice.mode':  { label: 'Mode', choices: ['Poly', 'Unison', 'Chord'], def: 0 },
+  'voice.mode':  { label: 'Mode', choices: ['Poly', 'Unison', 'Chord', 'Arp'], def: 0 },
   'voice.depth': { label: 'Depth', min: 0, max: 1, def: 0, curve: 'lin', fmt: pct },
+
+  // --- Arpeggiator (Arp voice mode) -------------------------------------------
+  'arp.latch': { label: 'Latch', toggle: true, def: 0 },
+  'arp.tempo': { label: 'Tempo', min: 40, max: 300, def: 120, curve: 'lin', fmt: (v) => `${Math.round(v)} BPM` },
+  'arp.rate':  { label: 'Rate', choices: ['1/4', '1/8', '1/8T', '1/16', '1/16T', '1/32'], def: 3 },
+  'arp.gate':  { label: 'Gate', min: 0.05, max: 1, def: 0.5, curve: 'lin', fmt: pct },
 
   // --- Effects -------------------------------------------------------------
   'mod.on':    { label: 'On', toggle: true, def: 0 },
@@ -107,6 +127,7 @@ export const PARAMS = {
 PARAMS['voice.depth'].fmtWith = (v, all) => {
   const mode = all['voice.mode'];
   if (mode === 2) return CHORDS[chordIndex(v)][0];
+  if (mode === 3) return ARP_TYPES[arpIndex(v)][0];
   return `Detune ${Math.round(v * 100)}%`;
 };
 
@@ -124,7 +145,12 @@ export const SECTIONS = [
   { id: 'ampeg', title: 'Amp EG', controls: ['ampeg.attack', 'ampeg.decay', 'ampeg.sustain', 'ampeg.release'] },
   { id: 'eg', title: 'EG', controls: ['eg.attack', 'eg.decay', 'eg.int', 'eg.target'] },
   { id: 'lfo', title: 'LFO', controls: ['lfo.wave', 'lfo.rate', 'lfo.int', 'lfo.target'] },
-  { id: 'voice', title: 'Voice Mode', controls: ['voice.mode', 'voice.depth'] },
+  {
+    id: 'voice', title: 'Voice Mode',
+    controls: ['voice.mode', 'voice.depth', 'arp.latch', 'arp.tempo', 'arp.rate', 'arp.gate'],
+    showIf: Object.fromEntries(['arp.latch', 'arp.tempo', 'arp.rate', 'arp.gate']
+      .map((id) => [id, (v) => v['voice.mode'] === 3])),
+  },
   { id: 'master', title: 'Master', controls: ['master.volume'] },
   { id: 'mod', title: 'Mod FX', controls: ['mod.on', 'mod.type', 'mod.time', 'mod.depth', 'mod.mix'] },
   { id: 'delay', title: 'Delay', controls: ['delay.on', 'delay.type', 'delay.time', 'delay.depth', 'delay.mix'] },

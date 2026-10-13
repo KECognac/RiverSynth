@@ -46,7 +46,7 @@ function refreshVisibility() {
 // Keep the panel in sync with any change, including presets and code.
 synth.listeners.add((id, v) => {
   controls[id]?.set(v);
-  if (id === 'multi.type') refreshVisibility();
+  if (id === 'multi.type' || id === 'voice.mode') refreshVisibility();
 });
 refreshVisibility();
 

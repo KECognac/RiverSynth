@@ -37,14 +37,14 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | Amp EG | Attack, Decay, Sustain, Release |
 | EG | Attack, Decay, bipolar Intensity → Cutoff, Pitch 2 or Pitch |
 | LFO | Saw / Tri / Square, rate, bipolar intensity → Pitch, Shape or Cutoff |
-| Voice Mode | **Poly** (depth = detune), **Unison** (all 4 voices stacked, depth = detune), **Chord** (depth selects 1 of 14 chord types) |
+| Voice Mode | **Poly** (depth = detune), **Unison** (all 4 voices stacked, depth = detune), **Chord** (depth selects 1 of 14 chord types), **Arp** (depth selects 1 of 13 patterns) |
+| Arpeggiator | Manual / Rise / Fall / Rise Fall / Poly over 1–2 octaves, Random over 1–3 octaves; Latch, Tempo (40–300 BPM), Rate (1/4–1/32 incl. triplets), Gate |
 | Effects | **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser |
 | Display | Live oscilloscope with a readout of the parameter you're changing |
-| Programs | 9 factory presets, unlimited user presets, JSON export/import |
+| Programs | 10 factory presets, unlimited user presets, JSON export/import |
 
 ### Planned next
 
-- Arpeggiator / Latch voice mode
 - 16-step polyphonic sequencer with motion sequencing
 - Joystick (pitch bend / modulation)
 - User oscillator and effect slots
@@ -57,7 +57,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 index.html                      page layout
 css/style.css                   styling
 js/params.js                    every parameter: range, default, label, panel layout
-js/worklet/synth-processor.js   the voice engine (oscillators, filter, envelopes, LFO, voice modes)
+js/worklet/synth-processor.js   the voice engine (oscillators, filter, envelopes, LFO, voice modes, arpeggiator)
                                 runs on the audio thread as an AudioWorklet
 js/fx.js                        mod FX, delay and reverb (native Web Audio nodes)
 js/synth.js                     ties it together; the one API every input uses

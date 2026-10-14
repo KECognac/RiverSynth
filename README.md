@@ -105,7 +105,7 @@ You can try these in the browser's developer console, where the synth is availab
 The **River Data** panel loads daily mean discharge for any USGS gauge, straight from the
 [USGS Water Data API](https://api.waterdata.usgs.gov) in the browser. No Python is needed for
 this part. It starts with the **Cache la Poudre River at Fort Collins, CO (06752260)** for 2024,
-and the **River** menu has a dozen more with very different characters (snowmelt, tropical flash
+and the **River** menu has two dozen more with very different characters (snowmelt, tropical flash
 floods, giant rivers, dam-controlled flow, arctic ice breakup), or type any gauge number.
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →

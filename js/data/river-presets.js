@@ -7,14 +7,17 @@
 
 export const RIVER_FACTORY = [
   {
+    // The river as a singing voice: vowel-filtered vocal chops with echoes, moving in 1/16s.
+    // Rising flow opens the vowel from "ah" toward "oo", fast changes build the echoes, and
+    // wetter-than-normal stretches get more space.
     name: 'Snowmelt Choir',
-    program: 'Choir Pad',
+    program: 'Angel Echoes Vox',
     gauge: { site: '06752260', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Major pentatonic', root: 0, low: 48, high: 72, bpm: 96, rate: '1/8', gate: 0.95, tie: true, spread: 'even', log: true, roar: true, roarLevel: 0.45 },
+    settings: { scale: 'Major pentatonic', root: 0, low: 60, high: 84, bpm: 112, rate: '1/16', gate: 0.45, tie: false, spread: 'even', log: true, roar: true, roarLevel: 0.35 },
     routes: [
-      { id: 'filter.vowel', source: 'flow', from: 0.15, to: 0.95 },
-      { id: 'reverb.mix', source: 'anomaly', from: 0.1, to: 0.6 },
-      { id: 'filter.resonance', source: 'turbulence', from: 0.2, to: 0.7 },
+      { id: 'filter.vowel', source: 'flow', from: 0.15, to: 0.9 },
+      { id: 'delay.depth', source: 'change', from: 0.15, to: 0.6 },
+      { id: 'reverb.mix', source: 'anomaly', from: 0.15, to: 0.5 },
     ],
   },
   {
@@ -59,13 +62,17 @@ export const RIVER_FACTORY = [
     ],
   },
   {
+    // Ice crystals: sparkling FM bells in a minor pentatonic, scattering into echoes and
+    // shimmer. Flow brightens them, sudden changes (the spring breakup) build the echoes,
+    // and the river roar rumbles underneath.
     name: 'Arctic Breakup',
-    program: 'Shimmer Cathedral',
+    program: 'Drift Bells',
     gauge: { site: '15565447', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Whole tone', root: 0, low: 48, high: 84, bpm: 100, rate: '1/4', gate: 1, tie: true, spread: 'even', log: true, roar: true, roarLevel: 0.6 },
+    settings: { scale: 'Minor pentatonic', root: 2, low: 60, high: 96, bpm: 110, rate: '1/16', gate: 0.4, tie: false, spread: 'even', log: true, roar: true, roarLevel: 0.45 },
     routes: [
-      { id: 'filter.cutoff', source: 'flow', from: 0.35, to: 0.9 },
-      { id: 'delay.depth', source: 'change', from: 0.1, to: 0.65 },
+      { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.95 },
+      { id: 'delay.depth', source: 'change', from: 0.15, to: 0.6 },
+      { id: 'reverb.mix', source: 'anomaly', from: 0.2, to: 0.55 },
     ],
   },
 ];

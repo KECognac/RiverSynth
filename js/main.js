@@ -459,14 +459,9 @@ async function loadFromUsgs() {
 }
 $('#data-load').addEventListener('click', loadFromUsgs);
 
-// River picker (grouped by region): choosing one fills in the gauge number and loads it.
+// River picker: choosing one fills in the gauge number and loads it.
 const gaugeSel = $('#data-gauge');
-for (const group of new Set(GAUGES.map((g) => g.group))) {
-  const og = document.createElement('optgroup');
-  og.label = group;
-  for (const g of GAUGES.filter((x) => x.group === group)) og.append(new Option(`${g.name} — ${g.note}`, g.id));
-  gaugeSel.append(og);
-}
+for (const g of GAUGES) gaugeSel.append(new Option(`${g.name} — ${g.note}`, g.id));
 gaugeSel.append(new Option('Other (type a gauge number)', ''));
 gaugeSel.value = GAUGES[0].id;
 const syncGaugeSel = () => {

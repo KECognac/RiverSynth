@@ -111,7 +111,7 @@ floods, giant rivers, dam-controlled flow, arctic ice breakup), or type any gaug
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →
 Sound routes, river roar and (for some) a gauge and dates. Eight are built in (Snowmelt Flute, Flash Flood Pump,
-Poudre Pickin', Drip Static, Glacier Bells, Drought Watch, Lo-Fi Creek, Arctic Breakup), and **Save**
+Lo-Fi Creek, Poudre Pickin', Drip Static, Glacier Bells, Drought Watch, Arctic Breakup), and **Save**
 stores your own in this browser. The app opens on the first one, Snowmelt Flute.
 
 After loading, the app also fetches the gauge's full daily record in the background to work out

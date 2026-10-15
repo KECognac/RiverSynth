@@ -51,6 +51,28 @@ export const RIVER_FACTORY = [
     ],
   },
   {
+    // Your saved version (from "New Lo-Fi Creek").
+    name: 'Lo-Fi Creek',
+    values: {
+      'vco1.wave': 1, 'vco2.wave': 1, 'multi.type': 1, 'multi.shape': 0.1907,
+      'mixer.vco1': 0.35, 'mixer.vco2': 0.7799, 'mixer.multi': 0.8, 'filter.cutoff': 1475,
+      'filter.resonance': 0.1016, 'filter.drive': 0.1358, 'ampeg.attack': 0.007689, 'ampeg.decay': 1.5,
+      'ampeg.sustain': 0.3, 'ampeg.release': 0.5, 'lfo.wave': 4, 'lfo.rate': 0.6259,
+      'lfo.int': -0.01463, 'voice.depth': 0.09214, 'mod.on': 1, 'mod.mix': 0.3,
+      'delay.on': 1, 'delay.time': 0.7325, 'delay.depth': 0.3817, 'delay.mix': 0.4191,
+      'reverb.on': 1, 'reverb.type': 5, 'reverb.time': 0.3, 'reverb.mix': 0.25,
+      'crush.bits': 4.063, 'crush.rate': 2.96, 'crush.mix': 0.6, 'dist.on': 1,
+      'dist.type': 2,
+    },
+    gauge: { site: '01474000', start: '2024-01-01', end: '2024-12-31' },
+    settings: { scale: 'Major', root: 5, low: 48, high: 72, log: true, bpm: 100, rate: '1/16', gate: 0.7, tie: true, loop: true, spread: 'even', roar: true, roarLevel: 0.5 },
+    layer: { on: true, program: 'Drone Bass', level: 0.3, octave: 0, every: 1, voicing: 'single' },
+    routes: [
+      { id: 'reverb.mix', source: 'flow', from: 0.1903, to: 0.5903 },
+      { id: 'lfo.int', source: 'anomaly', from: 0.64, to: 1 },
+    ],
+  },
+  {
     // Folksy Fort Collins: fingerpicked triads on a plucked-guitar sound in G major
     // pentatonic. Each day gives the arp a triad, picked root-3rd-5th-3rd and flowing on
     // from day to day, with an octave-below body for depth. Slapback echo and spring reverb
@@ -126,27 +148,6 @@ export const RIVER_FACTORY = [
       { id: 'vco1.shape', source: 'anomaly', from: 0, to: 1 },
       { id: 'filter.cutoff', source: 'anomaly', from: 0, to: 1 },
       { id: 'lfo.int', source: 'turbulence', from: 0, to: 1 },
-    ],
-  },
-  {
-    // Your saved version (from "New Lo-Fi Creek").
-    name: 'Lo-Fi Creek',
-    values: {
-      'vco1.wave': 1, 'vco2.wave': 1, 'multi.type': 1, 'multi.shape': 0.1907,
-      'mixer.vco1': 0.35, 'mixer.vco2': 0.7799, 'mixer.multi': 0.8, 'filter.cutoff': 1475,
-      'filter.resonance': 0.1016, 'filter.drive': 0.1358, 'ampeg.attack': 0.007689, 'ampeg.decay': 1.5,
-      'ampeg.sustain': 0.3, 'ampeg.release': 0.5, 'lfo.wave': 4, 'lfo.rate': 0.6259,
-      'lfo.int': -0.01463, 'voice.depth': 0.09214, 'mod.on': 1, 'mod.mix': 0.3,
-      'delay.on': 1, 'delay.time': 0.7325, 'delay.depth': 0.3817, 'delay.mix': 0.4191,
-      'reverb.on': 1, 'reverb.type': 5, 'reverb.time': 0.3, 'reverb.mix': 0.25,
-      'crush.bits': 4.063, 'crush.rate': 2.96, 'crush.mix': 0.6, 'dist.on': 1,
-      'dist.type': 2,
-    },
-    gauge: { site: '01474000', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Major', root: 5, low: 48, high: 72, log: true, bpm: 100, rate: '1/16', gate: 0.7, tie: true, loop: true, spread: 'even', roar: true, roarLevel: 0.5 },
-    routes: [
-      { id: 'reverb.mix', source: 'flow', from: 0.1903, to: 0.5903 },
-      { id: 'lfo.int', source: 'anomaly', from: 0.64, to: 1 },
     ],
   },
   {

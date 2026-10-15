@@ -69,6 +69,24 @@ export const RIVER_FACTORY = [
     ],
   },
   {
+    // Drip Static: drips on a flashy western creek (Carpinteria Creek, near Santa
+    // Barbara: nearly dry for months, then winter floods), heard over a broken radio. Each day
+    // is a water drop that chirps into pitch and scatters in ping-pong rebounds before the next
+    // one lands, in F major pentatonic, over quiet glitchy static (layer 2). Floods make the
+    // drops brighter and bounce longer, stormy weeks shake the tape, wet stretches add reverb.
+    name: 'Drip Static',
+    program: 'Water Drop',
+    gauge: { site: '11119500', start: '2024-01-01', end: '2024-12-31' },
+    settings: { scale: 'Major pentatonic', root: 5, low: 60, high: 84, bpm: 100, rate: '1/16', gate: 0.3, tie: true, voicing: 'single', spread: 'even', log: true, roar: true, roarLevel: 0.2 },
+    layer: { on: true, program: 'Radio Static', level: 0.15, octave: 0, every: 16, voicing: 'single' },
+    routes: [
+      { id: 'delay.depth', source: 'flow', from: 0.5, to: 0.8 },
+      { id: 'filter.cutoff', source: 'flow', from: 0.55, to: 0.85 },
+      { id: 'tape.flutter', source: 'turbulence', from: 0.1, to: 0.6 },
+      { id: 'reverb.mix', source: 'anomaly', from: 0.15, to: 0.45 },
+    ],
+  },
+  {
     // Your saved version (from "New Glacier Bells").
     name: 'Glacier Bells',
     values: {

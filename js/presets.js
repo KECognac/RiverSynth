@@ -596,6 +596,77 @@ export const FACTORY = [
       'master.volume': 0.55,
     },
   },
+  // --- Experimental / lo-fi -------------------------------------------------------------
+  {
+    // Theremin on an old radio: a pure, singing tone (triangle + sine) that glides between
+    // notes with a wobbly vibrato, softened by tape warble and a light vintage bitcrush,
+    // with ping-pong echoes and a plate.
+    name: 'Theremin Radio',
+    values: {
+      'vco1.wave': 1, 'mixer.vco1': 0.8,
+      'multi.type': 1, 'multi.vpm': 0, 'multi.shape': 0.08, 'mixer.multi': 0.5,
+      'filter.cutoff': 2800, 'filter.resonance': 0.1, 'filter.keytrack': 2,
+      'ampeg.attack': 0.15, 'ampeg.decay': 1, 'ampeg.sustain': 1, 'ampeg.release': 0.7,
+      'lfo.wave': 1, 'lfo.rate': 5.5, 'lfo.int': 0.02, 'lfo.target': 0,
+      'voice.mode': 1, 'voice.depth': 0.05, 'voice.glide': 0.25,
+      'crush.on': 1, 'crush.bits': 10, 'crush.rate': 2, 'crush.mix': 0.4,
+      'tape.on': 1, 'tape.wow': 0.35, 'tape.flutter': 0.2, 'tape.mix': 1,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.4, 'delay.depth': 0.35, 'delay.mix': 0.25,
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.5, 'reverb.mix': 0.3,
+      'master.volume': 0.38,
+    },
+  },
+  {
+    // A water drop: a pure sine (with a touch of triangle) that chirps upward into pitch in a
+    // few milliseconds, like a bubble ringing as a drop lands, then fades. A high-feedback
+    // ping-pong echo makes it scatter and rebound left-right; small plate, light lo-fi.
+    name: 'Water Drop',
+    values: {
+      'mixer.vco1': 0.25, 'vco1.wave': 1,
+      'multi.type': 1, 'multi.vpm': 0, 'multi.shape': 0, 'mixer.multi': 0.9,
+      'filter.cutoff': 5000, 'filter.keytrack': 2,
+      'eg.target': 2, 'eg.attack': 0.001, 'eg.decay': 0.05, 'eg.int': -0.15,
+      'ampeg.attack': 0.001, 'ampeg.decay': 0.4, 'ampeg.sustain': 0, 'ampeg.release': 0.3,
+      'crush.on': 1, 'crush.bits': 10, 'crush.rate': 1.5, 'crush.mix': 0.3,
+      'tape.on': 1, 'tape.wow': 0.1, 'tape.flutter': 0.2, 'tape.mix': 1,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.167, 'delay.depth': 0.62, 'delay.mix': 0.45, // 1/16 at 90: quick rebounds
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.35, 'reverb.mix': 0.25,
+      'master.volume': 1,
+    },
+  },
+  {
+    // Glitchy radio static: coarse sample-and-hold "digital" noise (deep and crunchy) through
+    // a steep low-pass that a fast random LFO slams open and shut about 18 times a second, so
+    // it crackles in random bursts and dropouts like a lost signal. 3-bit crush, fuzz, flutter.
+    name: 'Radio Static',
+    values: {
+      'mixer.vco1': 0,
+      'multi.type': 0, 'multi.noise': 3, 'multi.shape': 0.4, 'mixer.multi': 1,
+      'filter.type': 1, 'filter.cutoff': 300, 'filter.resonance': 0.2, 'filter.keytrack': 0,
+      'ampeg.attack': 0.01, 'ampeg.decay': 1, 'ampeg.sustain': 1, 'ampeg.release': 1.5,
+      'lfo.wave': 3, 'lfo.rate': 18, 'lfo.int': 0.8, 'lfo.target': 2,
+      'crush.on': 1, 'crush.bits': 3, 'crush.rate': 12, 'crush.mix': 0.8,
+      'dist.on': 1, 'dist.type': 1, 'dist.amount': 0.6, 'dist.mix': 0.5,
+      'tape.on': 1, 'tape.wow': 0, 'tape.flutter': 0.3, 'tape.mix': 1,
+      'master.volume': 0.6,
+    },
+  },
+  {
+    // Toy piano: a bright, plinky plucked string, lightly crushed, slowly drifting out of
+    // tune, with tape wobble and a small room.
+    name: 'Toy Piano',
+    values: {
+      'mixer.vco1': 0,
+      'multi.type': 2, 'multi.shape': 0.85, 'mixer.multi': 1,
+      'filter.cutoff': 6000,
+      'ampeg.attack': 0.001, 'ampeg.decay': 1.2, 'ampeg.sustain': 0, 'ampeg.release': 0.5,
+      'lfo.wave': 4, 'lfo.rate': 0.3, 'lfo.int': 0.02, 'lfo.target': 0,
+      'crush.on': 1, 'crush.bits': 9, 'crush.rate': 2, 'crush.mix': 0.5,
+      'tape.on': 1, 'tape.wow': 0.3, 'tape.flutter': 0.2, 'tape.mix': 1,
+      'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.3, 'reverb.mix': 0.2,
+      'master.volume': 0.8,
+    },
+  },
   {
     name: 'FM Bells',
     values: {

@@ -52,7 +52,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | Tempo | One global tempo (Master section) for the arpeggiator, synced LFO and pump |
 | Effects | **Crush:** bit depth + downsampling · **Distortion:** Tube, Fuzz, Fold · **Tape:** wow & flutter · **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser, Spring, **Shimmer** (octave-up feedback; Tone = shimmer amount) |
 | Display | Live oscilloscope with a readout of the parameter you're changing |
-| Programs | 44 factory presets, unlimited user presets, JSON export/import |
+| Programs | 48 factory presets, unlimited user presets, JSON export/import |
 | Record | **● Rec** saves the output (keyboard, data player, everything) as a WAV file |
 | River Data | Play any USGS stream gauge's daily discharge as notes (see below) |
 
@@ -110,8 +110,8 @@ and the **River** menu has two dozen more with very different characters (snowme
 floods, giant rivers, dam-controlled flow, arctic ice breakup), or type any gauge number.
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →
-Sound routes, river roar and (for some) a gauge and dates. Seven are built in (Snowmelt Flute, Flash Flood Pump,
-Poudre Pickin', Glacier Bells, Drought Watch, Lo-Fi Creek, Arctic Breakup), and **Save**
+Sound routes, river roar and (for some) a gauge and dates. Eight are built in (Snowmelt Flute, Flash Flood Pump,
+Poudre Pickin', Drip Static, Glacier Bells, Drought Watch, Lo-Fi Creek, Arctic Breakup), and **Save**
 stores your own in this browser. The app opens on the first one, Snowmelt Flute.
 
 After loading, the app also fetches the gauge's full daily record in the background to work out

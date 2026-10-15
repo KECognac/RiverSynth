@@ -169,6 +169,7 @@ export class SynthEngine {
     this.arpStep = 0;
     this.arpCount = 0;         // samples until the next step
     this.arpGateCount = 0;     // samples until the current step is released
+    this.arpIdle = Infinity;   // samples since the arp last had notes
     // LFO state (S&H and Drift pick new random values each cycle)
     this.lfoPhase = 0;
     this.lfoHold = 0; this.lfoPrev = 0; this.lfoNext = Math.random() * 2 - 1;
@@ -243,7 +244,11 @@ export class SynthEngine {
       if (this.p['arp.latch'] && this.arpDown.size === 0) this.arpNotes = [];
       this.arpDown.add(key);
       if (!this.arpNotes.includes(key)) {
-        if (this.arpNotes.length === 0) { this.arpStep = 0; this.arpCount = 0; this.arpFresh = true; } // start on the beat
+        // Start a fresh pattern on the beat, unless new notes arrive straight after the old
+        // ones (legato, or the data player's back-to-back steps): then the arp flows on.
+        if (this.arpNotes.length === 0 && this.arpIdle >= this.beatSamples / ARP_RATES[this.p['arp.rate']]) {
+          this.arpStep = 0; this.arpCount = 0; this.arpFresh = true;
+        }
         this.arpNotes.push(key);
       }
       return;
@@ -304,6 +309,7 @@ export class SynthEngine {
     this.arpDown.clear();
     this.arpNotes = [];
     this.arpVoices = [];
+    this.arpIdle = Infinity;
     for (const v of this.voices) v.release();
   }
 
@@ -313,8 +319,10 @@ export class SynthEngine {
     if (this.arpGateCount > 0 && --this.arpGateCount === 0) this.arpRelease();
     if (this.arpNotes.length === 0) {
       if (this.arpVoices.length) this.arpRelease();
+      this.arpIdle++;
       return;
     }
+    this.arpIdle = 0;
     if (--this.arpCount > 0) return;
 
     const p = this.p;

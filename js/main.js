@@ -376,6 +376,7 @@ bindSetting('#data-tie', 'tie', (el) => el.checked);
 bindSetting('#data-loop', 'loop', (el) => el.checked);
 bindSetting('#data-log', 'log', (el) => el.checked);
 bindSetting('#data-spread', 'spread');
+bindSetting('#data-voicing', 'voicing');
 bindSetting('#data-roar', 'roar', (el) => el.checked);
 bindSetting('#data-roar-level', 'roarLevel', (el) => Number(el.value));
 
@@ -579,7 +580,7 @@ let riverUser = loadRiverPresets();
 const DATA_CONTROLS = {
   scale: '#data-scale', root: '#data-root', low: '#data-low', high: '#data-high', rate: '#data-rate',
   bpm: '#data-bpm', gate: '#data-gate', tie: '#data-tie', loop: '#data-loop', log: '#data-log',
-  spread: '#data-spread', roar: '#data-roar', roarLevel: '#data-roar-level',
+  spread: '#data-spread', voicing: '#data-voicing', roar: '#data-roar', roarLevel: '#data-roar-level',
 };
 function setDataControl(key, value) {
   const el = DATA_CONTROLS[key] && $(DATA_CONTROLS[key]);
@@ -612,7 +613,8 @@ function applyRiverPreset(key) {
   synth.setParams(resolvePreset({ ...(prog?.values ?? {}), ...(rp.values ?? {}) }));
   presetName.value = rp.program ?? rp.name;
   if (prog) presetSelect.value = `f:${FACTORY.indexOf(prog)}`; else presetSelect.selectedIndex = -1;
-  for (const [k, v] of Object.entries(rp.settings ?? {})) { player.set(k, v); setDataControl(k, v); }
+  // Settings a preset doesn't mention go back to their defaults.
+  for (const [k, v] of Object.entries({ voicing: 'single', ...rp.settings })) { player.set(k, v); setDataControl(k, v); }
   routes = (rp.routes ?? []).map((r) => ({ ...r }));
   applyRoutes();
   riverName.value = rp.name;

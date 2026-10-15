@@ -120,6 +120,8 @@ the **normal** (median) flow for each date, drawn as a dashed line on the chart.
   between **Low** and **High**. With **Note spread: Even** (the default) the days are ranked,
   so every note gets used about equally; **Proportional** follows the flow's actual size
   (log scale by default).
+- **Notes: Single / Triad** gives each day one note or a triad from the scale; with an
+  arpeggiator sound, triads sweep across octaves (the arp flows on from day to day).
 - **Tempo** and **Step** set the speed (at 120 BPM in 1/16 steps, a year of data plays in about
   46 seconds). **Gate** sets note length, and **Tie repeats** holds a note while the flow stays
   on the same pitch.

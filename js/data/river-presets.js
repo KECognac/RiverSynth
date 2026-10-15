@@ -41,24 +41,26 @@ export const RIVER_FACTORY = [
     ],
   },
   {
-    // Grimes "Genesis"-style drive from a flashy river: Grandmother Bass on the arpeggiator
-    // (Rise 2), so each river note becomes a note-then-octave pulse in 1/16s at 166 BPM.
-    // Notes stay in octaves 2-3. Flow opens the filter, stormy weeks add squelch, fast
-    // changes build (capped) echoes, wetter-than-normal stretches get more space.
-    // Gate 95% ends each river note just before the next, so the arp plays a clean pair.
+    // Grimes "Genesis"-style arpeggios from a flashy river: each day gives the arpeggiator a
+    // triad from the scale, and Rise Fall over 2 octaves sweeps it up and down (about two and
+    // a half octaves) in flowing 1/16s that carry on from day to day. Grandmother Bass sound
+    // with a hall reverb and dotted-eighth echoes. Flow opens the filter, stormy weeks add
+    // squelch, flash floods build echoes, wetter-than-normal stretches get more space.
     name: 'Flash Flood Pump',
     program: 'Grandmother Bass',
     values: {
-      'voice.mode': 3, 'voice.depth': 3 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.6, 'arp.tempo': 166,
-      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.271, 'delay.depth': 0.25, 'delay.mix': 0.15, // dotted 1/8 at 166
+      'voice.mode': 3, 'voice.depth': 7 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.55, 'arp.tempo': 100,
+      'ampeg.release': 0.25,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.45, 'delay.depth': 0.45, 'delay.mix': 0.3, // dotted 1/8 at 100
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.depth': 0.55, 'reverb.mix': 0.35,
     },
     gauge: { site: '16704000', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Natural minor', root: 2, low: 36, high: 60, bpm: 166, rate: '1/8', gate: 0.95, tie: false, spread: 'even', log: true, roar: true, roarLevel: 0.5 },
+    settings: { scale: 'Natural minor', root: 2, low: 36, high: 60, bpm: 100, rate: '1/4', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: true, roarLevel: 0.4 },
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.85 },
-      { id: 'filter.resonance', source: 'turbulence', from: 0.2, to: 0.6 },
-      { id: 'delay.depth', source: 'change', from: 0.1, to: 0.45 },
-      { id: 'reverb.mix', source: 'anomaly', from: 0.08, to: 0.35 },
+      { id: 'filter.resonance', source: 'turbulence', from: 0.2, to: 0.55 },
+      { id: 'delay.depth', source: 'change', from: 0.3, to: 0.6 },
+      { id: 'reverb.mix', source: 'anomaly', from: 0.2, to: 0.45 },
     ],
   },
   {

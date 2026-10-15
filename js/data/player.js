@@ -35,6 +35,7 @@ export class DataPlayer {
       scale: 'Major pentatonic', root: 0, low: 48, high: 84, log: true,
       bpm: 120, rate: '1/16', gate: 0.6, tie: false, loop: false,
       spread: 'even',      // 'even': every scale note used about equally; 'proportional': follows the flow
+      voicing: 'single',   // 'single' note per step, or a 'triad' built from the scale
       roar: false, roarLevel: 0.6,
     };
     this.history = null;   // long daily record for the same gauge, for "normal" flows
@@ -64,7 +65,7 @@ export class DataPlayer {
     if (this.playing && (key === 'roar' || key === 'roarLevel')) this.updateRoar();
   }
 
-  invalidate() { this._notes = null; this._norms = null; this._sources = null; }
+  invalidate() { this._notes = null; this._norms = null; this._sources = null; this._ext = null; }
 
   // Derived 0..1 signals: flow, change, anomaly, trend, turbulence (see features.js).
   get sources() {
@@ -81,12 +82,12 @@ export class DataPlayer {
 
   get stepDur() { return 60 / this.settings.bpm / RATES[this.settings.rate]; }
 
-  // Notes allowed by the scale, root and range.
-  allowedNotes() {
+  // Notes allowed by the scale, root and range (optionally extended above High).
+  allowedNotes(extra = 0) {
     const { scale, root, low, high } = this.settings;
     const degrees = SCALES[scale];
     const out = [];
-    for (let n = Math.min(low, high); n <= Math.max(low, high); n++) {
+    for (let n = Math.min(low, high); n <= Math.max(low, high) + extra; n++) {
       if (degrees.includes((((n - root) % 12) + 12) % 12)) out.push(n);
     }
     return out;
@@ -105,6 +106,17 @@ export class DataPlayer {
     const allowed = this.allowedNotes();
     this._notes = this.norms.map((t) => (t == null || !allowed.length ? null : allowed[Math.round(t * (allowed.length - 1))]));
     return this._notes;
+  }
+
+  // The notes to play at step i: the note itself, or a triad stacked in thirds from the
+  // scale (which may reach above High). Empty for missing data.
+  chordAt(i) {
+    const root = this.notes[i];
+    if (root == null) return [];
+    if (this.settings.voicing !== 'triad') return [root];
+    this._ext ??= this.allowedNotes(24);
+    const k = this._ext.indexOf(root);
+    return [this._ext[k], this._ext[k + 2], this._ext[k + 4]].filter((n) => n != null);
   }
 
   routeValue(route, t) {
@@ -194,10 +206,10 @@ export class DataPlayer {
   }
 
   scheduleStep(i, t) {
-    const notes = this.notes;
     const { tie, gate } = this.settings;
-    const note = notes[i];
-    const next = notes[i + 1];
+    const chord = this.chordAt(i);
+    const next = this.chordAt(i + 1);
+    const same = (a, b) => a.length === b.length && a.every((n, j) => n === b[j]);
     const src = this.sources;
     for (const r of this.routes) {
       const v = src[r.source ?? 'flow'][i];
@@ -207,17 +219,17 @@ export class DataPlayer {
       // Smooth over a couple of steps so the roar swells rather than steps.
       this.synth.roar?.setFlow(src.flow[i], t, Math.max(0.05, this.stepDur * 2));
     }
-    // A note tied over from the previous step either continues or ends here.
-    if (this.sounding != null && !(tie && note === this.sounding)) {
-      this.synth.noteOff(this.sounding, t);
+    // Notes tied over from the previous step either continue or end here.
+    if (this.sounding && !(tie && same(chord, this.sounding))) {
+      for (const n of this.sounding) this.synth.noteOff(n, t);
       this.sounding = null;
     }
-    if (note == null) return;
-    if (this.sounding !== note) this.synth.noteOn(note, 1, t);
-    if (tie && next === note) {
-      this.sounding = note; // hold into the next step
+    if (!chord.length) return;
+    if (!this.sounding) for (const n of chord) this.synth.noteOn(n, 1, t);
+    if (tie && same(next, chord)) {
+      this.sounding = chord; // hold into the next step
     } else {
-      this.synth.noteOff(note, t + this.stepDur * gate);
+      for (const n of chord) this.synth.noteOff(n, t + this.stepDur * gate);
       this.sounding = null;
     }
   }

@@ -88,10 +88,12 @@ kbd {
   padding: 0 0 14px;
 }
 .brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo { width: 44px; height: 44px; flex: none; }
 .brand h1 {
-  margin: 0; font-size: 26px; font-weight: 700; font-style: italic;
-  font-family: Georgia, "Times New Roman", serif; letter-spacing: 0.01em;
+  margin: 0; display: flex; align-items: baseline; gap: 4px;
+  font: 700 26px/1 ui-monospace, Menlo, "SF Mono", monospace; letter-spacing: -0.01em;
 }
+.brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--moog-blue); }
 .brand .sub { color: var(--muted); font-size: 12px; max-width: 9em; }
 
 .power {

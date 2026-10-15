@@ -1,6 +1,10 @@
-# SynthWork
+# RiverSynth
+
+![RiverSynth logo](assets/logo.svg)
 
 **▶ Play it live: https://kecognac.github.io/SynthWork/**
+
+RiverSynth turns river flow into music.
 
 An 8-voice polyphonic synthesizer that runs in the web browser. It started from the KORG minilogue
 (xd) layout and has grown modern extras (supersaw, vowel filter, shimmer reverb, sidechain pump),

@@ -21,8 +21,9 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 
 ## Playing
 
-- **Computer keyboard:** `A S D F G H J K L ; '` are white keys, and `W E T Y U O P` are
-  black keys. `Z` / `X` shift the octave.
+- **Computer keyboard:** a two-row piano layout covering all 25 on-screen keys. Lower octave:
+  `Z X C V B N M` white keys, `S D G H J` black keys. Upper octave: `Q W E R T Y U I` white keys,
+  `2 3 5 6 7` black keys. `-` / `=` shift the octave.
 - **On-screen keyboard:** click, tap or drag across keys.
 - **Knobs:** drag up and down, use the scroll wheel or the arrow keys. Hold `Shift` for fine
   control, and double-click to reset a knob.
@@ -51,7 +52,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | Tempo | One global tempo (Master section) for the arpeggiator, synced LFO and pump |
 | Effects | **Crush:** bit depth + downsampling · **Distortion:** Tube, Fuzz, Fold · **Tape:** wow & flutter · **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser, Spring, **Shimmer** (octave-up feedback; Tone = shimmer amount) |
 | Display | Live oscilloscope with a readout of the parameter you're changing |
-| Programs | 39 factory presets, unlimited user presets, JSON export/import |
+| Programs | 44 factory presets, unlimited user presets, JSON export/import |
 | Record | **● Rec** saves the output (keyboard, data player, everything) as a WAV file |
 | River Data | Play any USGS stream gauge's daily discharge as notes (see below) |
 
@@ -109,7 +110,7 @@ and the **River** menu has two dozen more with very different characters (snowme
 floods, giant rivers, dam-controlled flow, arctic ice breakup), or type any gauge number.
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →
-Sound routes, river roar and (for some) a gauge and dates. Seven are built in (Poudre Pickin', Snowmelt Shimmer,
+Sound routes, river roar and (for some) a gauge and dates. Seven are built in (Poudre Pickin', Snowmelt Flute,
 Glacier Bells, Flash Flood Pump, Drought Watch, Lo-Fi Creek, Arctic Breakup), and **Save**
 stores your own in this browser.
 
@@ -140,6 +141,11 @@ the **normal** (median) flow for each date, drawn as a dashed line on the chart.
   flow opens the filter, wetter-than-normal adds reverb, turbulence adds resonance. Routed
   knobs move on the panel while playing and return to where they were when you stop. (Reverb
   Decay and Tone aren't available because they rebuild the reverb on every change.)
+- **Layer 2** adds a second sound playing the same river: pick any program (or copy the main
+  sound), then set its level, octave, how often it plays (every 1–16 days, each note held for its
+  span) and single notes or triads. Sustained programs like Drone Bass, Upright Bass, Bowed
+  Cello, Shruti Drone and River Pad are made for it. River presets save it; WAV export includes
+  it and MIDI export puts it on channel 2.
 - **River roar** adds a continuous rushing-water layer whose loudness and brightness follow the
   flow: a quiet trickle at low flow, a bright roar at high flow.
 - **Export WAV** renders the whole river song (start to end, plus a tail for reverb) to a

@@ -516,6 +516,86 @@ export const FACTORY = [
       'master.volume': 0.95,
     },
   },
+  // --- Sustained sounds for layer 2 (they hold for the layer's whole span) -------------
+  {
+    // Deep, round sub that holds at full level and fades out slowly: a triangle and a soft
+    // pulse an octave down through the warm ladder filter, breathing gently, with tape warmth.
+    name: 'Drone Bass',
+    values: {
+      'vco1.wave': 1, 'vco1.octave': 0, 'mixer.vco1': 0.9,
+      'vco2.wave': 2, 'vco2.octave': 0, 'vco2.shape': 0.2, 'vco2.pitch': 3, 'mixer.vco2': 0.2,
+      'filter.type': 1, 'filter.cutoff': 380, 'filter.resonance': 0.15, 'filter.drive': 0.25,
+      'ampeg.attack': 0.15, 'ampeg.decay': 1, 'ampeg.sustain': 1, 'ampeg.release': 2.5,
+      'lfo.wave': 4, 'lfo.rate': 0.2, 'lfo.int': 0.2, 'lfo.target': 2,
+      'tape.on': 1, 'tape.wow': 0.1, 'tape.flutter': 0.05, 'tape.mix': 1,
+      'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.4, 'reverb.mix': 0.15,
+      'master.volume': 0.8,
+    },
+  },
+  {
+    // Folk upright bass from the plucked-string model: a dark thumb pluck with a woody
+    // thump, a soft sub for body, medium decay and a little room.
+    name: 'Upright Bass',
+    values: {
+      'mixer.vco1': 0,
+      'vco2.wave': 1, 'vco2.octave': 0, 'mixer.vco2': 0.45,
+      'multi.type': 2, 'multi.shape': 0.3, 'mixer.multi': 1,
+      'filter.cutoff': 1200, 'filter.resonance': 0.1,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.12, 'eg.int': 0.25,
+      'ampeg.attack': 0.001, 'ampeg.decay': 2.5, 'ampeg.sustain': 0, 'ampeg.release': 0.4,
+      'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.35, 'reverb.mix': 0.2,
+      'master.volume': 1,
+    },
+  },
+  {
+    // Bowed cello: two slightly detuned saws that swell in like a bow, brighten as the
+    // bow digs in, sustain with gentle vibrato, light chorus and a hall.
+    name: 'Bowed Cello',
+    values: {
+      'vco1.wave': 0, 'vco1.shape': 0.15, 'mixer.vco1': 0.8,
+      'vco2.wave': 0, 'vco2.pitch': 6, 'mixer.vco2': 0.35,
+      'filter.cutoff': 1600, 'filter.resonance': 0.25, 'filter.drive': 0.1, 'filter.keytrack': 2,
+      'eg.target': 0, 'eg.attack': 0.4, 'eg.decay': 1.5, 'eg.int': 0.15,
+      'ampeg.attack': 0.35, 'ampeg.decay': 1, 'ampeg.sustain': 0.9, 'ampeg.release': 0.9,
+      'lfo.wave': 1, 'lfo.rate': 5.2, 'lfo.int': 0.015, 'lfo.target': 0,
+      'mod.on': 1, 'mod.type': 0, 'mod.mix': 0.2,
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.3,
+      'master.volume': 0.75,
+    },
+  },
+  {
+    // Shruti box / harmonium drone: reedy pulse and saw voices with a whisper of bellows air,
+    // a slow swell, a gentle breathing filter, chorus and hall. Lovely as a triad.
+    name: 'Shruti Drone',
+    values: {
+      'vco1.wave': 2, 'vco1.shape': 0.35, 'mixer.vco1': 0.6,
+      'vco2.wave': 0, 'vco2.pitch': -4, 'mixer.vco2': 0.45,
+      'multi.type': 0, 'multi.noise': 1, 'multi.shape': 0.3, 'mixer.multi': 0.05,
+      'filter.cutoff': 1300, 'filter.resonance': 0.2,
+      'ampeg.attack': 0.8, 'ampeg.decay': 1, 'ampeg.sustain': 1, 'ampeg.release': 2,
+      'lfo.wave': 1, 'lfo.rate': 0.25, 'lfo.int': 0.2, 'lfo.target': 2,
+      'mod.on': 1, 'mod.type': 0, 'mod.mix': 0.25,
+      'tape.on': 1, 'tape.wow': 0.1, 'tape.flutter': 0.05, 'tape.mix': 1,
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.5, 'reverb.mix': 0.3,
+      'master.volume': 0.45,
+    },
+  },
+  {
+    // Soft supersaw pad that swells in slowly and lets the harmony drift with the seasons:
+    // ensemble chorus, a slow drifting filter and a big hall. Best as a triad.
+    name: 'River Pad',
+    values: {
+      'vco1.wave': 3, 'vco1.shape': 0.45, 'mixer.vco1': 0.7,
+      'vco2.wave': 3, 'vco2.octave': 2, 'vco2.shape': 0.3, 'mixer.vco2': 0.3,
+      'filter.type': 1, 'filter.cutoff': 2200, 'filter.resonance': 0.1,
+      'eg.target': 0, 'eg.attack': 1.5, 'eg.decay': 3, 'eg.int': 0.2,
+      'ampeg.attack': 1.2, 'ampeg.decay': 2, 'ampeg.sustain': 0.85, 'ampeg.release': 3,
+      'lfo.wave': 4, 'lfo.rate': 0.15, 'lfo.int': 0.15, 'lfo.target': 2,
+      'mod.on': 1, 'mod.type': 1, 'mod.mix': 0.4,
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.8, 'reverb.mix': 0.4,
+      'master.volume': 0.55,
+    },
+  },
   {
     name: 'FM Bells',
     values: {

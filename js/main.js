@@ -114,6 +114,7 @@ $('#save-preset').addEventListener('click', () => {
   if (existing >= 0) userPresets[existing] = entry; else userPresets.push(entry);
   const ok = saveUserPresets(userPresets);
   fillPresetList(`u:${existing >= 0 ? existing : userPresets.length - 1}`);
+  fillLayerPrograms(layerSel.value); // the layer 2 menu lists your programs too
   $('#delete-preset').disabled = false;
   scope.show(ok ? 'Saved' : 'Not saved (storage blocked)', name);
 });
@@ -124,6 +125,7 @@ $('#delete-preset').addEventListener('click', () => {
   const [removed] = userPresets.splice(Number(i), 1);
   saveUserPresets(userPresets);
   fillPresetList('f:0');
+  fillLayerPrograms(layerSel.value);
   loadPreset('f:0');
   scope.show('Deleted', removed.name);
 });
@@ -585,6 +587,73 @@ $('#route-add').addEventListener('click', () => {
 synth.listeners.add((id) => { if (id.endsWith('.on')) updateRouteWarnings(); });
 applyRoutes();
 
+// --- Layer 2 ------------------------------------------------------------------------------
+// A second sound playing the same river. Its program is any saved program, or a copy of the
+// sound in the Modulate panel ("Copied sound").
+const layerSel = $('#layer-program');
+let layerCustom = null; // values when using a copied sound
+function fillLayerPrograms(selected) {
+  layerSel.innerHTML = '';
+  layerSel.append(Object.assign(new Option('Copied sound', 'custom'), { hidden: true }));
+  const group = (label, list, prefix) => {
+    if (!list.length) return;
+    const og = document.createElement('optgroup');
+    og.label = label;
+    list.forEach((p, i) => og.append(new Option(p.name, `${prefix}:${i}`)));
+    layerSel.append(og);
+  };
+  group('Factory', FACTORY, 'f');
+  group('User', userPresets, 'u');
+  layerSel.value = selected;
+}
+function layerValues() {
+  if (layerSel.value === 'custom') return layerCustom ?? defaultValues();
+  const [kind, i] = layerSel.value.split(':');
+  return resolvePreset((kind === 'u' ? userPresets : FACTORY)[Number(i)]?.values);
+}
+const applyLayerSound = () => synth.setLayerSound(layerValues());
+// Describe layer 2 for saving in a river preset.
+function layerState() {
+  const [kind, i] = layerSel.value.split(':');
+  const sound = layerSel.value === 'custom' || kind === 'u'
+    ? { values: { ...layerValues() } }
+    : { program: FACTORY[Number(i)].name };
+  return { ...player.layer, ...sound, level: Number($('#layer-level').value) };
+}
+// Restore layer 2 from a river preset (or switch it off if the preset has none).
+function setLayerState(layer) {
+  const l = { on: false, octave: 0, every: 4, voicing: 'single', level: 0.6, program: 'Love Cry Sub', ...layer };
+  for (const k of ['on', 'octave', 'every', 'voicing']) player.setLayer(k, l[k]);
+  $('#layer-on').checked = !!l.on;
+  $('#layer-octave').value = String(l.octave);
+  $('#layer-every').value = String(l.every);
+  $('#layer-voicing').value = l.voicing;
+  $('#layer-level').value = String(l.level);
+  synth.setLayerLevel(l.level);
+  if (l.values) {
+    layerCustom = resolvePreset(l.values);
+    layerSel.value = 'custom';
+  } else {
+    const i = FACTORY.findIndex((p) => p.name === l.program);
+    layerSel.value = `f:${Math.max(0, i)}`;
+  }
+  applyLayerSound();
+}
+fillLayerPrograms(`f:${Math.max(0, FACTORY.findIndex((p) => p.name === 'Love Cry Sub'))}`);
+layerSel.addEventListener('change', applyLayerSound);
+$('#layer-on').addEventListener('input', (e) => player.setLayer('on', e.target.checked));
+$('#layer-octave').addEventListener('input', (e) => player.setLayer('octave', Number(e.target.value)));
+$('#layer-every').addEventListener('input', (e) => player.setLayer('every', Number(e.target.value)));
+$('#layer-voicing').addEventListener('input', (e) => player.setLayer('voicing', e.target.value));
+$('#layer-level').addEventListener('input', (e) => synth.setLayerLevel(Number(e.target.value)));
+$('#layer-copy').addEventListener('click', () => {
+  layerCustom = { ...synth.values, ...(player.playing ? player.base : {}) }; // the patch without live data changes
+  layerSel.value = 'custom';
+  applyLayerSound();
+  scope.show('Layer 2', `Copied ${presetName.value || 'sound'}`);
+});
+applyLayerSound();
+
 // --- River presets ---------------------------------------------------------------------
 const riverSel = $('#river-preset');
 const riverName = $('#river-preset-name');
@@ -627,6 +696,7 @@ function applyRiverPreset(key) {
   if (prog) presetSelect.value = `f:${FACTORY.indexOf(prog)}`; else presetSelect.value = '';
   // Settings a preset doesn't mention go back to their defaults.
   for (const [k, v] of Object.entries({ voicing: 'single', ...rp.settings })) { player.set(k, v); setDataControl(k, v); }
+  setLayerState(rp.layer);
   routes = (rp.routes ?? []).map((r) => ({ ...r }));
   applyRoutes();
   riverName.value = rp.name;
@@ -650,6 +720,7 @@ $('#river-preset-save').addEventListener('click', () => {
     values: { ...synth.values, ...(player.playing ? player.base : {}) }, // the patch without live data changes
     settings: { ...player.settings },
     routes: routes.map((r) => ({ ...r })),
+    layer: layerState(),
     gauge: { site: $('#data-site').value.trim(), start: $('#data-start').value, end: $('#data-end').value },
   };
   const existing = riverUser.findIndex((p) => p.name === name);
@@ -690,6 +761,7 @@ $('#export-wav').addEventListener('click', async () => {
       notes: ev.notes,
       params: ev.params,
       roar: player.settings.roar ? { level: player.settings.roarLevel, steps: ev.roar } : null,
+      layers: player.layer.on ? [{ values: layerValues(), level: Number($('#layer-level').value), notes: ev.layerNotes }] : [],
       duration: ev.duration + tail,
       onProgress: (f) => { btn.textContent = `Rendering ${Math.round(f * 100)}%`; },
     });
@@ -708,7 +780,7 @@ $('#export-wav').addEventListener('click', async () => {
 $('#export-midi').addEventListener('click', () => {
   if (!player.rows.length) return;
   const ev = player.collectEvents();
-  const blob = buildMidi({ notes: ev.notes, steps: ev.steps, sources: player.sources, bpm: player.settings.bpm, name: riverLabel || 'River' });
+  const blob = buildMidi({ notes: ev.notes, layerNotes: ev.layerNotes, steps: ev.steps, sources: player.sources, bpm: player.settings.bpm, name: riverLabel || 'River' });
   const filename = songName('mid');
   download(blob, filename);
   scope.show('Saved', filename);

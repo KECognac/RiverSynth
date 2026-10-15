@@ -30,7 +30,7 @@
         <span class="step-num" aria-hidden="true">01</span>
         <div>
           <h2 id="data-title">Turn River Flow into Music</h2>
-          <p class="step-hint">Press play to hear a year of a real river. Every day becomes a note, and the sound follows the water.</p>
+          <p class="step-hint">Press play to sonify river flow data.</p>
         </div>
       </div>
 
@@ -81,6 +81,33 @@
         <span class="divider" aria-hidden="true"></span>
         <label class="check"><input id="data-roar" type="checkbox">River roar</label>
         <label>Roar level<input id="data-roar-level" type="range" min="0" max="1" step="0.05" value="0.6"></label>
+      </div>
+
+      <h3 class="sub-head">Layer 2</h3>
+      <p class="small routes-help">A second sound playing the same river: pick a program, then shift it by octaves and space it out (e.g. a bass every 4 days under the melody).</p>
+      <div class="data-row">
+        <label class="check"><input id="layer-on" type="checkbox">Layer 2 on</label>
+        <label>Program<select id="layer-program"></select></label>
+        <button id="layer-copy" type="button" title="Use the sound currently in the Modulate panel for layer 2">Copy main sound</button>
+        <label>Level<input id="layer-level" type="range" min="0" max="1" step="0.05" value="0.6"></label>
+        <label>Octave<select id="layer-octave">
+          <option value="-24">−2 oct</option>
+          <option value="-12">−1 oct</option>
+          <option value="0" selected>0</option>
+          <option value="12">+1 oct</option>
+          <option value="24">+2 oct</option>
+        </select></label>
+        <label>Every<select id="layer-every">
+          <option value="1">day</option>
+          <option value="2">2 days</option>
+          <option value="4" selected>4 days</option>
+          <option value="8">8 days</option>
+          <option value="16">16 days</option>
+        </select></label>
+        <label>Notes<select id="layer-voicing">
+          <option value="single">Single</option>
+          <option value="triad">Triad</option>
+        </select></label>
       </div>
 
       <div class="routes-head">
@@ -136,15 +163,15 @@
         <span class="step-num" aria-hidden="true">03</span>
         <div>
           <h2 id="keys-title">Play It Yourself</h2>
-          <p class="step-hint">Tap the keys below, or use your computer keyboard: <kbd>A</kbd>–<kbd>'</kbd> are the white keys.</p>
+          <p class="step-hint">Tap the keys below, or use your computer keyboard: the bottom row (<kbd>Z</kbd>–<kbd>M</kbd>) and top row (<kbd>Q</kbd>–<kbd>I</kbd>) are the white keys.</p>
         </div>
       </div>
       <div class="kb-controls">
-        <button id="oct-down" type="button" title="Octave down (Z)">−</button>
+        <button id="oct-down" type="button" title="Octave down (-)">−</button>
         <div class="oct"><span class="small">Octave</span><strong id="octave">C4</strong></div>
-        <button id="oct-up" type="button" title="Octave up (X)">+</button>
+        <button id="oct-up" type="button" title="Octave up (=)">+</button>
         <button id="midi" type="button" class="midi" aria-pressed="false" title="Play from a USB/MIDI keyboard">MIDI</button>
-        <p class="small kb-help">Play with <kbd>A</kbd>–<kbd>'</kbd> (black keys on <kbd>W</kbd> <kbd>E</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> <kbd>O</kbd> <kbd>P</kbd>) · <kbd>Z</kbd>/<kbd>X</kbd> octave · drag or double-click knobs, hold <kbd>Shift</kbd> for fine control</p>
+        <p class="small kb-help">Lower octave: <kbd>Z</kbd>–<kbd>M</kbd> (black keys <kbd>S</kbd> <kbd>D</kbd> <kbd>G</kbd> <kbd>H</kbd> <kbd>J</kbd>) · upper octave: <kbd>Q</kbd>–<kbd>I</kbd> (black keys <kbd>2</kbd> <kbd>3</kbd> <kbd>5</kbd> <kbd>6</kbd> <kbd>7</kbd>) · <kbd>-</kbd>/<kbd>=</kbd> octave</p>
       </div>
       <div id="keys" class="keys" role="group" aria-label="Piano keyboard"></div>
     </section>

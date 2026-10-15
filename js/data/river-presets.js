@@ -17,7 +17,7 @@ export const RIVER_FACTORY = [
     program: 'Prairie Guitar',
     values: { 'voice.mode': 3, 'voice.depth': 6 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.7, 'arp.tempo': 96 },
     gauge: { site: '06752260', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Major pentatonic', root: 7, low: 48, high: 72, bpm: 96, rate: '1/4', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: true, roarLevel: 0.3 },
+    settings: { scale: 'Major pentatonic', root: 7, low: 36, high: 60, bpm: 96, rate: '1/32', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: true, roarLevel: 0.3 },
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.8 },
       { id: 'delay.depth', source: 'change', from: 0.1, to: 0.45 },
@@ -30,7 +30,7 @@ export const RIVER_FACTORY = [
     // Flute in F# minor pentatonic, kept low (C3-C5), playing soft triads in breathing 1/8
     // phrases with repeated days held as long tones, in a hall. Flow opens the tone, fast changes
     // build the canyon echo, stormy weeks deepen the vibrato, wet years get more space.
-    name: 'Snowmelt Shimmer',
+    name: 'Snowmelt Flute',
     program: 'Canyon Flute',
     values: { 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.mix': 0.35, 'master.volume': 0.95 },
     gauge: { site: '11264500', start: '2024-01-01', end: '2024-12-31' },

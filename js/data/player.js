@@ -39,6 +39,8 @@ export class DataPlayer {
       roar: false, roarLevel: 0.6,
     };
     this.history = null;   // long daily record for the same gauge, for "normal" flows
+    // Layer 2: a second sound playing the same river, shifted and paced on its own.
+    this.layer = { on: false, octave: 0, every: 4, voicing: 'single' };
     this.position = 0;     // step to start from
     this.playing = false;
     this.timeline = [];    // [{ time, step }] of scheduled steps, for the playhead
@@ -110,13 +112,27 @@ export class DataPlayer {
 
   // The notes to play at step i: the note itself, or a triad stacked in thirds from the
   // scale (which may reach above High). Empty for missing data.
-  chordAt(i) {
+  chordAt(i, voicing = this.settings.voicing) {
     const root = this.notes[i];
     if (root == null) return [];
-    if (this.settings.voicing !== 'triad') return [root];
+    if (voicing !== 'triad') return [root];
     this._ext ??= this.allowedNotes(24);
     const k = this._ext.indexOf(root);
     return [this._ext[k], this._ext[k + 2], this._ext[k + 4]].filter((n) => n != null);
+  }
+
+  setLayer(key, value) { this.layer[key] = value; }
+
+  // Layer 2 plays every Nth day, shifted by its octave, held for its whole span.
+  scheduleLayer(i, t) {
+    const { on, every, octave, voicing } = this.layer;
+    if (!on || i % every !== 0) return;
+    const chord = this.chordAt(i, voicing).map((n) => n + octave).filter((n) => n >= 0 && n <= 127);
+    const end = t + this.stepDur * every * 0.95;
+    for (const n of chord) {
+      this.synth.layerNoteOn(n, t);
+      this.synth.layerNoteOff(n, end);
+    }
   }
 
   routeValue(route, t) {
@@ -210,6 +226,7 @@ export class DataPlayer {
     const chord = this.chordAt(i);
     const next = this.chordAt(i + 1);
     const same = (a, b) => a.length === b.length && a.every((n, j) => n === b[j]);
+    this.scheduleLayer(i, t);
     const src = this.sources;
     for (const r of this.routes) {
       const v = src[r.source ?? 'flow'][i];
@@ -237,13 +254,15 @@ export class DataPlayer {
   // The whole performance as a list of timed events (for WAV and MIDI export).
   // Runs the same step logic as live playback, capturing what it would send.
   collectEvents() {
-    const ev = { notes: [], params: [], roar: [], steps: [] };
+    const ev = { notes: [], params: [], roar: [], steps: [], layerNotes: [] };
     const real = this.synth, savedSounding = this.sounding;
     this.synth = {
       noteOn: (note, velocity, time) => ev.notes.push({ type: 'noteOn', note, velocity, time }),
       noteOff: (note, time) => ev.notes.push({ type: 'noteOff', note, time }),
       setParamAt: (id, value, time) => ev.params.push({ id, value, time }),
       roar: { setFlow: (t, time, smooth) => ev.roar.push({ t, time, smooth }) },
+      layerNoteOn: (note, time) => ev.layerNotes.push({ type: 'noteOn', note, velocity: 1, time }),
+      layerNoteOff: (note, time) => ev.layerNotes.push({ type: 'noteOff', note, time }),
     };
     this.sounding = null;
     try {

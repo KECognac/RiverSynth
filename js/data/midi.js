@@ -1,6 +1,7 @@
 // Write a river performance as a Standard MIDI File (format 0, one track).
 //
-// Notes are the data player's notes. Each river signal is also written as a controller
+// Notes are the data player's notes (channel 1); layer 2's notes go on channel 2.
+// Each river signal is also written as a controller
 // (CC) per step, so a music program can map them to any knob:
 //   CC 20 Flow · CC 21 Change · CC 22 Anomaly vs normal · CC 23 Trend · CC 24 Turbulence
 // (CC 20-24 are "undefined" in the MIDI spec, so they won't collide with mod wheel etc.)
@@ -18,14 +19,18 @@ function vlq(n) { // MIDI variable-length quantity
 const text = (s) => [...new TextEncoder().encode(s)];
 
 // notes: [{ type: 'noteOn'|'noteOff', note, time }], steps: [{ i, time }], sources: player.sources
-export function buildMidi({ notes, steps, sources, bpm, name }) {
+export function buildMidi({ notes, layerNotes = [], steps, sources, bpm, name }) {
   const toTick = (sec) => Math.max(0, Math.round((sec * bpm / 60) * PPQ));
   const events = []; // { tick, order, bytes } -- note-offs sort before note-ons at the same tick
-  for (const e of notes) {
-    const n = Math.max(0, Math.min(127, Math.round(e.note)));
-    if (e.type === 'noteOn') events.push({ tick: toTick(e.time), order: 2, bytes: [0x90, n, 100] });
-    else events.push({ tick: toTick(e.time), order: 0, bytes: [0x80, n, 0] });
-  }
+  const addNotes = (list, ch) => {
+    for (const e of list) {
+      const n = Math.max(0, Math.min(127, Math.round(e.note)));
+      if (e.type === 'noteOn') events.push({ tick: toTick(e.time), order: 2, bytes: [0x90 | ch, n, 100] });
+      else events.push({ tick: toTick(e.time), order: 0, bytes: [0x80 | ch, n, 0] });
+    }
+  };
+  addNotes(notes, 0);
+  addNotes(layerNotes, 1);
   const last = {};
   for (const { i, time } of steps) {
     for (const [cc, key] of SOURCE_CCS) {

@@ -3,8 +3,15 @@
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const BLACK = new Set([1, 3, 6, 8, 10]);
-// Two rows of the QWERTY keyboard laid out like piano keys, starting at C.
-const COMPUTER_KEYS = ['a', 'w', 's', 'e', 'd', 'f', 't', 'g', 'y', 'h', 'u', 'j', 'k', 'o', 'l', 'p', ';', "'"];
+// Two-row piano layout covering the 25 on-screen keys (C to C, two octaves):
+//   lower octave: white keys on the bottom row (Z X C V B N M), black keys on the home row (S D G H J)
+//   upper octave: white keys on the top row (Q W E R T Y U I), black keys on the number row (2 3 5 6 7)
+// Octave down / up: - and =
+const COMPUTER_KEYS = [
+  'z', 's', 'x', 'd', 'c', 'v', 'g', 'b', 'h', 'n', 'j', 'm',
+  'q', '2', 'w', '3', 'e', 'r', '5', 't', '6', 'y', '7', 'u', 'i',
+];
+const OCTAVE_KEYS = { '-': -1, '=': 1 };
 
 export const noteName = (n) => `${NOTE_NAMES[n % 12]}${Math.floor(n / 12) - 1}`;
 
@@ -104,9 +111,9 @@ export class Keyboard {
     window.addEventListener('keydown', (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey || typing(e)) return;
       const key = e.key.toLowerCase();
-      if (key === 'z' || key === 'x') {
+      if (key in OCTAVE_KEYS) {
         e.preventDefault();
-        if (!e.repeat) this.setOctave(this.octave + (key === 'z' ? -1 : 1));
+        if (!e.repeat) this.setOctave(this.octave + OCTAVE_KEYS[key]);
         return;
       }
       const i = COMPUTER_KEYS.indexOf(key);

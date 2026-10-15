@@ -17,9 +17,8 @@ async function loadModules(ctx) {
   await ctx.audioWorklet.addModule(new URL('./worklet/fx-processors.js', import.meta.url));
 }
 
-// engine -> crush -> distortion -> tape -> mod -> delay -> reverb -> master -> limiter -> out
-// (the river roar joins at the reverb, so it shares the room)
-function buildChain(ctx, processorOptions) {
+// One voice: engine -> crush -> distortion -> tape -> mod -> delay -> reverb -> master gain
+function buildVoice(ctx, processorOptions) {
   const node = new AudioWorkletNode(ctx, 'synth-processor', {
     numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2], processorOptions,
   });
@@ -28,25 +27,63 @@ function buildChain(ctx, processorOptions) {
     mod: new ModFX(ctx), delay: new DelayFX(ctx), reverb: new ReverbFX(ctx),
   };
   const master = ctx.createGain();
+  node.connect(fx.crush.input);
+  const order = ['crush', 'dist', 'tape', 'mod', 'delay', 'reverb'];
+  for (let i = 0; i < order.length - 1; i++) fx[order[i]].output.connect(fx[order[i + 1]].input);
+  fx.reverb.output.connect(master);
+  return { node, fx, master };
+}
+
+// The instrument: the main voice into a limiter and out. The river roar joins at the main
+// reverb (so it shares the room); layer 2 joins at the limiter.
+function buildChain(ctx, processorOptions) {
+  const voice = buildVoice(ctx, processorOptions);
   const limiter = ctx.createDynamicsCompressor();
   limiter.threshold.value = -3;
   limiter.knee.value = 0;
   limiter.ratio.value = 20;
   limiter.attack.value = 0.003;
   limiter.release.value = 0.1;
-  node.connect(fx.crush.input);
-  const order = ['crush', 'dist', 'tape', 'mod', 'delay', 'reverb'];
-  for (let i = 0; i < order.length - 1; i++) fx[order[i]].output.connect(fx[order[i + 1]].input);
-  fx.reverb.output.connect(master).connect(limiter).connect(ctx.destination);
-  const roar = new RiverRoar(ctx, fx.reverb.input);
-  return { node, fx, master, limiter, roar };
+  voice.master.connect(limiter).connect(ctx.destination);
+  const roar = new RiverRoar(ctx, voice.fx.reverb.input);
+  return { ...voice, limiter, roar };
 }
 
-// Apply an effects/master parameter to a chain, optionally at a scheduled time.
-function routeFx(chain, ctx, id, value, time) {
+// Apply an effects/master parameter to a voice, optionally at a scheduled time.
+// `gain` scales the master volume (layer 2's level).
+function routeFx(chain, ctx, id, value, time, gain = 1) {
   const [unit, key] = id.split('.');
-  if (unit === 'master') chain.master.gain.setTargetAtTime(value, time ?? ctx.currentTime, 0.02);
+  if (unit === 'master') chain.master.gain.setTargetAtTime(value * gain, time ?? ctx.currentTime, 0.02);
   else chain.fx[unit].set(key, value, time);
+}
+
+const splitValues = (values) => {
+  const engine = {}, fx = {};
+  for (const [id, v] of Object.entries(values)) (isFxParam(id) ? fx : engine)[id] = v;
+  return { engine, fx };
+};
+
+// Layer 2: a second complete voice with its own program and effects, mixed into the main
+// output at its own level. The data player sends it notes.
+class Layer {
+  constructor(ctx, destination) {
+    this.ctx = ctx;
+    Object.assign(this, buildVoice(ctx));
+    this.master.connect(destination);
+    this.level = 0.6;
+    this.values = defaultValues();
+  }
+  setValues(values) {
+    this.values = { ...defaultValues(), ...values };
+    const { engine, fx } = splitValues(this.values);
+    this.node.port.postMessage({ type: 'params', values: engine });
+    for (const [id, v] of Object.entries(fx)) routeFx(this, this.ctx, id, v, undefined, this.level);
+  }
+  setLevel(level) {
+    this.level = level;
+    this.master.gain.setTargetAtTime(this.values['master.volume'] * level, this.ctx.currentTime, 0.02);
+  }
+  send(msg) { this.node.port.postMessage(msg); }
 }
 
 export class Synth {
@@ -71,6 +108,9 @@ export class Synth {
     this.analyser.fftSize = 4096;
     this.node.connect(this.analyser);
     this.recorder = new Recorder(ctx, chain.limiter);
+    this.layer = new Layer(ctx, chain.limiter);
+    this.layer.setLevel(this.layerLevel ?? 0.6);
+    this.layer.setValues(this.layerValues ?? defaultValues());
 
     this.setParams(this.values);
     for (const msg of this.pending ?? []) this.node.port.postMessage(msg);
@@ -105,7 +145,13 @@ export class Synth {
   // `time` (optional, AudioContext seconds) schedules the event sample-accurately.
   noteOn(note, velocity = 1, time) { this.send({ type: 'noteOn', note, velocity, time }); }
   noteOff(note, time) { this.send({ type: 'noteOff', note, time }); }
-  allNotesOff() { this.send({ type: 'allOff' }); }
+  allNotesOff() { this.send({ type: 'allOff' }); this.layer?.send({ type: 'allOff' }); }
+
+  // Layer 2 (see Layer). Settings made before audio starts are applied when it does.
+  setLayerSound(values) { this.layerValues = values; this.layer?.setValues(values); }
+  setLayerLevel(level) { this.layerLevel = level; this.layer?.setLevel(level); }
+  layerNoteOn(note, time) { this.layer?.send({ type: 'noteOn', note, velocity: 1, time }); }
+  layerNoteOff(note, time) { this.layer?.send({ type: 'noteOff', note, time }); }
   // Change a parameter at a future AudioContext time (used by the data player, so knobs
   // move in step with the notes). Timer-based, which is plenty for parameter changes.
   setParamAt(id, value, time) {
@@ -117,6 +163,7 @@ export class Synth {
   // Drop notes and parameter changes scheduled for the future that haven't happened yet.
   clearScheduled() {
     this.send({ type: 'clearScheduled' });
+    this.layer?.send({ type: 'clearScheduled' });
     for (const t of this.paramTimers) clearTimeout(t);
     this.paramTimers.clear();
   }
@@ -132,8 +179,9 @@ export class Synth {
   //   notes:    [{ type: 'noteOn' | 'noteOff', note, time }]
   //   params:   [{ id, value, time }] scheduled parameter changes
   //   roar:     { level, steps: [{ t, time, smooth }] } or null
+  //   layers:   [{ values, level, notes }] extra voices (layer 2)
   //   duration: seconds (include a tail for releases and reverb)
-  async renderOffline({ values, notes = [], params = [], roar = null, duration, sampleRate = 44100, onProgress }) {
+  async renderOffline({ values, notes = [], params = [], roar = null, layers = [], duration, sampleRate = 44100, onProgress }) {
     const ctx = new OfflineAudioContext(2, Math.ceil(duration * sampleRate), sampleRate);
     await loadModules(ctx);
     const engineValues = {}, fxValues = {};
@@ -147,6 +195,12 @@ export class Synth {
     if (roar) {
       chain.roar.setLevel(roar.level);
       for (const r of roar.steps) chain.roar.setFlow(r.t, r.time, r.smooth);
+    }
+    for (const layer of layers) {
+      const { engine, fx } = splitValues({ ...defaultValues(), ...layer.values });
+      const voice = buildVoice(ctx, { values: engine, events: [...layer.notes].sort((a, b) => a.time - b.time) });
+      voice.master.connect(chain.limiter);
+      for (const [id, v] of Object.entries(fx)) routeFx(voice, ctx, id, v, 0, layer.level);
     }
     // Progress updates: pause the render every so often (where the browser supports it).
     if (onProgress && ctx.suspend) {

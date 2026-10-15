@@ -14,6 +14,9 @@
   <meta property="og:url" content="https://kecognac.github.io/RiverSynth/">
   <meta property="og:image" content="https://kecognac.github.io/RiverSynth/assets/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Kode+Mono:wght@700&display=swap">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -25,7 +28,6 @@
         </button>
         <img class="brand-logo" src="assets/logo.svg" alt="" width="44" height="44">
         <h1>riversynth<span class="brand-dot" aria-hidden="true"></span></h1>
-        <span class="sub">turn river flow into music</span>
       </div>
 
       <div class="display">
@@ -58,84 +60,91 @@
       </div>
       <p id="data-status" class="data-status" aria-live="polite"></p>
 
-      <h3 class="sub-head">Where &amp; when</h3>
-      <div class="data-row">
-        <label>USGS gauge<input id="data-site" type="text" value="06752260" inputmode="numeric" maxlength="15" size="10"></label>
-        <label>Start<input id="data-start" type="date" value="2024-01-01"></label>
-        <label>End<input id="data-end" type="date" value="2024-12-31"></label>
-        <button id="data-load" type="button">Load from USGS</button>
-        <label class="button">Load CSV<input id="data-csv" type="file" accept=".csv,text/csv" hidden></label>
-      </div>
+      <details id="data-more" class="data-more">
+        <summary><span class="data-more-title">Settings</span><span class="data-more-list">Where &amp; when · Music · Layer 2 · Data → Sound · Export</span></summary>
+        <div class="data-more-body">
+        <h3 class="sub-head">Where &amp; when</h3>
+        <div class="data-row">
+          <label>USGS gauge<input id="data-site" type="text" value="06752260" inputmode="numeric" maxlength="15" size="10"></label>
+          <label>Start<input id="data-start" type="date" value="2024-01-01"></label>
+          <label>End<input id="data-end" type="date" value="2024-12-31"></label>
+          <button id="data-load" type="button">Load from USGS</button>
+          <label class="button">Load CSV<input id="data-csv" type="file" accept=".csv,text/csv" hidden></label>
+        </div>
 
-      <h3 class="sub-head">Music</h3>
-      <div class="data-row">
-        <label class="check"><input id="data-loop" type="checkbox">Loop</label>
-        <label>Tempo<input id="data-bpm" type="number" min="20" max="400" value="120" size="4"></label>
-        <label>Step<select id="data-rate"></select></label>
-        <label>Gate<input id="data-gate" type="range" min="0.05" max="1" step="0.05" value="0.6"></label>
-        <label class="check"><input id="data-tie" type="checkbox">Tie repeats</label>
-        <span class="divider" aria-hidden="true"></span>
-        <label>Scale<select id="data-scale"></select></label>
-        <label>Key<select id="data-root"></select></label>
-        <label>Low<select id="data-low"></select></label>
-        <label>High<select id="data-high"></select></label>
-        <label>Notes<select id="data-voicing">
-          <option value="single">Single</option>
-          <option value="triad">Triad</option>
-        </select></label>
-        <label>Note spread<select id="data-spread">
-          <option value="even">Even</option>
-          <option value="proportional">Proportional</option>
-        </select></label>
-        <label class="check"><input id="data-log" type="checkbox" checked>Log scale</label>
-        <span class="divider" aria-hidden="true"></span>
-        <label class="check"><input id="data-roar" type="checkbox">River roar</label>
-        <label>Roar level<input id="data-roar-level" type="range" min="0" max="1" step="0.05" value="0.6"></label>
-      </div>
+        <h3 class="sub-head">Music</h3>
+        <div class="data-row">
+          <label class="check"><input id="data-loop" type="checkbox">Loop</label>
+          <label>Tempo<input id="data-bpm" type="number" min="20" max="400" value="120" size="4"></label>
+          <label>Step<select id="data-rate"></select></label>
+          <label>Gate<input id="data-gate" type="range" min="0.05" max="1" step="0.05" value="0.6"></label>
+          <label class="check"><input id="data-tie" type="checkbox">Tie repeats</label>
+          <span class="divider" aria-hidden="true"></span>
+          <label>Scale<select id="data-scale"></select></label>
+          <label>Key<select id="data-root"></select></label>
+          <label>Low<select id="data-low"></select></label>
+          <label>High<select id="data-high"></select></label>
+          <label>Notes<select id="data-voicing">
+            <option value="single">Single</option>
+            <option value="triad">Triad</option>
+          </select></label>
+          <label>Note spread<select id="data-spread">
+            <option value="even">Even</option>
+            <option value="proportional">Proportional</option>
+          </select></label>
+          <label class="check"><input id="data-log" type="checkbox" checked>Log scale</label>
+          <span class="divider" aria-hidden="true"></span>
+          <label class="check"><input id="data-roar" type="checkbox">River roar</label>
+          <label>Roar level<input id="data-roar-level" type="range" min="0" max="1" step="0.05" value="0.6"></label>
+        </div>
 
-      <h3 class="sub-head">Layer 2</h3>
-      <p class="small routes-help">A second sound playing the same river: pick a program, then shift it by octaves and space it out (e.g. a bass every 4 days under the melody).</p>
-      <div class="data-row">
-        <label class="check"><input id="layer-on" type="checkbox">Layer 2 on</label>
-        <label>Program<select id="layer-program"></select></label>
-        <button id="layer-copy" type="button" title="Use the sound currently in the Modulate panel for layer 2">Copy main sound</button>
-        <label>Level<input id="layer-level" type="range" min="0" max="1" step="0.05" value="0.6"></label>
-        <label>Octave<select id="layer-octave">
-          <option value="-24">−2 oct</option>
-          <option value="-12">−1 oct</option>
-          <option value="0" selected>0</option>
-          <option value="12">+1 oct</option>
-          <option value="24">+2 oct</option>
-        </select></label>
-        <label>Every<select id="layer-every">
-          <option value="1">day</option>
-          <option value="2">2 days</option>
-          <option value="4" selected>4 days</option>
-          <option value="8">8 days</option>
-          <option value="16">16 days</option>
-        </select></label>
-        <label>Notes<select id="layer-voicing">
-          <option value="single">Single</option>
-          <option value="triad">Triad</option>
-        </select></label>
-      </div>
+        <h3 class="sub-head">Layer 2</h3>
+        <p class="small routes-help">A second sound playing the same river.
+          <span class="info" tabindex="0" role="note" aria-label="Pick a program, then shift it by octaves and space it out (e.g. a bass every 4 days under the melody)." data-tip="Pick a program, then shift it by octaves and space it out (e.g. a bass every 4 days under the melody).">i</span></p>
+        <div class="data-row">
+          <label class="check"><input id="layer-on" type="checkbox">Layer 2 on</label>
+          <label>Program<select id="layer-program"></select></label>
+          <button id="layer-copy" type="button" title="Use the sound currently in the Modulate panel for layer 2">Copy main sound</button>
+          <label>Level<input id="layer-level" type="range" min="0" max="1" step="0.05" value="0.6"></label>
+          <label>Octave<select id="layer-octave">
+            <option value="-24">−2 oct</option>
+            <option value="-12">−1 oct</option>
+            <option value="0" selected>0</option>
+            <option value="12">+1 oct</option>
+            <option value="24">+2 oct</option>
+          </select></label>
+          <label>Every<select id="layer-every">
+            <option value="1">day</option>
+            <option value="2">2 days</option>
+            <option value="4" selected>4 days</option>
+            <option value="8">8 days</option>
+            <option value="16">16 days</option>
+          </select></label>
+          <label>Notes<select id="layer-voicing">
+            <option value="single">Single</option>
+            <option value="triad">Triad</option>
+          </select></label>
+        </div>
 
-      <div class="routes-head">
-        <h3 class="sub-head">Data → Sound</h3>
-        <p class="small routes-help">Pick what each control follows: the flow itself, whether it's rising or falling, how it compares with the normal flow for that date, its 30-day trend, or how turbulent the last week was. Knobs go back to where they were when you stop.</p>
-      </div>
-      <div id="routes" class="routes"></div>
-      <div><button id="route-add" type="button">+ Add control</button></div>
+        <div class="routes-head">
+          <h3 class="sub-head">Data → Sound</h3>
+          <p class="small routes-help">Let the river move the knobs too.
+            <span class="info" tabindex="0" role="note" aria-label="Pick what each control follows: the flow itself, whether it's rising or falling, how it compares with the normal flow for that date, its 30-day trend, or how turbulent the last week was. Knobs go back to where they were when you stop." data-tip="Pick what each control follows: the flow itself, whether it's rising or falling, how it compares with the normal flow for that date, its 30-day trend, or how turbulent the last week was. Knobs go back to where they were when you stop.">i</span></p>
+        </div>
+        <div id="routes" class="routes"></div>
+        <div><button id="route-add" type="button">+ Add control</button></div>
 
-      <h3 class="sub-head">Save &amp; export</h3>
-      <div class="data-row river-presets">
-        <input id="river-preset-name" type="text" placeholder="Preset name" aria-label="River preset name" maxlength="40">
-        <button id="river-preset-save" type="button">Save preset</button>
-        <button id="river-preset-delete" type="button" disabled>Delete</button>
-        <span class="divider" aria-hidden="true"></span>
-        <button id="export-wav" type="button" title="Render the whole river song to a WAV file">Export WAV</button>
-        <button id="export-midi" type="button" title="Save the notes and river signals as a MIDI file">Export MIDI</button>
-      </div>
+        <h3 class="sub-head">Save &amp; export</h3>
+        <div class="data-row river-presets">
+          <input id="river-preset-name" type="text" placeholder="Preset name" aria-label="River preset name" maxlength="40">
+          <button id="river-preset-save" type="button">Save preset</button>
+          <button id="river-preset-delete" type="button" disabled>Delete</button>
+          <span class="divider" aria-hidden="true"></span>
+          <button id="export-wav" type="button" title="Render the whole river song to a WAV file">Export WAV</button>
+          <button id="export-midi" type="button" title="Save the notes and river signals as a MIDI file">Export MIDI</button>
+        </div>
+        </div>
+      </details>
     </section>
 
     <section class="synth-area step" aria-labelledby="synth-title">

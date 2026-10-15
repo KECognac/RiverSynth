@@ -2,6 +2,9 @@
    colour-blocked sections in bold blue, red, yellow and green, and black knobs with
    white pointers. */
 :root {
+  --font-ui: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, Menlo, monospace;
+  --font-display: "Kode Mono", "Geist Mono", ui-monospace, Menlo, monospace;
   --bg: #1b1714;            /* the room behind the instrument */
   --wood: linear-gradient(90deg, #4a2f1b, #74492a 35%, #5a3920 65%, #6b4427);
   --panel: #efe8d8;         /* cream case */
@@ -31,7 +34,7 @@ html, body { margin: 0; }
 body {
   background: var(--bg);
   color: var(--text);
-  font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  font: 13px/1.4 var(--font-ui);
   -webkit-user-select: none;
   user-select: none;
 }
@@ -55,7 +58,7 @@ input[type="text"] { cursor: text; -webkit-user-select: text; user-select: text;
 
 .small { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
 kbd {
-  font: 11px ui-monospace, Menlo, monospace;
+  font: 11px var(--font-mono);
   padding: 0 4px;
   border: 1px solid #b9ae98;
   border-radius: 3px;
@@ -91,10 +94,9 @@ kbd {
 .brand-logo { width: 44px; height: 44px; flex: none; }
 .brand h1 {
   margin: 0; display: flex; align-items: baseline; gap: 4px;
-  font: 700 26px/1 ui-monospace, Menlo, "SF Mono", monospace; letter-spacing: -0.01em;
+  font: 700 26px/1 var(--font-display); letter-spacing: -0.01em;
 }
 .brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--moog-blue); }
-.brand .sub { color: var(--muted); font-size: 12px; max-width: 9em; }
 
 .power {
   width: 40px; height: 40px; border-radius: 50%;
@@ -122,7 +124,7 @@ kbd {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   color: var(--screen-text);
   background: rgba(11, 14, 16, 0.85);
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-mono);
   opacity: 0; transition: opacity 0.2s;
   pointer-events: none;
   text-align: center;
@@ -133,10 +135,13 @@ kbd {
 .readout strong { font-size: 22px; font-weight: 500; }
 .hint-start {
   position: absolute; inset: 0; display: grid; place-items: center;
-  color: var(--screen-text); font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+  color: var(--screen-text); font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.02em;
   text-align: center; padding: 8px;
   pointer-events: none;
+  animation: hint-pulse 2.4s ease-in-out infinite;
 }
+@keyframes hint-pulse { 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .hint-start { animation: none; } }
 .audio-on .hint-start { display: none; }
 
 /* Program bar (in step 02): menu, save/load, and the play-around buttons */
@@ -181,7 +186,7 @@ kbd {
 .control { display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .control[hidden] { display: none; }
 .control .label {
-  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;
   color: var(--sec-fg); opacity: 0.85;
 }
 
@@ -230,7 +235,7 @@ kbd {
 }
 .data-now {
   position: absolute; top: 8px; right: 12px;
-  font: 12px ui-monospace, Menlo, monospace; color: var(--screen-text);
+  font: 12px var(--font-mono); color: var(--screen-text);
   pointer-events: none;
 }
 
@@ -251,7 +256,7 @@ kbd {
 .route label:has(select) { display: flex; flex-direction: column; align-items: stretch; }
 .route select { padding: 4px 6px; text-transform: none; letter-spacing: 0; }
 .route input[type="range"] { width: 120px; accent-color: var(--moog-green); }
-.route output { min-width: 5.5em; font: 11px ui-monospace, Menlo, monospace; color: var(--text); text-transform: none; }
+.route output { min-width: 5.5em; font: 11px var(--font-mono); color: var(--text); text-transform: none; }
 .route-warn { color: var(--moog-red); font-weight: 600; text-transform: none; letter-spacing: 0; padding-bottom: 4px; }
 .route-remove { margin-left: auto; width: 28px; padding: 3px 0; }
 
@@ -293,7 +298,7 @@ kbd {
 .key.black.down { background: var(--moog-yellow); color: var(--text); }
 .key.white.data { background: #a9c6ec; }
 .key.black.data { background: var(--moog-blue); }
-.key .hint { font: 10px ui-monospace, Menlo, monospace; }
+.key .hint { font: 10px var(--font-mono); }
 .key .name { font-size: 10px; color: #4a443c; }
 
 @media (max-width: 900px) {
@@ -323,23 +328,23 @@ kbd {
   flex: none; display: grid; place-items: center;
   width: 44px; height: 44px; border-radius: 10px;
   background: var(--te-ink); color: #fff;
-  font: 700 18px/1 ui-monospace, Menlo, monospace;
+  font: 700 18px/1 var(--font-display);
   box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.1);
 }
 .step-head h2 {
   margin: 0; display: flex; align-items: center; gap: 10px;
-  font: 800 21px/1.15 "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: -0.01em;
+  font: 700 21px/1.15 var(--font-display); letter-spacing: -0.01em;
   color: var(--te-ink);
 }
 .step-head h2::after { /* a little orange status light */
   content: ''; width: 9px; height: 9px; border-radius: 2px; background: var(--te-orange);
 }
-.step-hint { margin: 3px 0 0; font: 12px/1.45 ui-monospace, Menlo, monospace; color: var(--muted); }
+.step-hint { margin: 3px 0 0; font: 300 13.5px/1.45 var(--font-ui); letter-spacing: 0.01em; color: var(--muted); }
 
 .quick-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; }
 .quick {
   display: flex; flex-direction: column; gap: 5px;
-  font: 700 10px ui-monospace, Menlo, monospace; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
+  font: 600 10px var(--font-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
 }
 .quick select {
   font: 600 15px "Helvetica Neue", Helvetica, Arial, sans-serif; text-transform: none; letter-spacing: 0;
@@ -347,10 +352,10 @@ kbd {
   border: 2px solid var(--te-ink); border-radius: 10px; background: #fff;
 }
 .quick #data-gauge { max-width: 480px; min-width: 300px; }
-.data-status { margin: -4px 0 0; font: 12px ui-monospace, Menlo, monospace; color: var(--muted); }
+.data-status { margin: -4px 0 0; font: 12px var(--font-ui); color: var(--muted); }
 .sub-head {
   margin: 6px 0 0; display: flex; align-items: center; gap: 8px;
-  font: 700 11px ui-monospace, Menlo, monospace; text-transform: uppercase; letter-spacing: 0.12em; color: var(--te-ink);
+  font: 600 11px var(--font-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--te-ink);
 }
 .sub-head::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--te-orange); }
 .routes-head { border-top: none; padding-top: 0; }
@@ -391,6 +396,17 @@ kbd {
   background: #fff; border-color: rgba(0, 0, 0, 0.3); color: var(--text);
 }
 #data-chart { border-color: var(--ink); }
+/* larger type on the blue block, where small text is harder to read */
+.data-area .step-hint { font-size: 14px; font-weight: 400; }
+.data-area .quick { font-size: 11px; }
+.data-area .sub-head { font-size: 12px; }
+.data-area .data-row label:not(.button), .data-area .route label { font-size: 11px; }
+.data-area .data-status { font-size: 12.5px; }
+.data-area .routes-help { font-size: 12.5px; line-height: 1.5; }
+.data-area .route output { font-size: 12px; }
+.data-area button:not(.big-play), .data-area .button,
+.data-area select:not(#river-preset):not(#data-gauge),
+.data-area input[type="text"], .data-area input[type="number"], .data-area input[type="date"] { font-size: 13px; }
 
 /* Play: a black pill, like the selected controls */
 .big-play {
@@ -410,7 +426,48 @@ kbd {
 /* --- Credits footer ------------------------------------------------------------- */
 .credits {
   padding-top: 4px; text-align: center;
-  font: 11px/1.6 ui-monospace, Menlo, monospace; color: var(--muted);
+  font: 11px/1.6 var(--font-ui); color: var(--muted);
 }
 .credits a { color: var(--moog-blue); text-decoration: none; }
 .credits a:hover { text-decoration: underline; }
+
+/* --- 01: advanced river settings fold away under "Settings" -------------------- */
+.data-more { border-top: 1px solid rgba(255, 255, 255, 0.25); padding-top: 10px; }
+.data-more > summary {
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  cursor: pointer; list-style: none; -webkit-user-select: none; user-select: none;
+}
+.data-more > summary::-webkit-details-marker { display: none; }
+.data-more-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: 600 12px var(--font-ui); text-transform: uppercase; letter-spacing: 0.12em; color: #fff;
+}
+.data-more-title::before {
+  content: ''; width: 0; height: 0;
+  border-left: 6px solid var(--moog-yellow); border-top: 4.5px solid transparent; border-bottom: 4.5px solid transparent;
+  transition: transform 0.15s;
+}
+.data-more[open] .data-more-title::before { transform: rotate(90deg); }
+.data-more-list { font: 12.5px var(--font-ui); color: rgba(255, 255, 255, 0.65); }
+.data-more[open] .data-more-list { display: none; }
+.data-more > summary:hover .data-more-list { color: #fff; }
+.data-more-body { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+
+/* small "i" that shows the longer explanation on hover or focus */
+.info {
+  position: relative; display: inline-grid; place-items: center;
+  width: 16px; height: 16px; margin-left: 4px; vertical-align: 1px;
+  border: 1px solid currentColor; border-radius: 50%;
+  font: 600 10px/1 var(--font-ui); font-style: normal; cursor: help; opacity: 0.8;
+}
+.info:hover, .info:focus-visible { opacity: 1; outline: none; }
+.info::after {
+  content: attr(data-tip);
+  position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
+  width: max-content; max-width: 320px; padding: 8px 10px; border-radius: 6px;
+  background: var(--te-ink, #1d1b1a); color: #fff;
+  font: 400 12.5px/1.45 var(--font-ui); text-transform: none; letter-spacing: 0; text-align: left;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  opacity: 0; visibility: hidden; transition: opacity 0.12s; pointer-events: none; z-index: 20;
+}
+.info:hover::after, .info:focus-visible::after { opacity: 1; visibility: visible; }

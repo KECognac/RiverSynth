@@ -812,3 +812,10 @@ if (sharedLoaded) {
 }
 window.addEventListener('pointerdown', () => ensureAudio(), { once: true });
 window.addEventListener('keydown', () => ensureAudio(), { once: true });
+
+// The river Settings fold stays open or closed the way the visitor left it.
+const dataMore = document.getElementById('data-more');
+try { dataMore.open = localStorage.getItem('synthwork.settingsOpen') === '1'; } catch {}
+dataMore.addEventListener('toggle', () => {
+  try { localStorage.setItem('synthwork.settingsOpen', dataMore.open ? '1' : '0'); } catch {}
+});

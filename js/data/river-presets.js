@@ -26,6 +26,23 @@ export const RIVER_FACTORY = [
     ],
   },
   {
+    // A Native American-style flute over Sierra snowmelt (Merced River, Yosemite): Canyon
+    // Flute in F# minor pentatonic, kept low (C3-C5), playing soft triads in breathing 1/8
+    // phrases with repeated days held as long tones, in a hall. Flow opens the tone, fast changes
+    // build the canyon echo, stormy weeks deepen the vibrato, wet years get more space.
+    name: 'Snowmelt Shimmer',
+    program: 'Canyon Flute',
+    values: { 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.mix': 0.35, 'master.volume': 0.95 },
+    gauge: { site: '11264500', start: '2024-01-01', end: '2024-12-31' },
+    settings: { scale: 'Minor pentatonic', root: 6, low: 48, high: 72, log: true, bpm: 96, rate: '1/8', gate: 0.95, tie: true, voicing: 'triad', spread: 'even', roar: true, roarLevel: 0.35 },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.75 },
+      { id: 'delay.depth', source: 'change', from: 0.2, to: 0.5 },
+      { id: 'lfo.int', source: 'turbulence', from: 0.505, to: 0.52 },
+      { id: 'reverb.mix', source: 'anomaly', from: 0.2, to: 0.5 },
+    ],
+  },
+  {
     // Your saved version (from "New Glacier Bells").
     name: 'Glacier Bells',
     values: {

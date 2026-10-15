@@ -498,6 +498,25 @@ export const FACTORY = [
     },
   },
   {
+    // Native American-style flute: a near-pure triangle with a touch of hollow square, a
+    // steady breath of noise, a soft onset that scoops up into pitch (EG -> Pitch), gentle
+    // slides between notes, light vibrato, and a canyon echo and hall.
+    name: 'Canyon Flute',
+    values: {
+      'vco1.wave': 1, 'mixer.vco1': 0.8,
+      'vco2.wave': 2, 'mixer.vco2': 0.12,
+      'multi.type': 0, 'multi.noise': 0, 'multi.shape': 0.5, 'mixer.multi': 0.12,
+      'filter.cutoff': 1800, 'filter.resonance': 0.15, 'filter.keytrack': 2,
+      'eg.target': 2, 'eg.attack': 0.001, 'eg.decay': 0.1, 'eg.int': -0.025,
+      'ampeg.attack': 0.08, 'ampeg.decay': 0.5, 'ampeg.sustain': 0.85, 'ampeg.release': 0.35,
+      'lfo.wave': 1, 'lfo.rate': 5, 'lfo.int': 0.012, 'lfo.target': 0,
+      'voice.glide': 0.06,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.45, 'delay.depth': 0.35, 'delay.mix': 0.2,
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.75, 'reverb.mix': 0.35,
+      'master.volume': 0.95,
+    },
+  },
+  {
     name: 'FM Bells',
     values: {
       'mixer.vco1': 0, 'mixer.multi': 0.9, 'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.45,

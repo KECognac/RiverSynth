@@ -175,3 +175,28 @@ python data_helper/fetch_streamflow.py --site 01646500 --start 2024-01-01 --end 
 This writes `data/<site>_<start>_<end>.csv` with `date`, `discharge_cfs` and a `normalized`
 column (0–1, log-scaled by default), ready to map onto pitch or filter cutoff. An example file
 for the Potomac River in 2024 is included in `data/`.
+
+## How to cite
+
+If you use RiverSynth in teaching, research, talks, art or media, please give credit. A suggested
+citation:
+
+> Cognac, K. (2026). *RiverSynth: turn river flow into music* [Computer software].
+> https://github.com/KECognac/RiverSynth
+
+On GitHub, the **Cite this repository** button (from [`CITATION.cff`](CITATION.cff)) gives this in
+APA and BibTeX. For videos and posts, a simple "Made with RiverSynth by Kristen Cognac" is perfect.
+
+The music you make and export with RiverSynth is yours to use however you like; credit is
+appreciated but not required.
+
+## Data
+
+Streamflow data comes from the U.S. Geological Survey through the
+[USGS Water Data API](https://api.waterdata.usgs.gov). USGS data is in the public domain; please
+credit the USGS as the data source.
+
+## License
+
+RiverSynth is released under the [MIT License](LICENSE) © 2026 Kristen Cognac. You're free to use,
+change and share it, as long as the copyright notice stays with the code.

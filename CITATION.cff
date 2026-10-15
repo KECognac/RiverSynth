@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use RiverSynth in teaching, research, talks, art or media, please cite it as below."
+title: "RiverSynth: turn river flow into music"
+type: software
+authors:
+  - family-names: Cognac
+    given-names: Kristen
+abstract: >-
+  RiverSynth is a free browser synthesizer and science-communication tool that turns
+  real USGS stream-gauge data into music, so people can listen to how rivers rise,
+  fall, flood and run dry.
+repository-code: "https://github.com/KECognac/RiverSynth"
+url: "https://kecognac.github.io/RiverSynth/"
+license: MIT
+date-released: "2026-10-15"
+keywords:
+  - sonification
+  - streamflow
+  - hydrology
+  - science communication
+  - synthesizer
+  - web audio

@@ -74,6 +74,8 @@ let userPresets = loadUserPresets();
 
 function fillPresetList(selected) {
   presetSelect.innerHTML = '';
+  // Shown when the sound isn't a saved program (random, shared link, a river preset's own sound).
+  presetSelect.append(Object.assign(new Option('Custom sound', ''), { disabled: true, hidden: true }));
   const group = (label, list, prefix) => {
     const og = document.createElement('optgroup');
     og.label = label;
@@ -216,7 +218,7 @@ $('#randomize').addEventListener('click', () => {
   synth.setParams(randomPatch(synth.values));
   player.rebase();
   presetName.value = `Random ${++randomCount}`;
-  presetSelect.selectedIndex = -1;
+  presetSelect.value = '';
   commitNow();
   scope.show('Random sound', presetName.value);
 });
@@ -382,7 +384,8 @@ bindSetting('#data-roar-level', 'roarLevel', (el) => Number(el.value));
 
 playBtn.addEventListener('click', () => (player.playing ? player.stop() : player.play()));
 player.listeners.add(({ playing }) => {
-  playBtn.textContent = playing ? '■ Stop' : '▶ Play';
+  playBtn.querySelector('.play-text').textContent = playing ? 'Stop' : 'Play';
+  playBtn.setAttribute('aria-label', playing ? 'Stop' : 'Play');
   playBtn.setAttribute('aria-pressed', String(playing));
   if (!playing) keyboard.highlight(null);
 });
@@ -402,16 +405,25 @@ chart.onFrame = (step) => {
 };
 
 let riverLabel = '';
-function showSeries(rows, label, history = null) {
+// The line under the chart: dates, length and flow range. The river's name is already in
+// the River menu, so it's only shown for a gauge or file that isn't in the menu.
+function formatDates(a, b) {
+  const d = (s) => new Date(`${s}T00:00`);
+  const opts = { month: 'short', day: 'numeric' };
+  const sameYear = a.slice(0, 4) === b.slice(0, 4);
+  return `${d(a).toLocaleDateString(undefined, sameYear ? opts : { ...opts, year: 'numeric' })} – ${d(b).toLocaleDateString(undefined, { ...opts, year: 'numeric' })}`;
+}
+function showSeries(rows, label, history = null, showName = false) {
   riverLabel = label;
   player.setSeries(rows);
   player.setHistory(history);
   renderRoutes();
   lastShown = -1;
   const vals = rows.map((r) => r.value).filter((v) => v != null);
+  const name = showName ? `${label} · ` : '';
   dataStatus.textContent = rows.length
-    ? `${label} · ${rows.length} days · ${Math.min(...vals).toLocaleString()}–${Math.max(...vals).toLocaleString()} cfs`
-    : `${label} · no data`;
+    ? `${name}${formatDates(rows[0].date, rows[rows.length - 1].date)} · ${rows.length} days · flow ${Math.min(...vals).toLocaleString()}–${Math.max(...vals).toLocaleString()} cfs`
+    : `${name}no data`;
 }
 
 // Fetch the gauge's full daily record in the background to work out the normal flow for
@@ -449,7 +461,7 @@ async function loadFromUsgs() {
       dataStatus.textContent = `No daily discharge for USGS ${site} between ${start} and ${end}.`;
     } else {
       const label = name ? `${name} (USGS ${site})` : `USGS ${site}`;
-      showSeries(rows, label);
+      showSeries(rows, label, null, !GAUGES.some((g) => g.id === site));
       loadHistory(site, label, token);
     }
   } catch (err) {
@@ -483,7 +495,7 @@ $('#data-csv').addEventListener('change', async (e) => {
   if (!file) return;
   const rows = parseCsv(await file.text());
   ++loadToken;
-  if (rows.length) showSeries(rows, file.name);
+  if (rows.length) showSeries(rows, file.name, null, true);
   else dataStatus.textContent = `${file.name}: no date/value rows found.`;
 });
 
@@ -612,7 +624,7 @@ function applyRiverPreset(key) {
   const prog = rp.program ? FACTORY.find((p) => p.name === rp.program) : null;
   synth.setParams(resolvePreset({ ...(prog?.values ?? {}), ...(rp.values ?? {}) }));
   presetName.value = rp.program ?? rp.name;
-  if (prog) presetSelect.value = `f:${FACTORY.indexOf(prog)}`; else presetSelect.selectedIndex = -1;
+  if (prog) presetSelect.value = `f:${FACTORY.indexOf(prog)}`; else presetSelect.value = '';
   // Settings a preset doesn't mention go back to their defaults.
   for (const [k, v] of Object.entries({ voicing: 'single', ...rp.settings })) { player.set(k, v); setDataControl(k, v); }
   routes = (rp.routes ?? []).map((r) => ({ ...r }));
@@ -710,7 +722,7 @@ if (shared) {
     const data = decodeShare(shared[1]);
     synth.setParams(resolvePreset(data.v));
     presetName.value = data.n || 'Shared sound';
-    presetSelect.selectedIndex = -1;
+    presetSelect.value = '';
     commitNow();
     scope.show('Shared sound', presetName.value);
     sharedLoaded = true;
@@ -718,7 +730,13 @@ if (shared) {
     // a broken link: fall back to the default program
   }
 }
-if (!sharedLoaded) loadPreset('f:0'); // open with program 001 (Glockenspiel)
-loadFromUsgs(); // start with the Poudre River at Fort Collins
+// Open on the first river preset (Poudre Pickin') so a first-time visitor can just press
+// Play. A shared link keeps its own sound and loads the default river.
+if (sharedLoaded) {
+  loadFromUsgs();
+} else {
+  riverSel.value = 'rf:0';
+  applyRiverPreset('rf:0');
+}
 window.addEventListener('pointerdown', () => ensureAudio(), { once: true });
 window.addEventListener('keydown', () => ensureAudio(), { once: true });

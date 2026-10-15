@@ -23,46 +23,33 @@
         <div id="readout" class="readout" aria-live="polite"></div>
         <div class="hint-start">Press a key or click the power button to start audio</div>
       </div>
-
-      <div class="programs">
-        <label for="preset" class="small">Program</label>
-        <select id="preset"></select>
-        <div class="row">
-          <input id="preset-name" type="text" value="Init Program" aria-label="Preset name" maxlength="40">
-          <button id="save-preset" type="button">Save</button>
-          <button id="delete-preset" type="button" disabled>Delete</button>
-        </div>
-        <div class="row">
-          <button id="export-preset" type="button">Export</button>
-          <label class="button">Import<input id="import-preset" type="file" accept=".json,application/json" hidden></label>
-          <button id="panic" type="button" title="Stop all notes">Panic</button>
-          <button id="record" type="button" class="record" aria-pressed="false" title="Record the output to a WAV file">● Rec</button>
-        </div>
-        <div class="row">
-          <button id="randomize" type="button" title="Make a new random sound">🎲 Random</button>
-          <button id="mutate" type="button" title="Nudge the current sound into a variation">Mutate</button>
-          <button id="undo" type="button" title="Undo (Cmd/Ctrl+Z)" aria-label="Undo" disabled>↶</button>
-          <button id="redo" type="button" title="Redo (Shift+Cmd/Ctrl+Z)" aria-label="Redo" disabled>↷</button>
-          <button id="share" type="button" title="Copy a link that opens this sound">Share link</button>
-        </div>
-      </div>
     </header>
 
-    <section class="data-area" aria-labelledby="data-title">
-      <div class="data-head">
-        <h2 id="data-title">River Data</h2>
-        <p id="data-status" class="data-status small" aria-live="polite"></p>
+    <section class="data-area step" aria-labelledby="data-title">
+      <div class="step-head">
+        <span class="step-num" aria-hidden="true">01</span>
+        <div>
+          <h2 id="data-title">Turn River Flow into Music</h2>
+          <p class="step-hint">Press play to hear a year of a real river. Every day becomes a note, and the sound follows the water.</p>
+        </div>
       </div>
 
-      <div class="data-row river-presets">
-        <label>River preset<select id="river-preset"></select></label>
-        <input id="river-preset-name" type="text" placeholder="Name" aria-label="River preset name" maxlength="40">
-        <button id="river-preset-save" type="button">Save</button>
-        <button id="river-preset-delete" type="button" disabled>Delete</button>
+      <div class="quick-row">
+        <button id="data-play" type="button" class="play big-play" aria-pressed="false" aria-label="Play">
+          <span class="play-icon" aria-hidden="true"></span><span class="play-text">Play</span>
+        </button>
+        <label class="quick">Preset<select id="river-preset"></select></label>
+        <label class="quick">River<select id="data-gauge"></select></label>
       </div>
 
+      <div class="data-chart-wrap">
+        <canvas id="data-chart" aria-label="Streamflow chart. Click to move the playhead."></canvas>
+        <div id="data-now" class="data-now"></div>
+      </div>
+      <p id="data-status" class="data-status" aria-live="polite"></p>
+
+      <h3 class="sub-head">Where &amp; when</h3>
       <div class="data-row">
-        <label>River<select id="data-gauge"></select></label>
         <label>USGS gauge<input id="data-site" type="text" value="06752260" inputmode="numeric" maxlength="15" size="10"></label>
         <label>Start<input id="data-start" type="date" value="2024-01-01"></label>
         <label>End<input id="data-end" type="date" value="2024-12-31"></label>
@@ -70,15 +57,8 @@
         <label class="button">Load CSV<input id="data-csv" type="file" accept=".csv,text/csv" hidden></label>
       </div>
 
-      <div class="data-chart-wrap">
-        <canvas id="data-chart" aria-label="Streamflow chart. Click to move the playhead."></canvas>
-        <div id="data-now" class="data-now"></div>
-      </div>
-
+      <h3 class="sub-head">Music</h3>
       <div class="data-row">
-        <button id="data-play" type="button" class="play" aria-pressed="false">▶ Play</button>
-        <button id="export-wav" type="button" title="Render the whole river song to a WAV file">Export WAV</button>
-        <button id="export-midi" type="button" title="Save the notes and river signals as a MIDI file">Export MIDI</button>
         <label class="check"><input id="data-loop" type="checkbox">Loop</label>
         <label>Tempo<input id="data-bpm" type="number" min="20" max="400" value="120" size="4"></label>
         <label>Step<select id="data-rate"></select></label>
@@ -104,16 +84,61 @@
       </div>
 
       <div class="routes-head">
-        <h3 class="small">Data → Sound</h3>
+        <h3 class="sub-head">Data → Sound</h3>
         <p class="small routes-help">Pick what each control follows: the flow itself, whether it's rising or falling, how it compares with the normal flow for that date, its 30-day trend, or how turbulent the last week was. Knobs go back to where they were when you stop.</p>
       </div>
       <div id="routes" class="routes"></div>
       <div><button id="route-add" type="button">+ Add control</button></div>
+
+      <h3 class="sub-head">Save &amp; export</h3>
+      <div class="data-row river-presets">
+        <input id="river-preset-name" type="text" placeholder="Preset name" aria-label="River preset name" maxlength="40">
+        <button id="river-preset-save" type="button">Save preset</button>
+        <button id="river-preset-delete" type="button" disabled>Delete</button>
+        <span class="divider" aria-hidden="true"></span>
+        <button id="export-wav" type="button" title="Render the whole river song to a WAV file">Export WAV</button>
+        <button id="export-midi" type="button" title="Save the notes and river signals as a MIDI file">Export MIDI</button>
+      </div>
     </section>
 
-    <div id="panel" class="panel"></div>
+    <section class="synth-area step" aria-labelledby="synth-title">
+      <div class="step-head">
+        <span class="step-num" aria-hidden="true">02</span>
+        <div>
+          <h2 id="synth-title">Modulate</h2>
+          <p class="step-hint">Shape the sound. Drag a knob up or down (double-click resets it), or hit 🎲 Random for a surprise.</p>
+        </div>
+      </div>
+      <div class="programs">
+        <label class="quick">Program<select id="preset"></select></label>
+        <div class="row">
+          <input id="preset-name" type="text" value="Init Program" aria-label="Preset name" maxlength="40">
+          <button id="save-preset" type="button">Save</button>
+          <button id="delete-preset" type="button" disabled>Delete</button>
+          <button id="export-preset" type="button">Export</button>
+          <label class="button">Import<input id="import-preset" type="file" accept=".json,application/json" hidden></label>
+        </div>
+        <div class="row">
+          <button id="randomize" type="button" title="Make a new random sound">🎲 Random</button>
+          <button id="mutate" type="button" title="Nudge the current sound into a variation">Mutate</button>
+          <button id="undo" type="button" title="Undo (Cmd/Ctrl+Z)" aria-label="Undo" disabled>↶</button>
+          <button id="redo" type="button" title="Redo (Shift+Cmd/Ctrl+Z)" aria-label="Redo" disabled>↷</button>
+          <button id="share" type="button" title="Copy a link that opens this sound">Share link</button>
+          <button id="panic" type="button" title="Stop all notes">Panic</button>
+          <button id="record" type="button" class="record" aria-pressed="false" title="Record the output to a WAV file">● Rec</button>
+        </div>
+      </div>
+      <div id="panel" class="panel"></div>
+    </section>
 
-    <section class="keyboard-area">
+    <section class="keyboard-area step" aria-labelledby="keys-title">
+      <div class="step-head">
+        <span class="step-num" aria-hidden="true">03</span>
+        <div>
+          <h2 id="keys-title">Play It Yourself</h2>
+          <p class="step-hint">Tap the keys below, or use your computer keyboard: <kbd>A</kbd>–<kbd>'</kbd> are the white keys.</p>
+        </div>
+      </div>
       <div class="kb-controls">
         <button id="oct-down" type="button" title="Octave down (Z)">−</button>
         <div class="oct"><span class="small">Octave</span><strong id="octave">C4</strong></div>

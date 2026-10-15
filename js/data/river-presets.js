@@ -5,8 +5,51 @@
 // their own sound in `values` (settings that differ from the defaults).
 // User presets store the full sound, and live in this browser's localStorage.
 // Low/High must be C notes (the menus list C1-C8).
+// The first preset is the one the app opens with.
 
 export const RIVER_FACTORY = [
+  {
+    // A Native American-style flute over Sierra snowmelt (Merced River, Yosemite): Canyon
+    // Flute in F# minor pentatonic, kept low (C3-C5), playing soft triads in breathing 1/8
+    // phrases with repeated days held as long tones, in a hall. Flow opens the tone, fast changes
+    // build the canyon echo, stormy weeks deepen the vibrato, wet years get more space.
+    name: 'Snowmelt Flute',
+    program: 'Canyon Flute',
+    values: { 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.mix': 0.35, 'master.volume': 0.95 },
+    gauge: { site: '11264500', start: '2024-01-01', end: '2024-12-31' },
+    settings: { scale: 'Minor pentatonic', root: 6, low: 48, high: 72, log: true, bpm: 96, rate: '1/8', gate: 0.95, tie: true, voicing: 'triad', spread: 'even', roar: true, roarLevel: 0.35 },
+    layer: { on: true, program: 'Bowed Cello', level: 0.4, octave: -12, every: 4, voicing: 'single' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.75 },
+      { id: 'delay.depth', source: 'change', from: 0.2, to: 0.5 },
+      { id: 'lfo.int', source: 'turbulence', from: 0.505, to: 0.52 },
+      { id: 'reverb.mix', source: 'anomaly', from: 0.2, to: 0.5 },
+    ],
+  },
+  {
+    // Grimes "Genesis"-style arpeggios from a flashy river: each day gives the arpeggiator a
+    // triad from the scale, and Rise Fall over 2 octaves sweeps it up and down (about two and
+    // a half octaves) in flowing 1/16s that carry on from day to day. Grandmother Bass sound
+    // with a hall reverb and dotted-eighth echoes. Flow opens the filter, stormy weeks add
+    // squelch, flash floods build echoes, wetter-than-normal stretches get more space.
+    name: 'Flash Flood Pump',
+    program: 'Grandmother Bass',
+    values: {
+      'voice.mode': 3, 'voice.depth': 7 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.55, 'arp.tempo': 100,
+      'ampeg.release': 0.25,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.45, 'delay.depth': 0.45, 'delay.mix': 0.3, // dotted 1/8 at 100
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.depth': 0.55, 'reverb.mix': 0.35,
+    },
+    gauge: { site: '16704000', start: '2024-01-01', end: '2024-12-31' },
+    settings: { scale: 'Natural minor', root: 2, low: 36, high: 60, bpm: 100, rate: '1/4', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: true, roarLevel: 0.4 },
+    layer: { on: true, program: 'Choir Pad', level: 0.3, octave: 24, every: 1, voicing: 'triad' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.85 },
+      { id: 'filter.resonance', source: 'turbulence', from: 0.2, to: 0.55 },
+      { id: 'delay.depth', source: 'change', from: 0.3, to: 0.6 },
+      { id: 'reverb.mix', source: 'anomaly', from: 0.2, to: 0.45 },
+    ],
+  },
   {
     // Folksy Fort Collins: fingerpicked triads on a plucked-guitar sound in G major
     // pentatonic. Each day gives the arp a triad, picked root-3rd-5th-3rd and flowing on
@@ -26,23 +69,6 @@ export const RIVER_FACTORY = [
     ],
   },
   {
-    // A Native American-style flute over Sierra snowmelt (Merced River, Yosemite): Canyon
-    // Flute in F# minor pentatonic, kept low (C3-C5), playing soft triads in breathing 1/8
-    // phrases with repeated days held as long tones, in a hall. Flow opens the tone, fast changes
-    // build the canyon echo, stormy weeks deepen the vibrato, wet years get more space.
-    name: 'Snowmelt Flute',
-    program: 'Canyon Flute',
-    values: { 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.mix': 0.35, 'master.volume': 0.95 },
-    gauge: { site: '11264500', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Minor pentatonic', root: 6, low: 48, high: 72, log: true, bpm: 96, rate: '1/8', gate: 0.95, tie: true, voicing: 'triad', spread: 'even', roar: true, roarLevel: 0.35 },
-    routes: [
-      { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.75 },
-      { id: 'delay.depth', source: 'change', from: 0.2, to: 0.5 },
-      { id: 'lfo.int', source: 'turbulence', from: 0.505, to: 0.52 },
-      { id: 'reverb.mix', source: 'anomaly', from: 0.2, to: 0.5 },
-    ],
-  },
-  {
     // Your saved version (from "New Glacier Bells").
     name: 'Glacier Bells',
     values: {
@@ -59,29 +85,6 @@ export const RIVER_FACTORY = [
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.72 },
       { id: 'reverb.mix', source: 'anomaly', from: 0.1, to: 0.55 },
-    ],
-  },
-  {
-    // Grimes "Genesis"-style arpeggios from a flashy river: each day gives the arpeggiator a
-    // triad from the scale, and Rise Fall over 2 octaves sweeps it up and down (about two and
-    // a half octaves) in flowing 1/16s that carry on from day to day. Grandmother Bass sound
-    // with a hall reverb and dotted-eighth echoes. Flow opens the filter, stormy weeks add
-    // squelch, flash floods build echoes, wetter-than-normal stretches get more space.
-    name: 'Flash Flood Pump',
-    program: 'Grandmother Bass',
-    values: {
-      'voice.mode': 3, 'voice.depth': 7 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.55, 'arp.tempo': 100,
-      'ampeg.release': 0.25,
-      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.45, 'delay.depth': 0.45, 'delay.mix': 0.3, // dotted 1/8 at 100
-      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.depth': 0.55, 'reverb.mix': 0.35,
-    },
-    gauge: { site: '16704000', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Natural minor', root: 2, low: 36, high: 60, bpm: 100, rate: '1/4', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: true, roarLevel: 0.4 },
-    routes: [
-      { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.85 },
-      { id: 'filter.resonance', source: 'turbulence', from: 0.2, to: 0.55 },
-      { id: 'delay.depth', source: 'change', from: 0.3, to: 0.6 },
-      { id: 'reverb.mix', source: 'anomaly', from: 0.2, to: 0.45 },
     ],
   },
   {

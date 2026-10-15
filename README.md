@@ -105,14 +105,14 @@ You can try these in the browser's developer console, where the synth is availab
 
 The **River Data** panel loads daily mean discharge for any USGS gauge, straight from the
 [USGS Water Data API](https://api.waterdata.usgs.gov) in the browser. No Python is needed for
-this part. It starts with the **Cache la Poudre River at Fort Collins, CO (06752260)** for 2024,
+this part. It opens on the **Merced River in Yosemite (11264500)** for 2024 (the Snowmelt Flute preset),
 and the **River** menu has two dozen more with very different characters (snowmelt, tropical flash
 floods, giant rivers, dam-controlled flow, arctic ice breakup), or type any gauge number.
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →
-Sound routes, river roar and (for some) a gauge and dates. Seven are built in (Poudre Pickin', Snowmelt Flute,
-Glacier Bells, Flash Flood Pump, Drought Watch, Lo-Fi Creek, Arctic Breakup), and **Save**
-stores your own in this browser.
+Sound routes, river roar and (for some) a gauge and dates. Seven are built in (Snowmelt Flute, Flash Flood Pump,
+Poudre Pickin', Glacier Bells, Drought Watch, Lo-Fi Creek, Arctic Breakup), and **Save**
+stores your own in this browser. The app opens on the first one, Snowmelt Flute.
 
 After loading, the app also fetches the gauge's full daily record in the background to work out
 the **normal** (median) flow for each date, drawn as a dashed line on the chart.

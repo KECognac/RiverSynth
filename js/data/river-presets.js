@@ -41,15 +41,24 @@ export const RIVER_FACTORY = [
     ],
   },
   {
+    // Grimes "Genesis"-style drive from a flashy river: Grandmother Bass on the arpeggiator
+    // (Rise 2), so each river note becomes a note-then-octave pulse in 1/16s at 166 BPM.
+    // Notes stay in octaves 2-3. Flow opens the filter, stormy weeks add squelch, fast
+    // changes build (capped) echoes, wetter-than-normal stretches get more space.
+    // Gate 95% ends each river note just before the next, so the arp plays a clean pair.
     name: 'Flash Flood Pump',
-    program: 'Supersaw Anthem',
-    values: { 'pump.on': 1, 'pump.rate': 1, 'pump.depth': 0.6 },
+    program: 'Grandmother Bass',
+    values: {
+      'voice.mode': 3, 'voice.depth': 3 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.6, 'arp.tempo': 166,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.271, 'delay.depth': 0.25, 'delay.mix': 0.15, // dotted 1/8 at 166
+    },
     gauge: { site: '16704000', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Natural minor', root: 2, low: 48, high: 84, bpm: 128, rate: '1/16', gate: 0.55, tie: false, spread: 'even', log: true, roar: true, roarLevel: 0.7 },
+    settings: { scale: 'Natural minor', root: 2, low: 36, high: 60, bpm: 166, rate: '1/8', gate: 0.95, tie: false, spread: 'even', log: true, roar: true, roarLevel: 0.5 },
     routes: [
-      { id: 'filter.cutoff', source: 'flow', from: 0.3, to: 0.95 },
-      { id: 'pump.depth', source: 'turbulence', from: 0.2, to: 0.9 },
-      { id: 'delay.depth', source: 'change', from: 0.1, to: 0.7 },
+      { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.85 },
+      { id: 'filter.resonance', source: 'turbulence', from: 0.2, to: 0.6 },
+      { id: 'delay.depth', source: 'change', from: 0.1, to: 0.45 },
+      { id: 'reverb.mix', source: 'anomaly', from: 0.08, to: 0.35 },
     ],
   },
   {

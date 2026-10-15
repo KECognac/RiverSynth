@@ -2,7 +2,7 @@
 
 ![RiverSynth logo](assets/logo.svg)
 
-**▶ Play it live: https://kecognac.github.io/SynthWork/**
+**▶ Play it live: https://kecognac.github.io/RiverSynth/**
 
 RiverSynth turns river flow into music.
 

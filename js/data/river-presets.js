@@ -8,17 +8,21 @@
 
 export const RIVER_FACTORY = [
   {
-    // The river as a singing voice: vowel-filtered vocal chops with echoes, moving in 1/16s.
-    // Rising flow opens the vowel from "ah" toward "oo", fast changes build the echoes, and
-    // wetter-than-normal stretches get more space.
-    name: 'Snowmelt Choir',
-    program: 'Angel Echoes Vox',
+    // Folksy Fort Collins: fingerpicked triads on a plucked-guitar sound in G major
+    // pentatonic. Each day gives the arp a triad, picked root-3rd-5th-3rd and flowing on
+    // from day to day, with an octave-below body for depth. Slapback echo and spring reverb
+    // for the western twang. Flow brightens the pick, fast changes build the echoes,
+    // stormy weeks wobble the tape, wetter-than-normal stretches get more space.
+    name: "Poudre Pickin'",
+    program: 'Prairie Guitar',
+    values: { 'voice.mode': 3, 'voice.depth': 6 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.7, 'arp.tempo': 96 },
     gauge: { site: '06752260', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Major pentatonic', root: 0, low: 60, high: 84, bpm: 112, rate: '1/16', gate: 0.45, tie: false, spread: 'even', log: true, roar: true, roarLevel: 0.35 },
+    settings: { scale: 'Major pentatonic', root: 7, low: 48, high: 72, bpm: 96, rate: '1/4', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: true, roarLevel: 0.3 },
     routes: [
-      { id: 'filter.vowel', source: 'flow', from: 0.15, to: 0.9 },
-      { id: 'delay.depth', source: 'change', from: 0.15, to: 0.6 },
-      { id: 'reverb.mix', source: 'anomaly', from: 0.15, to: 0.5 },
+      { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.8 },
+      { id: 'delay.depth', source: 'change', from: 0.1, to: 0.45 },
+      { id: 'tape.wow', source: 'turbulence', from: 0.1, to: 0.7 },
+      { id: 'reverb.mix', source: 'anomaly', from: 0.15, to: 0.45 },
     ],
   },
   {

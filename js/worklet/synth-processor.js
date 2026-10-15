@@ -1,7 +1,7 @@
 // Voice engine: runs on the audio thread inside an AudioWorklet.
 //
 // Signal path per voice:
-//   VCO1 + VCO2 + Multi Engine -> Mixer -> Drive -> Filter -> Amp EG
+//   VCO1 + VCO2 + Multi Engine (noise / VPM / plucked string) -> Mixer -> Drive -> Filter -> Amp EG
 // Filter types: 12 dB low-pass, 24 dB "ladder" low-pass, high-pass, band-pass, notch,
 // and a vowel (formant) filter.
 // Modulation: EG (cutoff / pitch / pitch 2) and LFO (pitch / shape / cutoff), with
@@ -35,6 +35,9 @@ const FORMANT_GAIN = [1, 0.6, 0.4];
 const SUPER_OFFSETS = [-1, -0.66, -0.33, 0, 0.33, 0.66, 1];
 const SUPER_GAIN = SUPER_OFFSETS.map((o) => (o === 0 ? 0.55 : 0.32));
 const SUPER_NORM = 1.6 / SUPER_GAIN.reduce((a, b) => a + b, 0);
+
+const KS_SIZE = 4096; // string delay line: long enough for notes down to ~12 Hz at 48 kHz
+const KS_MASK = KS_SIZE - 1;
 
 const midiToHz = (n) => 440 * Math.pow(2, (n - 69) / 12);
 const frac = (x) => x - Math.floor(x);
@@ -144,6 +147,9 @@ class Voice {
     this.k = 2;                      // main filter damping
     // noise state
     this.nLp = 0; this.nBand = 0; this.nLow = 0; this.nHold = 0; this.nCount = 0;
+    // plucked-string state (Karplus-Strong delay line)
+    this.ks = new Float32Array(KS_SIZE);
+    this.ksW = 0; this.ksPrev = 0; this.pluck = false;
   }
   get active() { return this.amp.stage !== 0; }
   trigger(key, note, detune, order) {
@@ -151,6 +157,7 @@ class Voice {
     this.key = key; this.note = note; this.detune = detune;
     this.gate = true; this.started = order;
     this.amp.gateOn(); this.eg.gateOn();
+    this.pluck = true; // the string model re-plucks on every new note
   }
   release() { this.gate = false; this.amp.gateOff(); this.eg.gateOff(); }
 }
@@ -480,6 +487,7 @@ export class SynthEngine {
         let om = 0;
         if (p['mixer.multi'] > 0 || s['mixer.multi'] > 1e-4) {
           if (multiType === 0) om = this.noise(v, noiseType, shM);
+          else if (multiType === 2) om = this.string(v, midiToHz(base + (egTarget === 2 ? egPitch : 0)), shM);
           else {
             const fc = midiToHz(base + (egTarget === 2 ? egPitch : 0)) / sr;
             v.pc = frac(v.pc + fc);
@@ -555,6 +563,40 @@ export class SynthEngine {
       outL[i] = yOut;
       if (outR) outR[i] = yOut;
     }
+  }
+
+  // Plucked string (Karplus-Strong): a burst of filtered noise circulates in a delay line
+  // one period long; a gentle low-pass in the loop makes it ring and mellow like a real
+  // string (high notes fade faster than low ones). SHAPE is brightness: low = soft thumb
+  // pluck, high = bright pick near the bridge.
+  string(v, hz, shape) {
+    const sr = this.sr;
+    const damp = 0.5 - 0.35 * shape;                 // loop low-pass amount (0.5 = mellowest)
+    const period = Math.min(KS_SIZE - 2, Math.max(2, sr / hz - damp));
+    const buf = v.ks;
+    if (v.pluck) {
+      v.pluck = false;
+      const n = Math.ceil(period);
+      const pick = Math.max(1, Math.round(n * 0.13)); // pick position: comb notch like plucking near the bridge
+      const a = 0.15 + 0.8 * shape;                   // excitation brightness
+      let lp = 0;
+      const burst = new Float32Array(n);
+      for (let i = 0; i < n; i++) { lp += (Math.random() * 2 - 1 - lp) * a; burst[i] = lp; }
+      for (let i = 0; i < n; i++) {
+        const e = burst[i] - (i >= pick ? burst[i - pick] : 0);
+        buf[(v.ksW - n + i) & KS_MASK] = e * 2.4;
+      }
+      v.ksPrev = 0;
+    }
+    // read one period back (linear interpolation for exact tuning)
+    const pos = v.ksW - period;
+    const i0 = Math.floor(pos), f = pos - i0;
+    const a0 = buf[i0 & KS_MASK], a1 = buf[(i0 + 1) & KS_MASK];
+    const y = a0 + (a1 - a0) * f;
+    buf[v.ksW & KS_MASK] = ((1 - damp) * y + damp * v.ksPrev) * 0.9985; // per-sample loss: sets how long it rings
+    v.ksPrev = y;
+    v.ksW = (v.ksW + 1) & 0x3fffffff;
+    return y;
   }
 
   // Four noise colours; SHAPE sets the filter frequency or decimation rate.

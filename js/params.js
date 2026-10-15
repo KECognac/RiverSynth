@@ -66,7 +66,7 @@ export const PARAMS = {
   'vco2.sync':   { label: 'Sync', toggle: true, def: 0 },
   'vco2.ring':   { label: 'Ring', toggle: true, def: 0 },
 
-  'multi.type':  { label: 'Engine', choices: ['Noise', 'VPM'], def: 0 },
+  'multi.type':  { label: 'Engine', choices: ['Noise', 'VPM', 'String'], def: 0 }, // String: plucked string, Shape = brightness
   'multi.noise': { label: 'Noise', choices: ['High', 'Low', 'Peak', 'Decim'], def: 0 },
   'multi.vpm':   { label: 'VPM', choices: ['Sine', 'Octave', 'Bell', 'Metal', 'Sub'], def: 0 },
   'multi.shape': { label: 'Shape', min: 0, max: 1, def: 0.5, curve: 'lin', fmt: pct },

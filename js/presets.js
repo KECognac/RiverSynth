@@ -480,6 +480,24 @@ export const FACTORY = [
     },
   },
   {
+    // Folk guitar from the plucked-string model (Multi Engine: String): a pick burst rings
+    // and mellows in a tuned delay line like a real string. A gentle tone filter, a whisper
+    // of chorus for a doubled-guitar feel, country "slapback" echo, spring reverb and a little
+    // tape warmth. Long amp decay so picked notes ring into each other.
+    name: 'Prairie Guitar',
+    values: {
+      'mixer.vco1': 0, 'mixer.vco2': 0,
+      'multi.type': 2, 'multi.shape': 0.55, 'mixer.multi': 1,
+      'filter.cutoff': 3500, 'filter.resonance': 0.12, 'filter.keytrack': 1,
+      'ampeg.attack': 0.001, 'ampeg.decay': 8, 'ampeg.sustain': 0, 'ampeg.release': 0.8,
+      'mod.on': 1, 'mod.type': 0, 'mod.time': 0.3, 'mod.depth': 0.3, 'mod.mix': 0.15,
+      'tape.on': 1, 'tape.wow': 0.15, 'tape.flutter': 0.1, 'tape.mix': 1,
+      'delay.on': 1, 'delay.type': 0, 'delay.time': 0.11, 'delay.depth': 0.12, 'delay.mix': 0.22, // slapback
+      'reverb.on': 1, 'reverb.type': 4, 'reverb.time': 0.5, 'reverb.mix': 0.28,
+      'master.volume': 0.6,
+    },
+  },
+  {
     name: 'FM Bells',
     values: {
       'mixer.vco1': 0, 'mixer.multi': 0.9, 'multi.type': 1, 'multi.vpm': 2, 'multi.shape': 0.45,

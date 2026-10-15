@@ -39,7 +39,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | Section | Controls |
 |---|---|
 | VCO 1 / VCO 2 | Saw / Tri / Square / **Super** (7 detuned saws), octave (16'–2'), pitch ±1200¢, continuous **Shape** (saw→square morph, triangle wavefold, pulse width, supersaw detune); VCO 2 **Sync** and **Ring** |
-| Multi Engine | **Noise** (High, Low, Peak, Decim) or **VPM** (2-operator phase modulation: Sine, Octave, Bell, Metal, Sub) |
+| Multi Engine | **Noise** (High, Low, Peak, Decim), **VPM** (2-operator phase modulation: Sine, Octave, Bell, Metal, Sub) or **String** (Karplus–Strong plucked string; Shape = brightness) |
 | Mixer | VCO 1, VCO 2, Multi levels |
 | Filter | **LP 12**, **LP 24** (ladder-style, saturating), **HP**, **BP**, **Notch** and **Vowel** (three formants morphing A–E–I–O–U; EG/LFO cutoff modulation sweeps the vowel, Cutoff shifts the voice size); cutoff, resonance, drive, key tracking |
 | Amp EG | Attack, Decay, Sustain, Release |
@@ -51,7 +51,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | Tempo | One global tempo (Master section) for the arpeggiator, synced LFO and pump |
 | Effects | **Crush:** bit depth + downsampling · **Distortion:** Tube, Fuzz, Fold · **Tape:** wow & flutter · **Mod:** Chorus, Ensemble, Phaser, Flanger · **Delay:** Stereo, Tape, Ping-Pong · **Reverb:** Hall, Room, Plate, Riser, Spring, **Shimmer** (octave-up feedback; Tone = shimmer amount) |
 | Display | Live oscilloscope with a readout of the parameter you're changing |
-| Programs | 37 factory presets, unlimited user presets, JSON export/import |
+| Programs | 38 factory presets, unlimited user presets, JSON export/import |
 | Record | **● Rec** saves the output (keyboard, data player, everything) as a WAV file |
 | River Data | Play any USGS stream gauge's daily discharge as notes (see below) |
 
@@ -109,7 +109,7 @@ and the **River** menu has two dozen more with very different characters (snowme
 floods, giant rivers, dam-controlled flow, arctic ice breakup), or type any gauge number.
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →
-Sound routes, river roar and (for some) a gauge and dates. Six are built in (Snowmelt Choir,
+Sound routes, river roar and (for some) a gauge and dates. Six are built in (Poudre Pickin',
 Glacier Bells, Flash Flood Pump, Drought Watch, Lo-Fi Creek, Arctic Breakup), and **Save**
 stores your own in this browser.
 

@@ -491,3 +491,10 @@ kbd {
 .gauge-pick .mi { margin-left: 6px; font-family: var(--font-mono); font-size: 12px; opacity: 0.75; }
 .data-area .nearby-results button.gauge-pick.on { background: var(--ink); border-color: var(--ink); }
 .data-area .nearby-results button.nearby-close { padding: 2px 8px; background: transparent; border-color: transparent; font-size: 16px; line-height: 1; }
+
+/* Chord / Arp pickers in the Voice Mode section */
+.picker-chord .options, .picker-arp .options { display: grid; grid-template-columns: repeat(2, auto); gap: 2px; }
+.picker-chord .options button:last-child { grid-column: 1 / -1; }
+.picker .options button { min-width: 44px; }
+.picker-oct .options button { min-width: 30px; }
+.picker button:disabled { opacity: 0.35; cursor: default; }

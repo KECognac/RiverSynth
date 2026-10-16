@@ -193,8 +193,11 @@ export const SECTIONS = [
   {
     id: 'voice', title: 'Voice Mode',
     controls: ['voice.mode', 'voice.depth', 'voice.glide', 'arp.latch', 'arp.rate', 'arp.gate'],
-    showIf: Object.fromEntries(['arp.latch', 'arp.rate', 'arp.gate']
-      .map((id) => [id, (v) => v['voice.mode'] === 3])),
+    showIf: {
+      // Chord and Arp pick their chord or pattern with buttons instead of the Depth knob (see main.js).
+      'voice.depth': (v) => v['voice.mode'] <= 1,
+      ...Object.fromEntries(['arp.latch', 'arp.rate', 'arp.gate'].map((id) => [id, (v) => v['voice.mode'] === 3])),
+    },
   },
   { id: 'pump', title: 'Pump', controls: ['pump.on', 'pump.rate', 'pump.depth', 'pump.release'] },
   // Tempo is global: it drives the arpeggiator, tempo-synced LFO and the pump.

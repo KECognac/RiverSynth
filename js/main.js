@@ -1,4 +1,4 @@
-import { PARAMS, SECTIONS, formatValue, toValue, toNorm, defaultValues } from './params.js';
+import { PARAMS, SECTIONS, CHORDS, chordIndex, ARP_TYPES, arpIndex, formatValue, toValue, toNorm, defaultValues } from './params.js';
 import { Synth } from './synth.js';
 import { createControl } from './ui/controls.js';
 import { Keyboard, noteName } from './ui/keyboard.js';
@@ -51,6 +51,84 @@ for (const sec of SECTIONS) {
   sectionEls[sec.id] = { box, sec };
   panel.appendChild(box);
 }
+
+// Chord and Arp modes: buttons for the chord type or arp pattern. They set the same
+// 'voice.depth' value the minilogue-style Depth knob does, so presets and links are unchanged.
+function buttonGroup(label, names, onPick, className = '') {
+  const el = document.createElement('div');
+  el.className = `control switch picker ${className}`;
+  const opts = document.createElement('div');
+  opts.className = 'options';
+  opts.setAttribute('role', 'radiogroup');
+  opts.setAttribute('aria-label', label);
+  const buttons = names.map((name, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = name;
+    b.setAttribute('role', 'radio');
+    b.addEventListener('click', () => onPick(i));
+    opts.appendChild(b);
+    return b;
+  });
+  const lab = document.createElement('span');
+  lab.className = 'label';
+  lab.textContent = label;
+  el.append(opts, lab);
+  return { el, buttons };
+}
+function setVoiceDepth(depth, what) {
+  synth.setParam('voice.depth', depth);
+  commitSoon();
+  scope.show(`Voice Mode · ${what}`, formatValue('voice.depth', depth, synth.values));
+}
+
+const CHORD_MAIN = ['5th', 'sus2', 'm', 'Maj', 'sus4', 'm7', '7', 'Maj7'];
+const CHORD_MORE = CHORDS.map(([name]) => name).filter((name) => !CHORD_MAIN.includes(name));
+const chordDepth = (name) => CHORDS.findIndex(([n]) => n === name) / (CHORDS.length - 1);
+const chordPicker = buttonGroup('Chord', [...CHORD_MAIN, 'More…'], (i) => {
+  let name = CHORD_MAIN[i];
+  if (!name) { // More… steps through the less common chords
+    const cur = CHORDS[chordIndex(synth.values['voice.depth'])][0];
+    name = CHORD_MORE[(CHORD_MORE.indexOf(cur) + 1) % CHORD_MORE.length];
+  }
+  setVoiceDepth(chordDepth(name), 'Chord');
+}, 'picker-chord');
+const moreBtn = chordPicker.buttons[CHORD_MAIN.length];
+moreBtn.title = `More chords: ${CHORD_MORE.join(', ')}`;
+
+const ARP_PATTERNS = [['Manual', 'manual'], ['Rise', 'rise'], ['Fall', 'fall'], ['Rise Fall', 'risefall'], ['Poly', 'poly'], ['Random', 'random']];
+const arpDepth = (kind, oct) => {
+  const max = Math.max(...ARP_TYPES.filter((a) => a[1] === kind).map((a) => a[2]));
+  const i = ARP_TYPES.findIndex((a) => a[1] === kind && a[2] === Math.min(oct, max));
+  return i / (ARP_TYPES.length - 1);
+};
+const currentArp = () => ARP_TYPES[arpIndex(synth.values['voice.depth'])];
+const arpPicker = buttonGroup('Pattern', ARP_PATTERNS.map(([name]) => name), (i) => {
+  setVoiceDepth(arpDepth(ARP_PATTERNS[i][1], currentArp()[2]), 'Arp');
+}, 'picker-arp');
+const octPicker = buttonGroup('Octaves', ['1', '2', '3'], (i) => {
+  setVoiceDepth(arpDepth(currentArp()[1], i + 1), 'Arp');
+}, 'picker-oct');
+octPicker.buttons[2].title = 'Random pattern only';
+
+controls['voice.depth'].el.after(chordPicker.el, arpPicker.el, octPicker.el);
+
+function refreshVoicePickers() {
+  const mode = synth.values['voice.mode'], depth = synth.values['voice.depth'];
+  chordPicker.el.hidden = mode !== 2;
+  arpPicker.el.hidden = octPicker.el.hidden = mode !== 3;
+  const chord = CHORDS[chordIndex(depth)][0];
+  CHORD_MAIN.forEach((name, i) => chordPicker.buttons[i].setAttribute('aria-checked', String(name === chord)));
+  const isMore = CHORD_MORE.includes(chord);
+  moreBtn.setAttribute('aria-checked', String(isMore));
+  moreBtn.textContent = isMore ? `${chord} ›` : 'More…';
+  const [, kind, oct] = ARP_TYPES[arpIndex(depth)];
+  ARP_PATTERNS.forEach(([, k], i) => arpPicker.buttons[i].setAttribute('aria-checked', String(k === kind)));
+  octPicker.buttons.forEach((b, i) => b.setAttribute('aria-checked', String(i + 1 === oct)));
+  octPicker.buttons[2].disabled = kind !== 'random';
+}
+synth.listeners.add((id) => { if (id === 'voice.mode' || id === 'voice.depth') refreshVoicePickers(); });
+refreshVoicePickers();
 
 function refreshVisibility() {
   for (const { box, sec } of Object.values(sectionEls)) {

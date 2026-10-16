@@ -50,7 +50,7 @@ Then open <http://localhost:8123> and press a key or the power button to start a
 | Amp EG | Attack, Decay, Sustain, Release |
 | EG | Attack, Decay, bipolar Intensity → Cutoff, Pitch 2 or Pitch |
 | LFO | Saw / Tri / Square / **S&H** (stepped random) / **Drift** (smooth random), free rate or **tempo sync** (2 bars–1/16), **key sync**, bipolar intensity → Pitch, Shape or Cutoff |
-| Voice Mode | **Glide** (portamento) for all modes · **Poly** (depth = detune), **Unison** (all 8 voices stacked, depth = detune), **Chord** (depth selects 1 of 14 chord types), **Arp** (depth selects 1 of 13 patterns) |
+| Voice Mode | **Glide** (portamento) for all modes · **Poly** (depth = detune), **Unison** (all 8 voices stacked, depth = detune), **Chord** (buttons pick 1 of 14 chord types: 5th, sus2, m, Maj, sus4, m7, 7, Maj7, plus More… for 7sus4, aug, dim, m7b5, mMaj7, Maj7b5), **Arp** (Pattern and Octaves buttons) |
 | Arpeggiator | Manual / Rise / Fall / Rise Fall / Poly over 1–2 octaves, Random over 1–3 octaves; Latch, Rate (1/4–1/32 incl. triplets), Gate |
 | Pump | Tempo-synced sidechain-style ducking (1/2, 1/4, 1/8) with depth and release; restarts on the first note you play |
 | Tempo | One global tempo (Master section) for the arpeggiator, synced LFO and pump |

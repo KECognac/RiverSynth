@@ -95,13 +95,13 @@ export const FACTORY = [
     values: {
       'voice.mode': 2, 'voice.depth': 5 / 13, // one key plays a m7 chord
       'vco1.wave': 0, 'vco1.shape': 0.1, 'mixer.vco1': 0.7,
-      'vco2.wave': 0, 'vco2.pitch': 12, 'mixer.vco2': 0.6,
+      'vco2.wave': 0, 'vco2.pitch': 5, 'mixer.vco2': 0.6, // light detune keeps the chord in tune
       'multi.type': 0, 'multi.noise': 0, 'multi.shape': 0.7, 'mixer.multi': 0.06,
-      'filter.cutoff': 1800, 'filter.resonance': 0.15, 'filter.drive': 0.25,
+      'filter.cutoff': 1800, 'filter.resonance': 0.15, 'filter.drive': 0.05,
       'ampeg.attack': 0.004, 'ampeg.decay': 1.2, 'ampeg.sustain': 0.7, 'ampeg.release': 0.35,
       'eg.attack': 0.001, 'eg.decay': 0.35, 'eg.int': 0.2,
       'lfo.wave': 0, 'lfo.rate': 2.133, 'lfo.int': -0.35, 'lfo.target': 2,
-      'mod.on': 1, 'mod.type': 0, 'mod.mix': 0.35,
+      'mod.on': 1, 'mod.type': 0, 'mod.depth': 0.35, 'mod.mix': 0.2,
       'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.5, 'reverb.mix': 0.25,
     },
   },

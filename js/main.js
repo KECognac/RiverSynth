@@ -8,6 +8,7 @@ import { DataPlayer, DataChart, SCALES, RATES } from './data/player.js';
 import { fetchDaily, fetchSiteName, parseCsv } from './data/usgs.js';
 import { SOURCES } from './data/features.js';
 import { GAUGES } from './data/gauges.js';
+import { browserLocation, zipToLatLon, nearestGauges } from './data/nearby.js';
 import { RIVER_FACTORY, loadRiverPresets, saveRiverPresets } from './data/river-presets.js';
 import { buildMidi } from './data/midi.js';
 import { randomPatch, mutate } from './randomize.js';
@@ -490,6 +491,69 @@ gaugeSel.addEventListener('change', () => {
 });
 $('#data-site').addEventListener('input', syncGaugeSel);
 $('#data-site').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadFromUsgs(); });
+
+// Find a river near you: location or ZIP code -> the nearest active stream gauges to pick from.
+const nearbyBox = $('#nearby-results');
+let nearbyToken = 0;
+function showNearbyMessage(text) {
+  nearbyBox.hidden = false;
+  nearbyBox.replaceChildren(text);
+}
+function markNearbyPick() {
+  const site = $('#data-site').value.trim();
+  for (const b of nearbyBox.querySelectorAll('.gauge-pick')) b.classList.toggle('on', b.dataset.site === site);
+}
+async function findNearby(getPoint, where) {
+  const token = ++nearbyToken;
+  showNearbyMessage(`Searching for gauges ${where}…`);
+  try {
+    const point = await getPoint();
+    if (token !== nearbyToken) return;
+    if (point.place) showNearbyMessage(`Searching for gauges near ${point.place}…`);
+    const gauges = await nearestGauges(point.lat, point.lon);
+    if (token !== nearbyToken) return;
+    if (!gauges.length) { showNearbyMessage('No active USGS stream gauges within 150 miles.'); return; }
+    const items = gauges.map((g) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'gauge-pick';
+      b.dataset.site = g.site;
+      b.title = `USGS ${g.site}`;
+      const mi = document.createElement('span');
+      mi.className = 'mi';
+      mi.textContent = `${g.miles < 10 ? g.miles.toFixed(1) : Math.round(g.miles)} mi`;
+      b.append(g.name, mi);
+      b.addEventListener('click', () => {
+        $('#data-site').value = g.site;
+        syncGaugeSel();
+        markNearbyPick();
+        loadFromUsgs();
+      });
+      return b;
+    });
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'nearby-close';
+    close.setAttribute('aria-label', 'Close the list');
+    close.textContent = '×';
+    close.addEventListener('click', () => { nearbyBox.hidden = true; });
+    nearbyBox.replaceChildren(...items, close);
+    markNearbyPick();
+  } catch (err) {
+    if (token !== nearbyToken) return;
+    const hint = /blocked|location/i.test(err.message) ? ' Try a ZIP code instead.' : '';
+    showNearbyMessage(`${err.message}.${hint}`);
+    if (hint) $('#near-zip').focus();
+  }
+}
+$('#near-me').addEventListener('click', () => findNearby(browserLocation, 'near you'));
+function searchZip() {
+  const zip = $('#near-zip').value.trim();
+  if (!/^\d{5}$/.test(zip)) { showNearbyMessage('Enter a 5-digit ZIP code.'); $('#near-zip').focus(); return; }
+  findNearby(() => zipToLatLon(zip), `near ${zip}`);
+}
+$('#near-zip-go').addEventListener('click', searchZip);
+$('#near-zip').addEventListener('keydown', (e) => { if (e.key === 'Enter') searchZip(); });
 
 $('#data-csv').addEventListener('change', async (e) => {
   const file = e.target.files[0];

@@ -68,6 +68,15 @@
         <button id="data-load" type="button">Load from USGS</button>
         <label class="button">Load CSV<input id="data-csv" type="file" accept=".csv,text/csv" hidden></label>
       </div>
+      <div class="nearby-row">
+        <span class="nearby-label">Find a river near you</span>
+        <button id="near-me" type="button" title="Use this browser's location to list the nearest active USGS stream gauges">📍 Near me</button>
+        <span class="nearby-or">or</span>
+        <input id="near-zip" type="text" inputmode="numeric" maxlength="5" size="6" placeholder="ZIP code" aria-label="ZIP code">
+        <button id="near-zip-go" type="button">Search</button>
+        <a class="find-gauge" href="https://waterdata.usgs.gov/explore/" target="_blank" rel="noopener" title="Open the USGS map in a new tab, pick a stream gauge and copy its site number into USGS gauge">or browse the USGS map ↗</a>
+      </div>
+      <div id="nearby-results" class="nearby-results" aria-live="polite" hidden></div>
 
       <details id="data-more" class="data-more">
         <summary><span class="data-more-title">Settings</span><span class="data-more-list">Music · Layer 2 · Data → Sound · Export</span></summary>

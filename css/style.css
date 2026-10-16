@@ -471,3 +471,23 @@ kbd {
   opacity: 0; visibility: hidden; transition: opacity 0.12s; pointer-events: none; z-index: 20;
 }
 .info:hover::after, .info:focus-visible::after { opacity: 1; visibility: visible; }
+
+/* link to the USGS map for finding a gauge number */
+.find-gauge {
+  padding: 5px 2px 6px;
+  font: 500 13px var(--font-ui); color: #fff;
+  text-decoration: underline; text-decoration-color: var(--moog-yellow); text-underline-offset: 3px;
+}
+.find-gauge:hover { text-decoration-thickness: 2px; }
+
+/* nearest gauges: location or ZIP search, then a short list to pick from */
+.nearby-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.nearby-label { font: 600 11px var(--font-ui); text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255, 255, 255, 0.85); margin-right: 2px; }
+.nearby-or { font: 13px var(--font-ui); color: rgba(255, 255, 255, 0.7); }
+.nearby-row input { width: 6.5em; padding: 4px 6px; }
+.nearby-results { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font: 13px var(--font-ui); color: rgba(255, 255, 255, 0.85); }
+.nearby-results[hidden] { display: none; }
+.data-area .nearby-results button.gauge-pick { text-align: left; }
+.gauge-pick .mi { margin-left: 6px; font-family: var(--font-mono); font-size: 12px; opacity: 0.75; }
+.data-area .nearby-results button.gauge-pick.on { background: var(--ink); border-color: var(--ink); }
+.data-area .nearby-results button.nearby-close { padding: 2px 8px; background: transparent; border-color: transparent; font-size: 16px; line-height: 1; }

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,6 +18,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Kode+Mono:wght@700&display=swap">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Apply the saved light/dark choice before the page draws (dark is the default).
+    try { if (localStorage.getItem('synthwork.theme') === 'light') document.documentElement.dataset.theme = 'light'; } catch {}
+  </script>
 </head>
 <body>
   <main class="synth">
@@ -28,6 +32,7 @@
         </button>
         <img class="brand-logo" src="assets/logo.svg" alt="" width="44" height="44">
         <h1>riversynth<span class="brand-dot" aria-hidden="true"></span></h1>
+        <button id="theme-toggle" class="theme-toggle" type="button" title="Switch between the dark and light look"></button>
       </div>
 
       <div class="display">

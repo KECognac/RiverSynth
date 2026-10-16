@@ -961,3 +961,18 @@ try { dataMore.open = localStorage.getItem('synthwork.settingsOpen') === '1'; } 
 dataMore.addEventListener('toggle', () => {
   try { localStorage.setItem('synthwork.settingsOpen', dataMore.open ? '1' : '0'); } catch {}
 });
+
+// Light / dark look, remembered in this browser (dark is the default).
+const themeBtn = document.getElementById('theme-toggle');
+function showTheme() {
+  const dark = document.documentElement.dataset.theme !== 'light';
+  themeBtn.textContent = dark ? '☀ Light' : '☾ Dark';
+  themeBtn.setAttribute('aria-label', dark ? 'Switch to the light look' : 'Switch to the dark look');
+}
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('synthwork.theme', next); } catch {}
+  showTheme();
+});
+showTheme();

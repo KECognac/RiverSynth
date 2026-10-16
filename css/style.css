@@ -498,3 +498,230 @@ kbd {
 .picker .options button { min-width: 44px; }
 .picker-oct .options button { min-width: 30px; }
 .picker button:disabled { opacity: 0.35; cursor: default; }
+
+/* light / dark switch next to the wordmark */
+.theme-toggle {
+  margin-left: 6px; padding: 5px 12px; border-radius: 999px;
+  font: 500 12px var(--font-ui); white-space: nowrap;
+}
+
+/* =====================================================================================
+   Deep Water (dark) theme, on when <html data-theme="dark">: a dark ink-navy page where the instrument glows, with the Moog
+   colours kept as bright accents (section tops, knob arcs, selected switches).
+   ===================================================================================== */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a111f;
+  --panel: #0f1a2e;          /* the instrument card */
+  --section: #15233b;        /* raised cards inside it */
+  --panel-edge: rgba(127, 178, 255, 0.16);
+  --line: rgba(127, 178, 255, 0.18);
+  --text: #e8eef9;
+  --muted: #94a5c2;
+  --glow: #7fb2ff;
+  --knob-cap: #0b1322;
+  --te-ink: #0b1322;
+  --te-orange: var(--moog-yellow);
+  --field: #0c1628;
+  /* Moog colours, lifted a little so they read on dark */
+  --acc-blue: #6fa3ef;
+  --acc-red: #f2705a;
+  --acc-yellow: #f0b62f;
+  --acc-green: #5cc483;
+  --acc-steel: #a9b9d6;
+  --panel-radius: 12px;
+}
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, #17335f 0%, rgba(23, 51, 95, 0) 70%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--text);
+}
+html[data-theme="dark"] .synth {
+  margin: 28px auto;
+  padding: 22px 24px;
+  gap: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-image: none;
+  border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+}
+
+/* controls */
+html[data-theme="dark"] button, html[data-theme="dark"] select, html[data-theme="dark"] input, html[data-theme="dark"] .button {
+  background: #1a2a46; color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+}
+html[data-theme="dark"] button:hover:not(:disabled), html[data-theme="dark"] .button:hover { border-color: var(--glow); }
+html[data-theme="dark"] button:focus-visible, html[data-theme="dark"] select:focus-visible, html[data-theme="dark"] input:focus-visible, html[data-theme="dark"] .dial:focus-visible { outline-color: var(--glow); }
+html[data-theme="dark"] select, html[data-theme="dark"] input[type="text"], html[data-theme="dark"] input[type="number"], html[data-theme="dark"] input[type="date"] { background: var(--field); }
+html[data-theme="dark"] kbd { background: #1a2a46; border-color: var(--line); color: var(--text); }
+
+/* header */
+html[data-theme="dark"] .topbar { border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+html[data-theme="dark"] .brand-dot { background: var(--acc-yellow); }
+html[data-theme="dark"] .power { background: var(--knob-cap); border: 1px solid var(--line); }
+html[data-theme="dark"] .display { border: 1px solid var(--line); border-radius: 14px; box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.8); }
+
+/* numbered steps */
+html[data-theme="dark"] .synth-area { border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+html[data-theme="dark"] .step-num { background: #1a2a46; border: 1px solid var(--line); box-shadow: none; }
+html[data-theme="dark"] .step-head h2 { color: var(--text); }
+html[data-theme="dark"] .step-head h2::after { background: var(--acc-yellow); border-radius: 50%; }
+html[data-theme="dark"] .sub-head { color: var(--text); }
+html[data-theme="dark"] .sub-head::before { background: var(--acc-yellow); }
+
+/* 01: the river card */
+html[data-theme="dark"] .data-area {
+  --ink: var(--field);
+  background: var(--section);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+}
+html[data-theme="dark"] .data-area .step-num { background: #1f3254; }
+html[data-theme="dark"] .data-area .step-head h2::after { background: var(--acc-yellow); }
+html[data-theme="dark"] .data-area .step-hint, html[data-theme="dark"] .data-area .data-status, html[data-theme="dark"] .data-area .routes-help { color: var(--muted); }
+html[data-theme="dark"] .data-area .quick, html[data-theme="dark"] .data-area .data-row label:not(.button), html[data-theme="dark"] .data-area .route label, html[data-theme="dark"] .nearby-label { color: var(--muted); }
+html[data-theme="dark"] .data-area button:not(.big-play), html[data-theme="dark"] .data-area .button { background: #1f3254; border-color: var(--line); color: var(--text); }
+html[data-theme="dark"] .data-area button:not(.big-play):hover:not(:disabled), html[data-theme="dark"] .data-area .button:hover { border-color: var(--glow); }
+html[data-theme="dark"] .data-area select, html[data-theme="dark"] .data-area input[type="text"], html[data-theme="dark"] .data-area input[type="number"], html[data-theme="dark"] .data-area input[type="date"] {
+  background: var(--field); border-color: var(--line); color: var(--text);
+}
+html[data-theme="dark"] .data-area input[type="range"], html[data-theme="dark"] .data-area input[type="checkbox"] { accent-color: var(--acc-yellow); }
+html[data-theme="dark"] .data-area .data-row .divider { background: var(--line); }
+html[data-theme="dark"] .data-area .route { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line); border-left: 3px solid var(--acc-yellow); }
+html[data-theme="dark"] .data-area .nearby-results button.gauge-pick.on { background: var(--acc-yellow); border-color: var(--acc-yellow); color: #1d1b1a; }
+html[data-theme="dark"] .data-more { border-top-color: var(--line); }
+html[data-theme="dark"] .data-more-list { color: var(--muted); }
+html[data-theme="dark"] .find-gauge { color: var(--text); text-decoration-color: var(--acc-yellow); }
+html[data-theme="dark"] #data-chart { border: 1px solid var(--line); }
+html[data-theme="dark"] .quick select {
+  background: var(--field); color: var(--text);
+  border: 1px solid rgba(127, 178, 255, 0.35); border-radius: 999px;
+  padding: 11px 18px; font-family: var(--font-ui);
+}
+html[data-theme="dark"] .quick select:hover { border-color: var(--glow); }
+html[data-theme="dark"] .programs .quick select { border-radius: 999px; }
+
+/* Play: a yellow pill that turns white with a red stop square */
+html[data-theme="dark"] .big-play {
+  background: var(--acc-yellow); color: #1d1b1a; font-family: var(--font-ui); font-weight: 600;
+  box-shadow: 0 6px 24px rgba(240, 182, 47, 0.25);
+}
+html[data-theme="dark"] .big-play:hover { background: #ffc94a; }
+html[data-theme="dark"] .big-play[aria-pressed="true"] { background: #fff; color: #1d1b1a; box-shadow: 0 6px 24px rgba(255, 255, 255, 0.15); }
+
+/* 02: panel sections become dark cards with a Moog colour on top */
+html[data-theme="dark"] .section {
+  --sec-bg: var(--section); --sec-fg: var(--text); --sec-acc: var(--acc-steel);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--sec-acc);
+  border-radius: 12px;
+  padding: 10px 12px 12px;
+}
+html[data-theme="dark"] .section-vco1, html[data-theme="dark"] .section-vco2, html[data-theme="dark"] .section-multi { --sec-bg: var(--section); --sec-fg: var(--text); --sec-acc: var(--acc-blue); }
+html[data-theme="dark"] .section-filter { --sec-bg: var(--section); --sec-fg: var(--text); --sec-acc: var(--acc-red); }
+html[data-theme="dark"] .section-ampeg, html[data-theme="dark"] .section-eg { --sec-bg: var(--section); --sec-fg: var(--text); --sec-acc: var(--acc-yellow); }
+html[data-theme="dark"] .section-lfo, html[data-theme="dark"] .section-voice, html[data-theme="dark"] .section-pump { --sec-bg: var(--section); --sec-fg: var(--text); --sec-acc: var(--acc-green); }
+html[data-theme="dark"] .section { --sec-arc: var(--sec-acc); }
+html[data-theme="dark"] .section h2 { color: var(--sec-acc); border-bottom: 1px solid var(--line); }
+html[data-theme="dark"] .control .label { color: var(--muted); opacity: 1; }
+html[data-theme="dark"] .knob .track { stroke: rgba(255, 255, 255, 0.1); }
+html[data-theme="dark"] .knob .cap { fill: #0b1322; stroke: rgba(127, 178, 255, 0.3); }
+html[data-theme="dark"] .knob .pointer { stroke: #fff; }
+html[data-theme="dark"] .switch button, html[data-theme="dark"] .toggle button { background: rgba(255, 255, 255, 0.05); border-color: var(--line); color: var(--text); }
+html[data-theme="dark"] .switch button[aria-checked="true"] { background: var(--sec-acc); border-color: var(--sec-acc); color: #0b1322; font-weight: 600; }
+
+/* 03: keyboard */
+html[data-theme="dark"] .keys { border-top: 6px solid #0b1322; border-radius: 0 0 12px 12px; }
+html[data-theme="dark"] .key.white { background: #eef1f6; border-color: #9aa6ba; color: #6b778c; }
+html[data-theme="dark"] .key.black { background: #0b1322; border-color: #000; color: #8090ab; }
+html[data-theme="dark"] .key .name { color: #3d475a; }
+
+/* footer and tooltips */
+html[data-theme="dark"] .credits { color: var(--muted); }
+html[data-theme="dark"] .credits a { color: var(--glow); }
+html[data-theme="dark"] .info::after { background: #0b1322; border: 1px solid var(--line); }
+
+/* =====================================================================================
+   Light theme, on when <html data-theme="light">: the cream Moog case with the same
+   layout, type and shapes as Deep Water, plus flowing contour lines behind the header.
+   ===================================================================================== */
+html[data-theme="light"] {
+  --bg: #e4dccb;
+  --line: rgba(35, 31, 28, 0.14);
+  --panel-radius: 12px;
+}
+html[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, #f6f1e6 0%, rgba(246, 241, 230, 0) 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+html[data-theme="light"] .synth {
+  margin: 28px auto;
+  padding: 22px 24px;
+  gap: 18px;
+  border: 1px solid var(--line);
+  border-image: none;
+  border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(70, 50, 25, 0.18);
+  /* contour lines, like a hydrograph or a topo map, drifting across the top right */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 220' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%232c63a8' stroke-opacity='0.28' stroke-width='1.2'%3E%3Cpath d='M0 70 C120 55 180 20 300 32 S480 90 600 50'/%3E%3Cpath d='M0 92 C120 77 180 42 300 54 S480 112 600 72'/%3E%3Cpath d='M0 114 C120 99 180 64 300 76 S480 134 600 94'/%3E%3Cpath d='M0 136 C120 121 180 86 300 98 S480 156 600 116'/%3E%3Cpath d='M0 158 C120 143 180 108 300 120 S480 178 600 138'/%3E%3C/g%3E%3C/svg%3E")
+      right 0 top 0 / 100% 170px no-repeat,
+    var(--panel);
+}
+
+/* :where() keeps these as weak as the base button style, so Play, switches etc. keep their own looks */
+:where(html[data-theme="light"]) button, :where(html[data-theme="light"]) select,
+:where(html[data-theme="light"]) input, :where(html[data-theme="light"]) .button {
+  background: #fbf8f1; border: 1px solid rgba(35, 31, 28, 0.2); border-radius: 8px;
+}
+:where(html[data-theme="light"]) button:hover:not(:disabled), :where(html[data-theme="light"]) .button:hover { border-color: #231f1c; }
+
+/* header */
+html[data-theme="light"] .topbar { border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+html[data-theme="light"] .power { background: var(--knob-cap); border: 1px solid #000; }
+html[data-theme="light"] .display { border: 1px solid #231f1c; border-radius: 14px; box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.8); }
+
+/* numbered steps */
+html[data-theme="light"] .synth-area { border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+html[data-theme="light"] .step-num { box-shadow: none; }
+html[data-theme="light"] .step-head h2::after { background: var(--moog-red); border-radius: 50%; }
+html[data-theme="light"] .sub-head::before { background: var(--moog-red); }
+
+/* 01: the blue river card */
+html[data-theme="light"] .data-area { border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(44, 99, 168, 0.25); }
+html[data-theme="light"] .data-area button:not(.big-play), html[data-theme="light"] .data-area .button {
+  background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.28); color: #fff;
+}
+html[data-theme="light"] .data-area button:not(.big-play):hover:not(:disabled), html[data-theme="light"] .data-area .button:hover { border-color: #fff; }
+html[data-theme="light"] .data-area select, html[data-theme="light"] .data-area input[type="text"],
+html[data-theme="light"] .data-area input[type="number"], html[data-theme="light"] .data-area input[type="date"] {
+  background: #fff; border-color: rgba(0, 0, 0, 0.15); color: var(--text);
+}
+html[data-theme="light"] .data-area .route { border: 1px solid rgba(255, 255, 255, 0.18); border-left: 3px solid var(--moog-yellow); }
+html[data-theme="light"] #data-chart { border: 1px solid #1d1b1a; }
+
+/* pill menus and the Play button, set in Geist like the dark look */
+html[data-theme="light"] .quick select {
+  border: 2px solid #1d1b1a; border-radius: 999px; padding: 11px 18px; font-family: var(--font-ui); background: #fff;
+}
+html[data-theme="light"] .big-play {
+  font-family: var(--font-ui); font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* 02: Moog colour blocks with softer corners */
+html[data-theme="light"] .section {
+  border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 12px; padding: 10px 12px 12px;
+}
+html[data-theme="light"] .section h2 { border-bottom-width: 1px; }
+html[data-theme="light"] .switch button[aria-checked="true"] { font-weight: 600; }
+
+/* 03: keyboard */
+html[data-theme="light"] .keys { border-radius: 0 0 12px 12px; }

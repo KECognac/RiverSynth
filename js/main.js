@@ -529,6 +529,7 @@ async function loadHistory(site, label, token) {
 }
 
 async function loadFromUsgs() {
+  checkRiverNote();
   const token = ++loadToken;
   const site = $('#data-site').value.trim();
   const start = $('#data-start').value, end = $('#data-end').value;
@@ -639,6 +640,7 @@ $('#data-csv').addEventListener('change', async (e) => {
   if (!file) return;
   const rows = parseCsv(await file.text());
   ++loadToken;
+  noteFor = null; riverNote.hidden = true;
   if (rows.length) showSeries(rows, file.name, null, true);
   else dataStatus.textContent = `${file.name}: no date/value rows found.`;
 });
@@ -814,17 +816,38 @@ function setDataControl(key, value) {
 function fillRiverPresets(selected = '') {
   riverSel.innerHTML = '';
   riverSel.append(new Option('Choose…', ''));
-  const group = (label, list, prefix) => {
-    if (!list.length) return;
+  // Factory presets with a `group` (e.g. the natural vs regulated pair) get their own heading.
+  const group = (label, list, prefix, keep = () => true) => {
+    const items = list.map((rp, i) => [rp, i]).filter(([rp]) => keep(rp));
+    if (!items.length) return;
     const og = document.createElement('optgroup');
     og.label = label;
-    list.forEach((rp, i) => og.append(new Option(rp.name, `${prefix}:${i}`)));
+    for (const [rp, i] of items) og.append(new Option(rp.name, `${prefix}:${i}`));
     riverSel.append(og);
   };
-  group('Factory', RIVER_FACTORY, 'rf');
+  group('Factory', RIVER_FACTORY, 'rf', (rp) => !rp.group);
+  for (const name of new Set(RIVER_FACTORY.map((rp) => rp.group).filter(Boolean))) {
+    group(name, RIVER_FACTORY, 'rf', (rp) => rp.group === name);
+  }
   group('Yours', riverUser, 'ru');
   riverSel.value = selected;
   $('#river-preset-delete').disabled = !selected.startsWith('ru:');
+}
+
+// A preset's one-line note (e.g. what the dam did) shows above the chart while its own
+// gauge and dates are loaded.
+const riverNote = $('#river-note');
+let noteFor = null;
+function showRiverNote(rp) {
+  noteFor = rp.note && rp.gauge ? rp.gauge : null;
+  riverNote.textContent = rp.note ?? '';
+  riverNote.hidden = !noteFor;
+}
+function checkRiverNote() {
+  if (!noteFor) return;
+  const same = $('#data-site').value.trim() === noteFor.site
+    && $('#data-start').value === noteFor.start && $('#data-end').value === noteFor.end;
+  if (!same) { noteFor = null; riverNote.hidden = true; }
 }
 
 function applyRiverPreset(key) {
@@ -842,6 +865,7 @@ function applyRiverPreset(key) {
   routes = (rp.routes ?? []).map((r) => ({ ...r }));
   applyRoutes();
   riverName.value = rp.name;
+  showRiverNote(rp);
   $('#river-preset-delete').disabled = kind !== 'ru';
   commitNow();
   if (rp.gauge) {

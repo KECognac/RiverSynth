@@ -164,6 +164,55 @@ export const RIVER_FACTORY = [
       { id: 'reverb.mix', source: 'anomaly', from: 0.2, to: 0.55 },
     ],
   },
+  // --- Compare: natural vs regulated ---------------------------------------------------
+  // The same gauge (Colorado River at Lees Ferry, AZ) before and after Glen Canyon Dam
+  // closed in 1963. Both use one fixed cfs-to-pitch scale, key, range and tempo, so the
+  // difference you hear is the river's: the wild year sweeps three octaves up to a June
+  // snowmelt flood; the regulated year hovers on a few notes and peaks in August.
+  {
+    // Wild: a breathing flute over a bowed cello, gliding between notes, the filter opening
+    // with the flood, the river roar swelling into a rush, stormy weeks opening the space.
+    name: 'Wild Colorado · 1957',
+    group: 'Compare: natural vs regulated',
+    note: 'Before Glen Canyon Dam: the June snowmelt flood peaked at 124,000 cfs, 38 times the low flow.',
+    program: 'Canyon Flute',
+    values: { 'voice.glide': 0.1, 'master.volume': 0.95 },
+    gauge: { site: '09380000', start: '1957-01-01', end: '1957-12-31' },
+    settings: { scale: 'Major pentatonic', root: 2, low: 48, high: 84, log: true, bpm: 110, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'single', spread: 'fixed', fixedLow: 2000, fixedHigh: 130000, roar: true, roarLevel: 0.55 },
+    layer: { on: true, program: 'Bowed Cello', level: 0.35, octave: -12, every: 4, voicing: 'single' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.35, to: 0.85 },
+      { id: 'reverb.mix', source: 'turbulence', from: 0.2, to: 0.5 },
+      { id: 'delay.depth', source: 'change', from: 0.15, to: 0.5 },
+    ],
+  },
+  {
+    // Regulated: a hard-edged pulse wave with no glide (changes land as steps, like gate
+    // operations), a steady sidechain pump and a low drone for the turbines, a little bit
+    // crush, a small dry room and no river roar (the dam traps the sediment; the water runs
+    // clear and cold). Day-to-day changes in release flick the filter like a switch.
+    name: 'Engineered Colorado · 2024',
+    group: 'Compare: natural vs regulated',
+    note: 'After the dam: flow barely changes all year (1.8 times the low flow), and peaks in August with power demand.',
+    values: {
+      'vco1.wave': 2, 'vco1.shape': 0.25, 'mixer.vco1': 0.7,
+      'vco2.wave': 2, 'vco2.octave': 0, 'vco2.shape': 0.5, 'mixer.vco2': 0.35,
+      'filter.type': 1, 'filter.cutoff': 1400, 'filter.resonance': 0.3, 'filter.drive': 0.15,
+      'ampeg.attack': 0.002, 'ampeg.decay': 0.3, 'ampeg.sustain': 0.8, 'ampeg.release': 0.04,
+      'lfo.int': 0, 'voice.glide': 0,
+      'pump.on': 1, 'pump.rate': 2, 'pump.depth': 0.45, 'pump.release': 0.35, 'arp.tempo': 110,
+      'crush.on': 1, 'crush.bits': 10, 'crush.rate': 3, 'crush.mix': 0.35,
+      'mod.on': 0, 'delay.on': 0, 'tape.on': 0,
+      'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.25, 'reverb.mix': 0.12,
+      'master.volume': 0.45, // the steady tone reads louder than the wild year's quiet low flows
+    },
+    gauge: { site: '09380000', start: '2024-01-01', end: '2024-12-31' },
+    settings: { scale: 'Major pentatonic', root: 2, low: 48, high: 84, log: true, bpm: 110, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'single', spread: 'fixed', fixedLow: 2000, fixedHigh: 130000, roar: false, roarLevel: 0.55 },
+    layer: { on: true, program: 'Drone Bass', level: 0.28, octave: -12, every: 16, voicing: 'single' },
+    routes: [
+      { id: 'filter.cutoff', source: 'change', from: 0.4, to: 0.65 },
+    ],
+  },
 ];
 
 const KEY = 'synthwork.riverPresets';

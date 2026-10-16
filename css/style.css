@@ -499,6 +499,15 @@ kbd {
 .picker-oct .options button { min-width: 30px; }
 .picker button:disabled { opacity: 0.35; cursor: default; }
 
+/* a preset's one-line science note, above the chart */
+.river-note {
+  margin: 0; padding: 8px 12px; border-radius: 10px;
+  font: 400 14px/1.45 var(--font-ui);
+  background: rgba(255, 255, 255, 0.12); border-left: 3px solid var(--moog-yellow); color: #fff;
+}
+.river-note[hidden] { display: none; }
+html[data-theme="dark"] .river-note { background: rgba(240, 182, 47, 0.08); color: var(--text); }
+
 /* light / dark switch next to the wordmark */
 .theme-toggle {
   margin-left: 6px; padding: 5px 12px; border-radius: 999px;

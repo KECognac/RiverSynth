@@ -119,6 +119,14 @@ Sound routes, river roar and (for some) a gauge and dates. Eight are built in (S
 Lo-Fi Creek, Poudre Pickin', Drip Static, Glacier Bells, Drought Watch, Arctic Breakup), and **Save**
 stores your own in this browser. The app opens on the first one, Snowmelt Flute.
 
+**Compare: natural vs regulated** pairs two presets on the same gauge, the Colorado River at
+Lees Ferry, AZ, before and after Glen Canyon Dam (1963). **Wild Colorado · 1957** sweeps up to a
+124,000 cfs June snowmelt flood with a breathing flute and the river roar; **Engineered
+Colorado · 2024** barely moves (6,880–12,700 cfs, peaking in August with power demand) with a
+pulse wave, a steady pump and a turbine-like drone. Both use **Note spread: Fixed scale**, which
+maps the same cfs range (2,000–130,000) to the same notes and chart height, so the difference you
+hear comes from the river itself.
+
 **Find a river near you** (under the chart, next to the gauge number and dates) lists the five
 nearest active USGS stream gauges, either from your browser's location (**📍 Near me**) or from a
 ZIP code. Only river and stream gauges that reported daily flow in the last 120 days are listed
@@ -135,7 +143,8 @@ the **normal** (median) flow for each date, drawn as a dashed line on the chart.
 - Each day becomes one step and its flow picks a note from the chosen **Scale** and **Key**
   between **Low** and **High**. With **Note spread: Even** (the default) the days are ranked,
   so every note gets used about equally; **Proportional** follows the flow's actual size
-  (log scale by default).
+  (log scale by default); **Fixed scale** uses a set cfs range so different rivers or years
+  can be compared fairly.
 - **Notes: Single / Triad** gives each day one note or a triad from the scale; with an
   arpeggiator sound, triads sweep across octaves (the arp flows on from day to day).
 - **Tempo** and **Step** set the speed (at 120 BPM in 1/16 steps, a year of data plays in about

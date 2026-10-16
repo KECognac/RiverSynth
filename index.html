@@ -59,6 +59,7 @@
         <label class="quick">River<select id="data-gauge"></select></label>
       </div>
 
+      <p id="river-note" class="river-note" hidden></p>
       <div class="data-chart-wrap">
         <canvas id="data-chart" aria-label="Streamflow chart. Click to move the playhead."></canvas>
         <div id="data-now" class="data-now"></div>
@@ -105,6 +106,7 @@
           <label>Note spread<select id="data-spread">
             <option value="even">Even</option>
             <option value="proportional">Proportional</option>
+          <option value="fixed">Fixed scale (compare rivers)</option>
           </select></label>
           <label class="check"><input id="data-log" type="checkbox" checked>Log scale</label>
           <span class="divider" aria-hidden="true"></span>

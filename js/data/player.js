@@ -34,7 +34,9 @@ export class DataPlayer {
     this.settings = {
       scale: 'Major pentatonic', root: 0, low: 48, high: 84, log: true,
       bpm: 120, rate: '1/16', gate: 0.6, tie: false, loop: false,
-      spread: 'even',      // 'even': every scale note used about equally; 'proportional': follows the flow
+      spread: 'even',      // 'even': every scale note used about equally; 'proportional': follows the flow;
+                           // 'fixed': a set cfs range (fixedLow..fixedHigh), so different rivers or years compare fairly
+      fixedLow: 2000, fixedHigh: 130000,
       voicing: 'single',   // 'single' note per step, or a 'triad' built from the scale
       roar: false, roarLevel: 0.6,
     };
@@ -71,8 +73,24 @@ export class DataPlayer {
 
   // Derived 0..1 signals: flow, change, anomaly, trend, turbulence (see features.js).
   get sources() {
-    this._sources ??= computeSources(this.rows, { log: this.settings.log, history: this.history });
+    if (!this._sources) {
+      this._sources = computeSources(this.rows, { log: this.settings.log, history: this.history });
+      // Fixed scale: flow is measured against a set range instead of this series' own low and
+      // high, so a flat, regulated river stays on a few notes (and routes and roar barely move).
+      if (this.settings.spread === 'fixed') {
+        const [lo, hi] = this.fixedRange();
+        const tr = this.flowTransform();
+        this._sources.flow = this.rows.map((r) => (r.value == null ? null
+          : Math.min(1, Math.max(0, (tr(r.value) - lo) / (hi - lo)))));
+      }
+    }
     return this._sources;
+  }
+
+  flowTransform() { return this.settings.log ? (x) => Math.log10(Math.max(x, 0.01)) : (x) => x; }
+  fixedRange() {
+    const tr = this.flowTransform();
+    return [tr(this.settings.fixedLow), tr(this.settings.fixedHigh)];
   }
 
   updateRoar() {
@@ -98,7 +116,7 @@ export class DataPlayer {
   // The 0..1 value that picks each step's note. "Even" ranks the values so every scale
   // note gets used about equally; "proportional" follows the flow's actual size.
   get norms() {
-    this._norms ??= this.settings.spread === 'even' ? evenSpread(this.sources.flow) : this.sources.flow;
+    this._norms ??= this.settings.spread === 'even' ? evenSpread(this.sources.flow) : this.sources.flow; // proportional or fixed
     return this._norms;
   }
 
@@ -323,10 +341,11 @@ export class DataChart {
     const tr = (x) => (log ? Math.log10(Math.max(x, 0.01)) : x);
     const vals = rows.map((r) => (r.value == null ? null : tr(r.value)));
     const present = vals.filter((v) => v != null);
-    const lo = Math.min(...present), hi = Math.max(...present);
+    // With a fixed scale the chart uses the same range too, so a flat river looks flat.
+    const [lo, hi] = player.settings.spread === 'fixed' ? player.fixedRange() : [Math.min(...present), Math.max(...present)];
     const pad = 8 * dpr;
     const x = (i) => (rows.length === 1 ? w / 2 : (i / (rows.length - 1)) * w);
-    const y = (v) => h - pad - ((hi > lo ? (v - lo) / (hi - lo) : 0.5) * (h - 2 * pad));
+    const y = (v) => h - pad - (Math.min(1, Math.max(0, hi > lo ? (v - lo) / (hi - lo) : 0.5)) * (h - 2 * pad));
 
     // Filled area under the hydrograph
     g.beginPath();

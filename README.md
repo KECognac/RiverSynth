@@ -11,7 +11,7 @@ An 8-voice polyphonic synthesizer that runs in the web browser. It started from 
 with a Moog Grandmother-inspired look. It can also turn USGS streamflow data into music.
 
 Everything runs in the browser using the Web Audio API. There's no build step and no
-dependencies, so it can be hosted for free on GitHub Pages.
+dependencies (just web fonts), so it can be hosted for free on GitHub Pages.
 
 ## Run it locally
 
@@ -86,7 +86,8 @@ js/main.js                      builds the page and connects everything
 js/data/usgs.js                 fetch USGS daily values in the browser; parse CSVs
 js/data/player.js               data → notes mapping, scheduler and chart
 js/data/features.js             derived signals: change, anomaly vs normal, trend, turbulence
-js/data/gauges.js               the River menu's gauges, grouped by region
+js/data/gauges.js               the River menu's gauges
+js/data/nearby.js               find the nearest active gauges to a location or ZIP code
 js/data/river-presets.js        built-in river presets and saved user ones
 js/data/midi.js                 MIDI file export
 js/ui/midi-input.js             MIDI keyboard input
@@ -117,6 +118,16 @@ Above the chart, **River preset** recalls a whole setup at once: sound, scale an
 Sound routes, river roar and (for some) a gauge and dates. Eight are built in (Snowmelt Flute, Flash Flood Pump,
 Lo-Fi Creek, Poudre Pickin', Drip Static, Glacier Bells, Drought Watch, Arctic Breakup), and **Save**
 stores your own in this browser. The app opens on the first one, Snowmelt Flute.
+
+**Find a river near you** (under the chart, next to the gauge number and dates) lists the five
+nearest active USGS stream gauges, either from your browser's location (**📍 Near me**) or from a
+ZIP code. Only river and stream gauges that reported daily flow in the last 120 days are listed
+(no canals, ditches, wells or lakes), and the search widens up to 150 miles until it finds some.
+Click one to load it. You can also browse the
+[USGS map](https://waterdata.usgs.gov/explore/) and type any gauge number into **USGS gauge**.
+
+The rest of the river controls (Music, Layer 2, Data → Sound, Save & export) are folded under
+**Settings** so the first view stays simple; the app remembers whether you left it open.
 
 After loading, the app also fetches the gauge's full daily record in the background to work out
 the **normal** (median) flow for each date, drawn as a dashed line on the chart.
@@ -195,6 +206,14 @@ appreciated but not required.
 Streamflow data comes from the U.S. Geological Survey through the
 [USGS Water Data API](https://api.waterdata.usgs.gov). USGS data is in the public domain; please
 credit the USGS as the data source.
+
+ZIP code searches are looked up with the free [Zippopotam.us](https://zippopotam.us) service, so
+the ZIP code is sent there. **Near me** stays in the browser apart from a search area sent to the
+USGS.
+
+Fonts: [Geist and Geist Mono](https://vercel.com/font) (Vercel) and
+[Kode Mono](https://fonts.google.com/specimen/Kode+Mono), served by Google Fonts under the
+SIL Open Font License.
 
 ## License
 

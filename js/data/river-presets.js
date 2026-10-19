@@ -11,19 +11,39 @@ export const RIVER_FACTORY = [
   {
     // A Native American-style flute over Sierra snowmelt (Merced River, Yosemite): Canyon
     // Flute in F# minor pentatonic, kept low (C3-C5), playing soft triads in breathing 1/8
-    // phrases with repeated days held as long tones, in a hall. Flow opens the tone, fast changes
+    // phrases with repeated days held as long tones, in a hall. Brisk 1/16 steps at 132 BPM
+    // so several years can be heard back to back. Flow opens the tone, fast changes
     // build the canyon echo, stormy weeks deepen the vibrato, wet years get more space.
     name: 'Snowmelt Flute',
     program: 'Canyon Flute',
-    values: { 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.mix': 0.35, 'master.volume': 0.95 },
+    // Quicker breath and release so the flute still speaks at 1/16 (about 40 s a year).
+    values: { 'ampeg.attack': 0.05, 'ampeg.release': 0.3, 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.mix': 0.35, 'master.volume': 0.95 },
     gauge: { site: '11264500', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Minor pentatonic', root: 6, low: 48, high: 72, log: true, bpm: 96, rate: '1/8', gate: 0.95, tie: true, voicing: 'triad', spread: 'even', roar: true, roarLevel: 0.35 },
+    settings: { scale: 'Minor pentatonic', root: 6, low: 48, high: 72, log: true, bpm: 132, rate: '1/16', gate: 0.95, tie: true, voicing: 'triad', spread: 'even', roar: false, roarLevel: 0.35 },
     layer: { on: true, program: 'Bowed Cello', level: 0.4, octave: -12, every: 4, voicing: 'single' },
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.75 },
       { id: 'delay.depth', source: 'change', from: 0.2, to: 0.5 },
       { id: 'lfo.int', source: 'turbulence', from: 0.505, to: 0.52 },
       { id: 'reverb.mix', source: 'anomaly', from: 0.2, to: 0.5 },
+    ],
+  },
+  {
+    // Arizona western: twangy tremolo guitar arpeggios in E minor (Em, G, Am, Bm, C, D: the
+    // minor desert-ballad sound of westerns) on the Verde River, with a lap steel sliding an octave
+    // up every 4 days. Monsoon floods brighten the twang and stretch the echoes; stormy weeks
+    // deepen the tremolo; wet stretches drench the spring reverb.
+    name: 'Desert Twang',
+    program: 'Twang Guitar',
+    values: { 'voice.mode': 3, 'voice.depth': 6 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.8, 'arp.tempo': 90 },
+    gauge: { site: '09506000', start: '2024-01-01', end: '2024-12-31' },
+    settings: { scale: 'Natural minor', root: 4, low: 36, high: 60, bpm: 90, rate: '1/16', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: false, roarLevel: 0.3 },
+    layer: { on: true, program: 'Slide Guitar', level: 0.3, octave: 12, every: 4, voicing: 'single' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.8 },
+      { id: 'delay.depth', source: 'change', from: 0.25, to: 0.55 },
+      { id: 'pump.depth', source: 'turbulence', from: 0.25, to: 0.55 },
+      { id: 'reverb.mix', source: 'anomaly', from: 0.3, to: 0.55 },
     ],
   },
   {
@@ -41,7 +61,7 @@ export const RIVER_FACTORY = [
       'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.depth': 0.55, 'reverb.mix': 0.35,
     },
     gauge: { site: '16704000', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Natural minor', root: 2, low: 36, high: 60, bpm: 100, rate: '1/4', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: true, roarLevel: 0.4 },
+    settings: { scale: 'Natural minor', root: 2, low: 36, high: 60, bpm: 100, rate: '1/4', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: false, roarLevel: 0.4 },
     layer: { on: true, program: 'Choir Pad', level: 0.3, octave: 24, every: 1, voicing: 'triad' },
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.85 },
@@ -51,56 +71,70 @@ export const RIVER_FACTORY = [
     ],
   },
   {
-    // Your saved version (from "New Lo-Fi Creek").
+    // Your saved version (from "New Lo-Fi Creek"), softened: the melody settings are unchanged,
+    // but the oscillators run cooler, the harsh Fold distortion is swapped for a little warm
+    // tube and tape warble, and the echoes sit back, so it no longer slams the limiter.
     name: 'Lo-Fi Creek',
     values: {
       'vco1.wave': 1, 'vco2.wave': 1, 'multi.type': 1, 'multi.shape': 0.1907,
-      'mixer.vco1': 0.35, 'mixer.vco2': 0.7799, 'mixer.multi': 0.8, 'filter.cutoff': 1475,
-      'filter.resonance': 0.1016, 'filter.drive': 0.1358, 'ampeg.attack': 0.007689, 'ampeg.decay': 1.5,
+      'mixer.vco1': 0.35, 'mixer.vco2': 0.55, 'mixer.multi': 0.45, 'filter.cutoff': 1300,
+      'filter.resonance': 0.1016, 'filter.drive': 0.1, 'ampeg.attack': 0.007689, 'ampeg.decay': 1.5,
       'ampeg.sustain': 0.3, 'ampeg.release': 0.5, 'lfo.wave': 4, 'lfo.rate': 0.6259,
       'lfo.int': -0.01463, 'voice.depth': 0.09214, 'mod.on': 1, 'mod.mix': 0.3,
-      'delay.on': 1, 'delay.time': 0.7325, 'delay.depth': 0.3817, 'delay.mix': 0.4191,
+      'delay.on': 1, 'delay.time': 0.7325, 'delay.depth': 0.32, 'delay.mix': 0.3,
       'reverb.on': 1, 'reverb.type': 5, 'reverb.time': 0.3, 'reverb.mix': 0.25,
-      'crush.bits': 4.063, 'crush.rate': 2.96, 'crush.mix': 0.6, 'dist.on': 1,
-      'dist.type': 2,
+      'crush.bits': 4.063, 'crush.rate': 2.96, 'crush.mix': 0.6,
+      'dist.on': 1, 'dist.type': 0, 'dist.amount': 0.2, 'dist.mix': 0.35,
+      'tape.on': 1, 'tape.wow': 0.15, 'tape.flutter': 0.08, 'tape.mix': 1,
+      'master.volume': 0.5,
     },
     gauge: { site: '01474000', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Major', root: 5, low: 48, high: 72, log: true, bpm: 100, rate: '1/16', gate: 0.7, tie: true, loop: true, spread: 'even', roar: true, roarLevel: 0.5 },
-    layer: { on: true, program: 'Drone Bass', level: 0.3, octave: 0, every: 1, voicing: 'single' },
+    settings: { scale: 'Major', root: 5, low: 48, high: 72, log: true, bpm: 100, rate: '1/16', gate: 0.7, tie: true, loop: true, spread: 'even', roar: true, roarLevel: 0.3 },
+    layer: { on: true, program: 'Drone Bass', level: 0.25, octave: 0, every: 1, voicing: 'single' },
     routes: [
       { id: 'reverb.mix', source: 'flow', from: 0.1903, to: 0.5903 },
       { id: 'lfo.int', source: 'anomaly', from: 0.64, to: 1 },
     ],
   },
   {
-    // Folksy Fort Collins: fingerpicked triads on a plucked-guitar sound in G major
-    // pentatonic. Each day gives the arp a triad, picked root-3rd-5th-3rd and flowing on
-    // from day to day, with an octave-below body for depth. Slapback echo and spring reverb
-    // for the western twang. Flow brightens the pick, fast changes build the echoes,
-    // stormy weeks wobble the tape, wetter-than-normal stretches get more space.
-    name: "Poudre Pickin'",
-    program: 'Prairie Guitar',
-    values: { 'voice.mode': 3, 'voice.depth': 6 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.7, 'arp.tempo': 96 },
+    // Headwaters: the Cache la Poudre, from the snowfields of Rocky Mountain National Park down
+    // to Fort Collins, heard as a basin filling and emptying. Soft, muted mallets flow up and
+    // down through each day's D major chord (2 octaves, one note a day, carrying on from chord
+    // to chord) in a mountain hall. Proportional note spread lets the melody sit low all winter,
+    // climb through the snowmelt runoff and drain back down. The 30-day trend is the water level:
+    // as it rises, notes lengthen until they overlap and pool, echoes pile up and the hall grows;
+    // as it falls, the sound thins back to short, dry drips (and quieter). Daily flow ripples the brightness on
+    // top. An alpine horn swells slowly every 8 days (layer 2), a rising and falling bed.
+    name: 'Headwaters',
+    program: 'Whitewater Plucks',
+    values: {
+      'voice.mode': 3, 'voice.depth': 7 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.5, 'arp.tempo': 124,
+      'multi.vpm': 2, 'multi.shape': 0.2, 'ampeg.decay': 0.9, 'ampeg.release': 0.6,
+      'delay.mix': 0.22,
+      'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.3,
+    },
     gauge: { site: '06752260', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Major pentatonic', root: 7, low: 36, high: 60, bpm: 96, rate: '1/32', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: true, roarLevel: 0.3 },
+    settings: { scale: 'Major', root: 2, low: 36, high: 60, bpm: 124, rate: '1/16', gate: 1, tie: false, voicing: 'triad', spread: 'proportional', log: true, roar: false, roarLevel: 0.3 },
+    layer: { on: true, program: 'Alpine Horn', level: 0.45, octave: 0, every: 8, voicing: 'triad' },
     routes: [
-      { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.8 },
-      { id: 'delay.depth', source: 'change', from: 0.1, to: 0.45 },
-      { id: 'tape.wow', source: 'turbulence', from: 0.1, to: 0.7 },
-      { id: 'reverb.mix', source: 'anomaly', from: 0.15, to: 0.45 },
+      { id: 'arp.gate', source: 'trend', from: 0.15, to: 0.95 },
+      { id: 'delay.depth', source: 'trend', from: 0.1, to: 0.65 },
+      { id: 'reverb.mix', source: 'trend', from: 0.12, to: 0.5 },
+      { id: 'master.volume', source: 'trend', from: 0.55, to: 1 },
+      { id: 'filter.cutoff', source: 'flow', from: 0.4, to: 0.8 },
     ],
   },
   {
-    // Drip Static: drips on a flashy western creek (Carpinteria Creek, near Santa
-    // Barbara: nearly dry for months, then winter floods), heard over a broken radio. Each day
-    // is a water drop that chirps into pitch and scatters in ping-pong rebounds before the next
-    // one lands, in F major pentatonic, over quiet glitchy static (layer 2). Floods make the
-    // drops brighter and bounce longer, stormy weeks shake the tape, wet stretches add reverb.
-    name: 'Drip Static',
+    // Drip Flow: drips on a flashy western creek (Carpinteria Creek, near Santa Barbara:
+    // nearly dry for months, then winter floods). Each day is a water drop that chirps into
+    // pitch and scatters in ping-pong rebounds before the next one lands, in F major
+    // pentatonic, over a soft, slow pad an octave down (layer 2). Floods make the drops
+    // brighter and bounce longer, stormy weeks shake the tape, wet stretches add reverb.
+    name: 'Drip Flow',
     program: 'Water Drop',
     gauge: { site: '11119500', start: '2024-01-01', end: '2024-12-31' },
     settings: { scale: 'Major pentatonic', root: 5, low: 60, high: 84, bpm: 100, rate: '1/16', gate: 0.3, tie: true, voicing: 'single', spread: 'even', log: true, roar: true, roarLevel: 0.2 },
-    layer: { on: true, program: 'Radio Static', level: 0.15, octave: 0, every: 16, voicing: 'single' },
+    layer: { on: true, program: 'River Pad', level: 0.2, octave: -12, every: 8, voicing: 'single' },
     routes: [
       { id: 'delay.depth', source: 'flow', from: 0.5, to: 0.8 },
       { id: 'filter.cutoff', source: 'flow', from: 0.55, to: 0.85 },
@@ -109,16 +143,18 @@ export const RIVER_FACTORY = [
     ],
   },
   {
-    // Your saved version (from "New Glacier Bells").
+    // Your saved version (from "New Glacier Bells"), made gentler: both oscillators an octave
+    // lower (the top bell partial used to ring near 6 kHz), the upper partial quieter, a softer
+    // strike, a darker filter that follows the keys and a warmer plate.
     name: 'Glacier Bells',
     values: {
-      'vco1.wave': 1, 'vco1.octave': 2, 'vco1.shape': 0.08, 'vco2.wave': 1,
-      'vco2.octave': 3, 'vco2.pitch': 557, 'mixer.vco1': 0.95, 'mixer.vco2': 0.45,
-      'filter.cutoff': 7000, 'filter.resonance': 0, 'filter.keytrack': 0, 'ampeg.attack': 0.001,
+      'vco1.wave': 1, 'vco1.octave': 1, 'vco1.shape': 0.08, 'vco2.wave': 1,
+      'vco2.octave': 2, 'vco2.pitch': 557, 'mixer.vco1': 0.95, 'mixer.vco2': 0.28,
+      'filter.cutoff': 3200, 'filter.resonance': 0, 'filter.keytrack': 1, 'ampeg.attack': 0.004,
       'ampeg.decay': 2.2, 'ampeg.sustain': 0, 'ampeg.release': 10, 'eg.attack': 0.001,
-      'eg.decay': 0.04, 'eg.int': 0.3, 'arp.tempo': 40, 'reverb.on': 1,
-      'reverb.type': 2, 'reverb.time': 0.45, 'reverb.depth': 0.75, 'reverb.mix': 0.25,
-      'master.volume': 0.95,
+      'eg.decay': 0.04, 'eg.int': 0.15, 'arp.tempo': 40, 'reverb.on': 1,
+      'reverb.type': 2, 'reverb.time': 0.45, 'reverb.depth': 0.45, 'reverb.mix': 0.28,
+      'master.volume': 0.75,
     },
     gauge: { site: '06752260', start: '2024-01-01', end: '2024-12-31' },
     settings: { scale: 'Minor pentatonic', root: 9, low: 60, high: 84, log: true, bpm: 120, rate: '1/16', gate: 0.5, tie: true, loop: true, spread: 'even', roar: false, roarLevel: 0.45 },

@@ -498,6 +498,90 @@ export const FACTORY = [
     },
   },
   {
+    // Old-time fiddle: two saws a few cents apart through a mid-bright filter, a quick bow
+    // attack that digs in, singing vibrato and a little slide into each note, in a small room.
+    name: 'Fiddle',
+    values: {
+      'vco1.wave': 0, 'vco1.shape': 0.1, 'mixer.vco1': 0.8,
+      'vco2.wave': 0, 'vco2.pitch': 5, 'mixer.vco2': 0.3,
+      'filter.cutoff': 2600, 'filter.resonance': 0.3, 'filter.drive': 0.15, 'filter.keytrack': 1,
+      'eg.target': 0, 'eg.attack': 0.05, 'eg.decay': 0.4, 'eg.int': 0.15,
+      'ampeg.attack': 0.06, 'ampeg.decay': 1, 'ampeg.sustain': 0.85, 'ampeg.release': 0.25,
+      'lfo.wave': 1, 'lfo.rate': 5.8, 'lfo.int': 0.02, 'lfo.target': 0,
+      'voice.glide': 0.04,
+      'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.35, 'reverb.mix': 0.2,
+      'master.volume': 0.5,
+    },
+  },
+  {
+    // Twangy western electric guitar: a bright plucked string with a bit of drive, tremolo from
+    // a tempo-synced pump, a long tape echo and a big drippy spring reverb (Arizona desert).
+    name: 'Twang Guitar',
+    values: {
+      'mixer.vco1': 0, 'mixer.vco2': 0,
+      'multi.type': 2, 'multi.shape': 0.7, 'mixer.multi': 1,
+      'filter.cutoff': 3000, 'filter.resonance': 0.2, 'filter.drive': 0.3, 'filter.keytrack': 1,
+      'ampeg.attack': 0.001, 'ampeg.decay': 3, 'ampeg.sustain': 0, 'ampeg.release': 0.6,
+      'pump.on': 1, 'pump.rate': 2, 'pump.depth': 0.35, 'pump.release': 0.4,
+      'delay.on': 1, 'delay.type': 1, 'delay.time': 0.38, 'delay.depth': 0.35, 'delay.mix': 0.25,
+      'reverb.on': 1, 'reverb.type': 4, 'reverb.time': 0.6, 'reverb.mix': 0.4,
+      'master.volume': 0.6,
+    },
+  },
+  {
+    // Slide guitar (lap steel / dobro): a bright saw with a little triangle shimmer above it,
+    // a plucked edge from the filter envelope, and Unison mode so every new note slides up or
+    // down from the last one like a bottleneck on the string. Slow vibrato, tape warble,
+    // slapback echo and a spring reverb.
+    name: 'Slide Guitar',
+    values: {
+      'vco1.wave': 0, 'vco1.shape': 0.1, 'mixer.vco1': 0.6,
+      'vco2.wave': 1, 'vco2.octave': 2, 'vco2.pitch': 4, 'mixer.vco2': 0.25,
+      'filter.cutoff': 1700, 'filter.resonance': 0.25, 'filter.drive': 0.2, 'filter.keytrack': 1,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.6, 'eg.int': 0.3,
+      'ampeg.attack': 0.004, 'ampeg.decay': 3, 'ampeg.sustain': 0.45, 'ampeg.release': 0.6,
+      'voice.mode': 1, 'voice.depth': 0.04, 'voice.glide': 0.16,
+      'lfo.wave': 1, 'lfo.rate': 5.5, 'lfo.int': 0.01, 'lfo.target': 0,
+      'tape.on': 1, 'tape.wow': 0.2, 'tape.flutter': 0.1, 'tape.mix': 1,
+      'delay.on': 1, 'delay.type': 1, 'delay.time': 0.32, 'delay.depth': 0.3, 'delay.mix': 0.2,
+      'reverb.on': 1, 'reverb.type': 4, 'reverb.time': 0.55, 'reverb.mix': 0.3,
+      'master.volume': 0.45,
+    },
+  },
+  {
+    // Whitewater plucks: a woody, marimba-like mallet (a sine with a two-operator overtone
+    // over a soft triangle), quick to strike and quick to ring out, so fast arpeggios bounce
+    // like water over rocks. Dotted ping-pong echoes and a bright plate.
+    name: 'Whitewater Plucks',
+    values: {
+      'vco1.wave': 1, 'mixer.vco1': 0.6,
+      'multi.type': 1, 'multi.vpm': 1, 'multi.shape': 0.3, 'mixer.multi': 1,
+      'filter.cutoff': 3500, 'filter.resonance': 0.1, 'filter.keytrack': 1,
+      'eg.target': 0, 'eg.attack': 0.001, 'eg.decay': 0.15, 'eg.int': 0.25,
+      'ampeg.attack': 0.001, 'ampeg.decay': 0.45, 'ampeg.sustain': 0, 'ampeg.release': 0.3,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.36, 'delay.depth': 0.3, 'delay.mix': 0.2,
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.45, 'reverb.mix': 0.22,
+      'master.volume': 1,
+    },
+  },
+  {
+    // Alpine horn: a mellow brass voice (saw plus triangle, a few cents apart) that swells in
+    // slowly and brightens as it blooms, with a slight lip slide, slow vibrato and a big hall,
+    // like a horn call echoing across a mountain valley.
+    name: 'Alpine Horn',
+    values: {
+      'vco1.wave': 0, 'mixer.vco1': 0.6,
+      'vco2.wave': 1, 'vco2.pitch': 6, 'mixer.vco2': 0.5,
+      'filter.cutoff': 600, 'filter.resonance': 0.1, 'filter.drive': 0.15, 'filter.keytrack': 1,
+      'eg.target': 0, 'eg.attack': 0.4, 'eg.decay': 1.5, 'eg.int': 0.35,
+      'ampeg.attack': 0.6, 'ampeg.decay': 1, 'ampeg.sustain': 0.9, 'ampeg.release': 2,
+      'voice.glide': 0.05,
+      'lfo.wave': 1, 'lfo.rate': 4.5, 'lfo.int': 0.012, 'lfo.target': 0,
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.35,
+      'master.volume': 0.5,
+    },
+  },
+  {
     // Native American-style flute: a near-pure triangle with a touch of hollow square, a
     // steady breath of noise, a soft onset that scoops up into pitch (EG -> Pitch), gentle
     // slides between notes, light vibrato, and a canyon echo and hall.

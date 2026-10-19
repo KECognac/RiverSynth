@@ -127,6 +127,14 @@ pulse wave, a steady pump and a turbine-like drone. Both use **Note spread: Fixe
 maps the same cfs range (2,000–130,000) to the same notes and chart height, so the difference you
 hear comes from the river itself.
 
+**Floods & droughts** shows extremes. **Big Thompson Flood · 2013** (Loveland, CO: about 56 to
+7,200 cfs in the September 2013 Front Range flood) and **Hurricane Harvey · 2017** (Brays Bayou,
+Houston: about 137 to 32,500 cfs) use proportional note spreads so the floods leap out, and the
+rising water drives distortion, echoes and volume. **Poudre Drought · 2002** and **Poudre Wet
+Year · 2023** play the Cache la Poudre just below Fort Collins' diversions on one fixed scale: in
+the 2002 drought it typically ran 2.3 cfs and fell to 0.03 cfs, so with **Rest below: 2 cfs** the
+song goes silent for 115 days.
+
 **Find a river near you** (under the chart, next to the gauge number and dates) lists the five
 nearest active USGS stream gauges, either from your browser's location (**📍 Near me**) or from a
 ZIP code. Only river and stream gauges that reported daily flow in the last 120 days are listed
@@ -144,7 +152,8 @@ the **normal** (median) flow for each date, drawn as a dashed line on the chart.
   between **Low** and **High**. With **Note spread: Even** (the default) the days are ranked,
   so every note gets used about equally; **Proportional** follows the flow's actual size
   (log scale by default); **Fixed scale** uses a set cfs range so different rivers or years
-  can be compared fairly.
+  can be compared fairly. **Rest below** (cfs) silences days with less flow than that, so a
+  river that nearly stops goes quiet.
 - **Notes: Single / Triad** gives each day one note or a triad from the scale; with an
   arpeggiator sound, triads sweep across octaves (the arp flows on from day to day).
 - **Tempo** and **Step** set the speed (at 120 BPM in 1/16 steps, a year of data plays in about

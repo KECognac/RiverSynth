@@ -39,6 +39,7 @@ export class DataPlayer {
       spread: 'even',      // 'even': every scale note used about equally; 'proportional': follows the flow;
                            // 'fixed': a set cfs range (fixedLow..fixedHigh), so different rivers or years compare fairly
       fixedLow: 2000, fixedHigh: 130000,
+      restBelow: 0,        // cfs: days below this play silence (a river that has nearly stopped); 0 = off
       voicing: 'single',   // 'single' note per step, or a 'triad' built from the scale
       roar: false, roarLevel: 0.6,
     };
@@ -126,7 +127,9 @@ export class DataPlayer {
   get notes() {
     if (this._notes) return this._notes;
     const allowed = this.allowedNotes();
-    this._notes = this.norms.map((t) => (t == null || !allowed.length ? null : allowed[Math.round(t * (allowed.length - 1))]));
+    const rest = this.settings.restBelow;
+    this._notes = this.norms.map((t, i) => (t == null || !allowed.length || (rest > 0 && this.rows[i].value < rest)
+      ? null : allowed[Math.round(t * (allowed.length - 1))]));
     return this._notes;
   }
 

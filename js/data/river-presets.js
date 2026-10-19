@@ -249,6 +249,78 @@ export const RIVER_FACTORY = [
       { id: 'filter.cutoff', source: 'change', from: 0.4, to: 0.65 },
     ],
   },
+  // --- Floods & droughts --------------------------------------------------------------
+  // Proportional or fixed note spreads, so extremes leap out instead of being ranked away.
+  {
+    // A calm Front Range summer on bowed strings in D Dorian, then a week of rain in
+    // September 2013: the notes climb to the top, the strings tear into distortion and
+    // resonance as the water rises, the volume surges and the river roar comes up, all
+    // driven by the data. A low drone rumbles underneath.
+    name: 'Big Thompson Flood · 2013',
+    group: 'Floods & droughts',
+    note: 'Sept 12–15, 2013: a week of rain sent the Big Thompson at Loveland from about 56 cfs to 7,200 cfs, roughly 130 times normal.',
+    program: 'Bowed Cello',
+    values: { 'dist.on': 1, 'dist.type': 0, 'dist.amount': 0, 'dist.mix': 0.5, 'master.volume': 0.75 },
+    gauge: { site: '06741510', start: '2013-01-01', end: '2013-12-31' },
+    settings: { scale: 'Dorian', root: 2, low: 36, high: 72, log: true, bpm: 120, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'single', spread: 'proportional', roar: true, roarLevel: 0.5 },
+    layer: { on: true, program: 'Drone Bass', level: 0.3, octave: -12, every: 4, voicing: 'single' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.35, to: 0.95 },
+      { id: 'dist.amount', source: 'flow', from: 0, to: 0.85 },
+      { id: 'filter.resonance', source: 'change', from: 0.1, to: 0.6 },
+      { id: 'master.volume', source: 'flow', from: 0.5, to: 1 },
+    ],
+  },
+  {
+    // Humid Gulf Coast electric-piano chords in F Dorian on Brays Bayou in Houston, with a
+    // storm wind (layer 2) whose pitch rises with the water. When Harvey's rain arrives the
+    // chords leap up, the echoes pile up, the keys break into grit and the volume surges.
+    name: 'Hurricane Harvey · 2017',
+    group: 'Floods & droughts',
+    note: 'Aug 25–29, 2017: Hurricane Harvey\'s record rain sent Brays Bayou in Houston from about 137 cfs to 32,500 cfs, roughly 240 times normal.',
+    program: 'Lo-Fi Keys',
+    values: { 'dist.on': 1, 'dist.type': 0, 'dist.amount': 0, 'dist.mix': 0.5, 'master.volume': 0.7 },
+    gauge: { site: '08075000', start: '2017-01-01', end: '2017-12-31' },
+    settings: { scale: 'Dorian', root: 5, low: 36, high: 72, log: true, bpm: 100, rate: '1/16', gate: 0.8, tie: true, loop: false, voicing: 'triad', spread: 'proportional', roar: false, roarLevel: 0.5 },
+    layer: { on: true, program: 'Wind Noise', level: 0.2, octave: 0, every: 2, voicing: 'single' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.35, to: 0.9 },
+      { id: 'dist.amount', source: 'flow', from: 0, to: 0.8 },
+      { id: 'delay.depth', source: 'flow', from: 0.15, to: 0.7 },
+      { id: 'master.volume', source: 'flow', from: 0.5, to: 1 },
+    ],
+  },
+  // The Cache la Poudre just below Fort Collins and its diversions, in the 2002 drought and
+  // in the big 2023 snowmelt year: the same plucked guitar, scale, fixed cfs scale and tempo,
+  // so the difference is the river's. Days under 2 cfs rest, so the drought goes quiet.
+  {
+    name: 'Poudre Drought · 2002',
+    group: 'Floods & droughts',
+    note: 'The 2002 drought, below Fort Collins\' diversions: typically just 2.3 cfs, down to 0.03 cfs on Aug 12. Silent steps are days under 2 cfs.',
+    program: 'Prairie Guitar',
+    gauge: { site: '06752280', start: '2002-01-01', end: '2002-12-31' },
+    settings: { scale: 'Major', root: 7, low: 48, high: 84, log: true, bpm: 110, rate: '1/16', gate: 0.6, tie: false, loop: false, voicing: 'single', spread: 'fixed', fixedLow: 0.5, fixedHigh: 3000, restBelow: 2, roar: false, roarLevel: 0.3 },
+    layer: { on: false, program: 'River Pad', level: 0.25, octave: -12, every: 8, voicing: 'single' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.2, to: 0.85 },
+      { id: 'reverb.mix', source: 'flow', from: 0.05, to: 0.4 },
+      { id: 'master.volume', source: 'flow', from: 0.45, to: 1 },
+    ],
+  },
+  {
+    name: 'Poudre Wet Year · 2023',
+    group: 'Floods & droughts',
+    note: 'The same gauge in 2023, a big snowmelt year: typically 16 cfs, peaking at 2,220 cfs in June.',
+    program: 'Prairie Guitar',
+    gauge: { site: '06752280', start: '2023-01-01', end: '2023-12-31' },
+    settings: { scale: 'Major', root: 7, low: 48, high: 84, log: true, bpm: 110, rate: '1/16', gate: 0.6, tie: false, loop: false, voicing: 'single', spread: 'fixed', fixedLow: 0.5, fixedHigh: 3000, restBelow: 2, roar: false, roarLevel: 0.3 },
+    layer: { on: true, program: 'River Pad', level: 0.25, octave: -12, every: 8, voicing: 'single' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.2, to: 0.85 },
+      { id: 'reverb.mix', source: 'flow', from: 0.05, to: 0.4 },
+      { id: 'master.volume', source: 'flow', from: 0.45, to: 1 },
+    ],
+  },
 ];
 
 const KEY = 'synthwork.riverPresets';

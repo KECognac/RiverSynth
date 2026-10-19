@@ -127,13 +127,15 @@ pulse wave, a steady pump and a turbine-like drone. Both use **Note spread: Fixe
 maps the same cfs range (2,000–130,000) to the same notes and chart height, so the difference you
 hear comes from the river itself.
 
-**Floods & droughts** shows extremes. **Big Thompson Flood · 2013** (Loveland, CO: about 56 to
-7,200 cfs in the September 2013 Front Range flood) and **Hurricane Harvey · 2017** (Brays Bayou,
-Houston: about 137 to 32,500 cfs) use proportional note spreads so the floods leap out, and the
-rising water drives distortion, echoes and volume. **Poudre Drought · 2002** and **Poudre Wet
-Year · 2023** play the Cache la Poudre just below Fort Collins' diversions on one fixed scale: in
-the 2002 drought it typically ran 2.3 cfs and fell to 0.03 cfs, so with **Rest below: 2 cfs** the
-song goes silent for 115 days.
+**Floods & droughts** shows extremes on **linear** (not log) flow scales, so ordinary days rest
+on a low chord and only big water climbs. **Big Thompson Flood · 2013** (Loveland, CO, Aug 1 –
+Nov 15: about 86 to 7,200 cfs in the September Front Range flood) arpeggiates a hammered dulcimer
+that tears into distortion as the flood hits. **Hurricane Harvey · 2017** (Brays Bayou, Houston,
+Aug 10 – Sept 20: about 160 to 32,500 cfs) plays Lo-Fi Keys chords over an 808 sub, with echoes,
+grit and volume rising with the water. **Poudre Drought · 2002** and **Poudre Wet Year · 2023**
+play the Cache la Poudre just below Fort Collins' diversions with the Headwaters sound on one
+fixed 0–2,500 cfs scale: in the 2002 drought it typically ran 2.3 cfs and fell to 0.03 cfs, so
+with **Rest below: 2 cfs** the song goes silent for 115 days.
 
 **Find a river near you** (under the chart, next to the gauge number and dates) lists the five
 nearest active USGS stream gauges, either from your browser's location (**📍 Near me**) or from a

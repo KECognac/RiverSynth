@@ -115,8 +115,8 @@ and the **River** menu has two dozen more with very different characters (snowme
 floods, giant rivers, dam-controlled flow, arctic ice breakup), or type any gauge number.
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →
-Sound routes, river roar and (for some) a gauge and dates. Nine are built in (Snowmelt Flute, Desert Twang,
-Flash Flood Pump, Lo-Fi Creek, Headwaters, Drip Flow, Glacier Bells, Drought Watch, Arctic Breakup), and **Save**
+Sound routes, river roar and (for some) a gauge and dates. Nine sound presets are built in (Snowmelt Flute, Desert Twang,
+Flash Flood Pump, Lo-Fi Creek, Headwaters, Drip Flow, Glacier Bells, Drought Watch, Arctic Breakup), plus the river stories below, and **Save**
 stores your own in this browser. The app opens on the first one, Snowmelt Flute.
 
 **Compare: natural vs regulated** pairs two presets on the same gauge, the Colorado River at
@@ -125,7 +125,10 @@ Lees Ferry, AZ, before and after Glen Canyon Dam (1963). **Wild Colorado · 1957
 Colorado · 2024** barely moves (6,880–12,700 cfs, peaking in August with power demand) with a
 pulse wave, a steady pump and a turbine-like drone. Both use **Note spread: Fixed scale**, which
 maps the same cfs range (2,000–130,000) to the same notes and chart height, so the difference you
-hear comes from the river itself.
+hear comes from the river itself. Each year plays three days per step, about 15 seconds.
+
+The story presets below are kept short too: under 30 seconds, or about 15 seconds per side of
+a comparison.
 
 **Floods & droughts** shows extremes on **linear** (not log) flow scales, so ordinary days rest
 on a low chord and only big water climbs. The two floods play five years, one step per week, so
@@ -139,6 +142,12 @@ Wet Year · 2023** play the Cache la Poudre just below Fort Collins' diversions 
 October 1 with the Headwaters sound on one fixed 0–2,500 cfs scale: in the 2002 drought it
 typically ran 2.6 cfs and fell to 0.03 cfs, so with **Rest below: 2 cfs** much of the summer goes
 silent.
+
+**Where the water goes** shows a river emptied by pumping. **Arkansas River · 1950** and
+**Arkansas River · 2006** play Dodge City, Kansas, one step per week, with a bowed cello over
+strings and no river roar: in 1950 the river flowed every day (typically 185 cfs); in 2006, after
+decades of groundwater pumping from the Ogallala Aquifer and upstream diversions, it was dry all
+365 days, so the second year is silence.
 
 **Find a river near you** (under the chart, next to the gauge number and dates) lists the five
 nearest active USGS stream gauges, either from your browser's location (**📍 Near me**) or from a

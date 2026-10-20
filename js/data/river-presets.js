@@ -204,7 +204,8 @@ export const RIVER_FACTORY = [
   // The same gauge (Colorado River at Lees Ferry, AZ) before and after Glen Canyon Dam
   // closed in 1963. Both use one fixed cfs-to-pitch scale, key, range and tempo, so the
   // difference you hear is the river's: the wild year sweeps three octaves up to a June
-  // snowmelt flood; the regulated year hovers on a few notes and peaks in August.
+  // snowmelt flood; the regulated year hovers on a few notes and peaks in August. Three days
+  // per step (each step their average) keeps each year to about 15 seconds.
   {
     // Wild: a breathing flute over a bowed cello, gliding between notes, the filter opening
     // with the flood, the river roar swelling into a rush, stormy weeks opening the space.
@@ -214,7 +215,7 @@ export const RIVER_FACTORY = [
     program: 'Canyon Flute',
     values: { 'voice.glide': 0.1, 'master.volume': 0.95 },
     gauge: { site: '09380000', start: '1957-01-01', end: '1957-12-31' },
-    settings: { scale: 'Major pentatonic', root: 2, low: 48, high: 84, log: true, bpm: 110, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'single', spread: 'fixed', fixedLow: 2000, fixedHigh: 130000, roar: true, roarLevel: 0.55 },
+    settings: { scale: 'Major pentatonic', root: 2, low: 48, high: 84, log: true, bpm: 120, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'single', spread: 'fixed', fixedLow: 2000, fixedHigh: 130000, daysPerStep: 3, roar: true, roarLevel: 0.55 },
     layer: { on: true, program: 'Bowed Cello', level: 0.35, octave: -12, every: 4, voicing: 'single' },
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.35, to: 0.85 },
@@ -236,14 +237,14 @@ export const RIVER_FACTORY = [
       'filter.type': 1, 'filter.cutoff': 1400, 'filter.resonance': 0.3, 'filter.drive': 0.15,
       'ampeg.attack': 0.002, 'ampeg.decay': 0.3, 'ampeg.sustain': 0.8, 'ampeg.release': 0.04,
       'lfo.int': 0, 'voice.glide': 0,
-      'pump.on': 1, 'pump.rate': 2, 'pump.depth': 0.45, 'pump.release': 0.35, 'arp.tempo': 110,
+      'pump.on': 1, 'pump.rate': 2, 'pump.depth': 0.45, 'pump.release': 0.35, 'arp.tempo': 120,
       'crush.on': 1, 'crush.bits': 10, 'crush.rate': 3, 'crush.mix': 0.35,
       'mod.on': 0, 'delay.on': 0, 'tape.on': 0,
       'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.25, 'reverb.mix': 0.12,
       'master.volume': 0.45, // the steady tone reads louder than the wild year's quiet low flows
     },
     gauge: { site: '09380000', start: '2024-01-01', end: '2024-12-31' },
-    settings: { scale: 'Major pentatonic', root: 2, low: 48, high: 84, log: true, bpm: 110, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'single', spread: 'fixed', fixedLow: 2000, fixedHigh: 130000, roar: false, roarLevel: 0.55 },
+    settings: { scale: 'Major pentatonic', root: 2, low: 48, high: 84, log: true, bpm: 120, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'single', spread: 'fixed', fixedLow: 2000, fixedHigh: 130000, daysPerStep: 3, roar: false, roarLevel: 0.55 },
     layer: { on: true, program: 'Drone Bass', level: 0.28, octave: -12, every: 16, voicing: 'single' },
     routes: [
       { id: 'filter.cutoff', source: 'change', from: 0.4, to: 0.65 },
@@ -292,7 +293,7 @@ export const RIVER_FACTORY = [
     note: '2015–2019, one step per week (weekly average). Harvey\'s week, Aug 25–31, 2017, averaged 11,900 cfs on Brays Bayou, about 3½ times the next-biggest week here (Memorial Day 2015, 3,350 cfs), on a bayou that usually runs about 140 cfs.',
     program: 'Lo-Fi Keys',
     gauge: { site: '08075000', start: '2015-01-02', end: '2019-12-31' },
-    settings: { scale: 'Major pentatonic', root: 0, low: 48, high: 72, log: false, bpm: 100, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'triad', spread: 'proportional', daysPerStep: 7, combine: 'mean', roar: false, roarLevel: 0.5 },
+    settings: { scale: 'Major pentatonic', root: 0, low: 48, high: 72, log: false, bpm: 132, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'triad', spread: 'proportional', daysPerStep: 7, combine: 'mean', roar: false, roarLevel: 0.5 },
     layer: { on: true, program: '808 Sub', level: 0.45, octave: -12, every: 2, voicing: 'single' },
     // Harvey is only a few weekly steps long, so the loudness, grit, ringing chords and
     // echoes follow Surge: they jump with the flood and drain slowly over a couple of seconds.
@@ -305,14 +306,14 @@ export const RIVER_FACTORY = [
     ],
   },
   // The Cache la Poudre just below Fort Collins and its diversions, played with the Headwaters
-  // sound, April to October, in the 2002 drought and the big 2023 snowmelt year. Both use one linear 0–2,500 cfs
-  // scale (in C, so the low resting chord is the home chord), and the basin controls (note
+  // sound, April to October, in the 2002 drought and the big 2023 snowmelt year, two days per
+  // step (their average). Both use one linear 0–2,500 cfs scale (in C, so the low resting chord is the home chord), and the basin controls (note
   // length, echoes, hall, volume) follow that same flow scale instead of each year's own range,
   // so the drought stays an empty basin and the wet year fills it. Days under 2 cfs rest.
   {
     name: 'Poudre Drought · 2002',
     group: 'Floods & droughts',
-    note: 'April–September 2002, in the drought, below Fort Collins\' diversions: typically just 2.6 cfs, down to 0.03 cfs on Aug 12. Silent steps are days under 2 cfs.',
+    note: 'April–September 2002, in the drought, below Fort Collins\' diversions: typically just 2.6 cfs, down to 0.03 cfs on Aug 12. Two days per step; silent steps average under 2 cfs.',
     program: 'Whitewater Plucks',
     values: {
       'voice.mode': 3, 'voice.depth': 7 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.5, 'arp.tempo': 124,
@@ -321,7 +322,7 @@ export const RIVER_FACTORY = [
       'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.3,
     },
     gauge: { site: '06752280', start: '2002-04-01', end: '2002-10-01' },
-    settings: { scale: 'Major', root: 0, low: 36, high: 72, bpm: 124, rate: '1/16', gate: 1, tie: false, loop: false, voicing: 'triad', spread: 'fixed', log: false, fixedLow: 0, fixedHigh: 2500, restBelow: 2, roar: false, roarLevel: 0.3 },
+    settings: { scale: 'Major', root: 0, low: 36, high: 72, bpm: 124, rate: '1/16', gate: 1, tie: false, loop: false, voicing: 'triad', spread: 'fixed', log: false, fixedLow: 0, fixedHigh: 2500, restBelow: 2, daysPerStep: 2, roar: false, roarLevel: 0.3 },
     layer: { on: true, program: 'Alpine Horn', level: 0.45, octave: 0, every: 8, voicing: 'triad' },
     routes: [
       { id: 'arp.gate', source: 'flow', from: 0.15, to: 0.95 },
@@ -343,7 +344,7 @@ export const RIVER_FACTORY = [
       'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.3,
     },
     gauge: { site: '06752280', start: '2023-04-01', end: '2023-10-01' },
-    settings: { scale: 'Major', root: 0, low: 36, high: 72, bpm: 124, rate: '1/16', gate: 1, tie: false, loop: false, voicing: 'triad', spread: 'fixed', log: false, fixedLow: 0, fixedHigh: 2500, restBelow: 2, roar: false, roarLevel: 0.3 },
+    settings: { scale: 'Major', root: 0, low: 36, high: 72, bpm: 124, rate: '1/16', gate: 1, tie: false, loop: false, voicing: 'triad', spread: 'fixed', log: false, fixedLow: 0, fixedHigh: 2500, restBelow: 2, daysPerStep: 2, roar: false, roarLevel: 0.3 },
     layer: { on: true, program: 'Alpine Horn', level: 0.45, octave: 0, every: 8, voicing: 'triad' },
     routes: [
       { id: 'arp.gate', source: 'flow', from: 0.15, to: 0.95 },
@@ -351,6 +352,38 @@ export const RIVER_FACTORY = [
       { id: 'reverb.mix', source: 'flow', from: 0.12, to: 0.5 },
       { id: 'master.volume', source: 'flow', from: 0.7, to: 1 },
       { id: 'filter.cutoff', source: 'flow', from: 0.4, to: 0.8 },
+    ],
+  },
+  // --- Where the water goes ------------------------------------------------------------
+  // The Arkansas at Dodge City, Kansas, before and after groundwater pumping from the
+  // Ogallala Aquifer and diversions upstream in Colorado dried it up. A bowed cello with a
+  // string section underneath, no river roar, one step per week (the week's average, about
+  // 15 seconds a year) so the bow has time to swell. One fixed log scale (20–2,500 cfs) in G;
+  // weeks under 1 cfs rest, so the dry year is silence.
+  {
+    name: 'Arkansas River · 1950',
+    group: 'Where the water goes',
+    note: 'Dodge City, Kansas: the river flowed every day, typically 185 cfs, with summer storms up to 2,140 cfs. One step per week.',
+    program: 'Bowed Cello',
+    gauge: { site: '07139500', start: '1950-01-01', end: '1950-12-31' },
+    settings: { scale: 'Major pentatonic', root: 7, low: 43, high: 67, log: true, bpm: 104, rate: '1/8', gate: 0.9, tie: true, loop: false, voicing: 'single', spread: 'fixed', fixedLow: 20, fixedHigh: 2500, restBelow: 1, daysPerStep: 7, combine: 'mean', roar: false, roarLevel: 0.3 },
+    layer: { on: true, program: 'PWM Strings', level: 0.2, octave: 0, every: 2, voicing: 'triad' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.4, to: 0.85 },
+      { id: 'reverb.mix', source: 'flow', from: 0.15, to: 0.4 },
+    ],
+  },
+  {
+    name: 'Arkansas River · 2006',
+    group: 'Where the water goes',
+    note: 'The same gauge in 2006: dry every day of the year, after decades of groundwater pumping and upstream diversions. The silence is the river.',
+    program: 'Bowed Cello',
+    gauge: { site: '07139500', start: '2006-01-01', end: '2006-12-31' },
+    settings: { scale: 'Major pentatonic', root: 7, low: 43, high: 67, log: true, bpm: 104, rate: '1/8', gate: 0.9, tie: true, loop: false, voicing: 'single', spread: 'fixed', fixedLow: 20, fixedHigh: 2500, restBelow: 1, daysPerStep: 7, combine: 'mean', roar: false, roarLevel: 0.3 },
+    layer: { on: true, program: 'PWM Strings', level: 0.2, octave: 0, every: 2, voicing: 'triad' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.4, to: 0.85 },
+      { id: 'reverb.mix', source: 'flow', from: 0.15, to: 0.4 },
     ],
   },
 ];

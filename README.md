@@ -111,8 +111,9 @@ You can try these in the browser's developer console, where the synth is availab
 The **River Data** panel loads daily mean discharge for any USGS gauge, straight from the
 [USGS Water Data API](https://api.waterdata.usgs.gov) in the browser. No Python is needed for
 this part. It opens on the **Merced River in Yosemite (11264500)** for 2024 (the Snowmelt Flute preset),
-and the **River** menu has two dozen more with very different characters (snowmelt, tropical flash
-floods, giant rivers, dam-controlled flow, arctic ice breakup), or type any gauge number.
+and the **River** menu has about thirty more with very different characters (snowmelt, tropical flash
+floods, giant rivers, dam-controlled flow, arctic ice breakup, Colorado's mountains and plains), or
+type any gauge number.
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →
 Sound routes, river roar and (for some) a gauge and dates. Nine sound presets are built in (Snowmelt Flute, Desert Twang,

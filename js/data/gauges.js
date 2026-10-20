@@ -2,6 +2,10 @@
 // menu. All checked to have daily discharge for 2024.
 export const GAUGES = [
   { id: '06752260', name: 'Cache la Poudre River, Fort Collins, CO', note: 'snowmelt' },
+  { id: '09361500', name: 'Animas River, Durango, CO', note: 'San Juan Mountains snowmelt' },
+  { id: '09260050', name: 'Yampa River, Deerlodge Park, CO', note: 'free-flowing, no big dams' },
+  { id: '09095500', name: 'Colorado River, Cameo, CO', note: 'the upper Colorado, before Grand Junction' },
+  { id: '07124000', name: 'Arkansas River, Las Animas, CO', note: 'eastern plains, after irrigation' },
   { id: '11264500', name: 'Merced River, Yosemite, CA', note: 'Sierra snowmelt' },
   { id: '06191500', name: 'Yellowstone River, Corwin Springs, MT', note: 'big mountain runoff' },
   { id: '08279500', name: 'Rio Grande, Embudo, NM', note: 'the first USGS stream gauge' },

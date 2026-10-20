@@ -1003,3 +1003,13 @@ themeBtn.addEventListener('click', () => {
   showTheme();
 });
 showTheme();
+
+// Contact link. The address is put together here rather than written in the page, so
+// spam bots that scan pages for addresses don't pick it up.
+const contact = document.getElementById('contact');
+const CONTACT = ['riversynth.kc', 'gmail.com']; // [name, domain]
+contact.addEventListener('click', (e) => {
+  e.preventDefault();
+  const subject = encodeURIComponent('RiverSynth');
+  window.location.href = `mailto:${CONTACT.join('@')}?subject=${subject}`;
+});

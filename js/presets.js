@@ -680,6 +680,62 @@ export const FACTORY = [
       'master.volume': 0.55,
     },
   },
+  // --- Dream pop and echo cello ----------------------------------------------------------
+  {
+    // Beach House-style dream organ: a cheap combo organ (square plus a saw an octave up)
+    // with a slowly breathing pulse width, swirled through ensemble chorus and tape wobble,
+    // swelling gently into a big hall. Lovely as held chords.
+    name: 'Dream Organ',
+    values: {
+      'vco1.wave': 2, 'vco1.shape': 0.35, 'mixer.vco1': 0.3,
+      'vco2.wave': 0, 'vco2.octave': 2, 'vco2.pitch': 4, 'mixer.vco2': 0.15,
+      'filter.cutoff': 2400, 'filter.resonance': 0.1, 'filter.drive': 0,
+      'ampeg.attack': 0.05, 'ampeg.decay': 1, 'ampeg.sustain': 1, 'ampeg.release': 1.2,
+      'lfo.wave': 1, 'lfo.rate': 0.35, 'lfo.int': 0.25, 'lfo.target': 1,
+      'mod.on': 1, 'mod.type': 1, 'mod.time': 0.3, 'mod.depth': 0.6, 'mod.mix': 0.5,
+      'tape.on': 1, 'tape.wow': 0.3, 'tape.flutter': 0.15, 'tape.mix': 1,
+      'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.8, 'reverb.mix': 0.45,
+      'master.volume': 0.4,
+    },
+  },
+  {
+    // Beach House-style slide lead (like the falling melody in "Space Song"): a soft,
+    // hollow tone that slides between notes, with a wide, slow vibrato, chorus, long
+    // ping-pong echoes and a plate.
+    name: 'Space Slide Lead',
+    values: {
+      'vco1.wave': 1, 'mixer.vco1': 0.7,
+      'vco2.wave': 2, 'vco2.shape': 0.2, 'vco2.pitch': -5, 'mixer.vco2': 0.3,
+      'filter.cutoff': 1900, 'filter.resonance': 0.2, 'filter.keytrack': 1,
+      'ampeg.attack': 0.03, 'ampeg.decay': 1, 'ampeg.sustain': 0.85, 'ampeg.release': 0.9,
+      'voice.mode': 1, 'voice.depth': 0.03, 'voice.glide': 0.18,
+      'lfo.wave': 1, 'lfo.rate': 4.2, 'lfo.int': 0.03, 'lfo.target': 0,
+      'mod.on': 1, 'mod.type': 0, 'mod.time': 0.25, 'mod.depth': 0.5, 'mod.mix': 0.35,
+      'delay.on': 1, 'delay.type': 2, 'delay.time': 0.45, 'delay.depth': 0.45, 'delay.mix': 0.3,
+      'reverb.on': 1, 'reverb.type': 2, 'reverb.time': 0.7, 'reverb.mix': 0.4,
+      'master.volume': 0.5,
+    },
+  },
+  {
+    // Arthur Russell-style echo cello ("World of Echo"): an intimate, close bowed cello with
+    // a little bow scrape and grit, drenched in long dub tape echoes that repeat and blur,
+    // with a touch of chorus and a small spring.
+    name: 'Echo Cello',
+    values: {
+      'vco1.wave': 0, 'vco1.shape': 0.2, 'mixer.vco1': 0.8,
+      'vco2.wave': 0, 'vco2.pitch': 7, 'mixer.vco2': 0.3,
+      'multi.type': 0, 'multi.noise': 2, 'multi.shape': 0.6, 'mixer.multi': 0.08,
+      'filter.cutoff': 1400, 'filter.resonance': 0.3, 'filter.drive': 0.35, 'filter.keytrack': 2,
+      'eg.target': 0, 'eg.attack': 0.25, 'eg.decay': 1.2, 'eg.int': 0.2,
+      'ampeg.attack': 0.18, 'ampeg.decay': 1, 'ampeg.sustain': 0.85, 'ampeg.release': 0.7,
+      'lfo.wave': 1, 'lfo.rate': 5, 'lfo.int': 0.015, 'lfo.target': 0,
+      'voice.mode': 3, 'voice.depth': 3 / 12, 'arp.gate': 0.85, 'arp.tempo': 92, // arpeggiator: Rise over 2 octaves at 92 BPM, bowed long
+      'mod.on': 1, 'mod.type': 0, 'mod.time': 0.2, 'mod.depth': 0.3, 'mod.mix': 0.2,
+      'delay.on': 1, 'delay.type': 1, 'delay.time': 0.55, 'delay.depth': 0.4, 'delay.mix': 0.42, // above ~0.5 the tape echo feeds itself
+      'reverb.on': 1, 'reverb.type': 4, 'reverb.time': 0.45, 'reverb.mix': 0.2,
+      'master.volume': 0.75,
+    },
+  },
   // --- Experimental / lo-fi -------------------------------------------------------------
   {
     // Theremin on an old radio: a pure, singing tone (triangle + sine) that glides between

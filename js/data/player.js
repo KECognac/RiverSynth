@@ -32,7 +32,8 @@ export class DataPlayer {
   constructor(synth, ensureAudio) {
     this.synth = synth;
     this.ensureAudio = ensureAudio;
-    this.rows = [];
+    this.raw = [];         // the daily series as loaded
+    this.rows = [];        // what plays: the daily series, or one row per group of days
     this.settings = {
       scale: 'Major pentatonic', root: 0, low: 48, high: 84, log: true,
       bpm: 120, rate: '1/16', gate: 0.6, tie: false, loop: false,
@@ -40,6 +41,8 @@ export class DataPlayer {
                            // 'fixed': a set cfs range (fixedLow..fixedHigh), so different rivers or years compare fairly
       fixedLow: 2000, fixedHigh: 130000,
       restBelow: 0,        // cfs: days below this play silence (a river that has nearly stopped); 0 = off
+      daysPerStep: 1,      // play several days as one step (e.g. 7 = a week), for many years of data
+      combine: 'mean',     // how those days become one value: 'mean' (average) or 'max' (peak)
       voicing: 'single',   // 'single' note per step, or a 'triad' built from the scale
       roar: false, roarLevel: 0.6,
     };
@@ -56,9 +59,24 @@ export class DataPlayer {
 
   setSeries(rows) {
     this.stop();
-    this.rows = rows;
+    this.raw = rows;
+    this.rows = this.group(rows);
     this.position = 0;
     this.invalidate();
+  }
+
+  // Several days per step: each group keeps its first date and the average or peak flow.
+  group(rows) {
+    const n = Math.max(1, Math.round(this.settings.daysPerStep));
+    if (n === 1) return rows;
+    const out = [];
+    for (let i = 0; i < rows.length; i += n) {
+      const vals = rows.slice(i, i + n).map((r) => r.value).filter((v) => v != null);
+      const value = !vals.length ? null
+        : this.settings.combine === 'max' ? Math.max(...vals) : vals.reduce((a, b) => a + b, 0) / vals.length;
+      out.push({ date: rows[i].date, value });
+    }
+    return out;
   }
 
   setHistory(history) {
@@ -68,6 +86,11 @@ export class DataPlayer {
 
   set(key, value) {
     this.settings[key] = value;
+    if ((key === 'daysPerStep' || key === 'combine') && this.raw.length) {
+      this.stop();
+      this.rows = this.group(this.raw);
+      this.position = 0;
+    }
     this.invalidate();
     if (this.playing && (key === 'roar' || key === 'roarLevel')) this.updateRoar();
   }
@@ -86,6 +109,13 @@ export class DataPlayer {
         this._sources.flow = this.rows.map((r) => (r.value == null ? null
           : Math.min(1, Math.max(0, (tr(r.value) - lo) / (hi - lo)))));
       }
+      // Surge: follows the flow up at once, then drains slowly (about 10% a step), so a flood
+      // only a few steps long swells and lingers instead of flashing past.
+      let level = 0;
+      this._sources.surge = this._sources.flow.map((v) => {
+        level = Math.max(v ?? 0, level * 0.9);
+        return v == null ? null : level;
+      });
     }
     return this._sources;
   }

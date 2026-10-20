@@ -254,58 +254,65 @@ export const RIVER_FACTORY = [
   // climbs: the floods tower over everything. Each day's chord is arpeggiated, so quiet
   // stretches are gentle picking on a low chord rather than one stuck note.
   {
-    // Mid-summer to late fall 2013 on the Big Thompson at Loveland. Hammered-dulcimer
-    // arpeggios (a Rocky Mountain folk sound) pick quietly on a low C Dorian chord through
-    // the summer, then the September rain sends them leaping up four octaves: the dulcimer
-    // tears into distortion, resonance builds on the rises, the volume surges and the river
-    // roar comes up from silence. A low drone rumbles underneath. The recession drains back
-    // down through October.
+    // Five years (2011–2015) on the Big Thompson at Loveland, one step per week using each
+    // week's peak day (it was a flash flood). Hammered-dulcimer arpeggios (a Rocky Mountain
+    // folk sound) pick on a low C Dorian chord, rise a little with each spring's snowmelt, then
+    // in September 2013 leap up four octaves: the dulcimer tears into distortion, resonance
+    // builds on the rise, the volume surges and the river roar comes up from silence. A low
+    // drone rumbles underneath.
     name: 'Big Thompson Flood · 2013',
     group: 'Floods & droughts',
-    note: 'Sept 12–15, 2013: a week of rain sent the Big Thompson at Loveland from about 86 cfs to 7,200 cfs, more than 80 times normal for the season.',
+    note: '2011–2015, one step per week (each week\'s peak day). Sept 13, 2013: 7,200 cfs at Loveland, almost 4 times the next-biggest peak in these 5 years (1,940 cfs in 2015), on a river that usually runs under 60 cfs.',
     program: 'Hammered Dulcimer',
     values: {
-      'voice.mode': 3, 'voice.depth': 6 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.7, 'arp.tempo': 96,
-      'dist.on': 1, 'dist.type': 0, 'dist.amount': 0, 'dist.mix': 0.5, 'master.volume': 0.8,
+      'voice.mode': 3, 'voice.depth': 6 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.7, 'arp.tempo': 132,
+      'dist.on': 1, 'dist.type': 0, 'dist.amount': 0, 'dist.mix': 0.4, 'master.volume': 0.8,
     },
-    gauge: { site: '06741510', start: '2013-08-01', end: '2013-11-15' },
-    settings: { scale: 'Dorian', root: 0, low: 36, high: 84, log: false, bpm: 96, rate: '1/8', gate: 1, tie: false, loop: false, voicing: 'triad', spread: 'proportional', roar: true, roarLevel: 0.55 },
-    layer: { on: true, program: 'Drone Bass', level: 0.3, octave: -12, every: 4, voicing: 'single' },
+    gauge: { site: '06741510', start: '2011-01-01', end: '2015-12-31' },
+    settings: { scale: 'Dorian', root: 0, low: 36, high: 84, log: false, bpm: 132, rate: '1/16', gate: 1, tie: false, loop: false, voicing: 'triad', spread: 'proportional', daysPerStep: 7, combine: 'max', roar: true, roarLevel: 0.55 },
+    layer: { on: true, program: 'Drone Bass', level: 0.1, octave: -12, every: 4, voicing: 'single' },
+    // The flood is only a few weekly steps long, so the loudness, grit, ringing notes and
+    // echoes follow Surge: they jump with the flood and drain slowly over a couple of seconds.
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.4, to: 0.95 },
-      { id: 'dist.amount', source: 'flow', from: 0, to: 0.85 },
-      { id: 'filter.resonance', source: 'change', from: 0.1, to: 0.6 },
-      { id: 'master.volume', source: 'flow', from: 0.6, to: 1 },
+      { id: 'dist.amount', source: 'surge', from: 0, to: 0.6 },
+      { id: 'ampeg.release', source: 'surge', from: 0.68, to: 0.93 },
+      { id: 'delay.depth', source: 'surge', from: 0.2, to: 0.75 },
+      { id: 'master.volume', source: 'surge', from: 0.4, to: 1 },
     ],
   },
   {
-    // Aug 10 – Sept 20, 2017, on Brays Bayou in Houston: the Lo-Fi Keys program as it is
-    // (poly chords, not arpeggiated) in C major pentatonic, C3–C5, over a deep 808 sub (layer
-    // 2). On a linear scale the keys rest on a low chord until Harvey's rain sends the chords
-    // leaping up, the echoes building, the bitcrush grit rising and the volume swelling.
+    // Five years (2015–2019) on Brays Bayou in Houston, one step per week using each week's
+    // average flow (Harvey's flood lasted for days; starting Jan 2 keeps Aug 25–31, 2017 in
+    // one week). The Lo-Fi Keys program as it is (poly chords, held while the chord repeats)
+    // in C major pentatonic, C3–C5, over a deep 808 sub (layer 2). Houston's other floods nudge the chords up; Harvey sends them leaping, with the
+    // echoes building, the bitcrush grit rising and the volume swelling.
     name: 'Hurricane Harvey · 2017',
     group: 'Floods & droughts',
-    note: 'Aug 25–29, 2017: Hurricane Harvey\'s record rain sent Brays Bayou in Houston from about 160 cfs to 32,500 cfs, roughly 200 times normal.',
+    note: '2015–2019, one step per week (weekly average). Harvey\'s week, Aug 25–31, 2017, averaged 11,900 cfs on Brays Bayou, about 3½ times the next-biggest week here (Memorial Day 2015, 3,350 cfs), on a bayou that usually runs about 140 cfs.',
     program: 'Lo-Fi Keys',
-    gauge: { site: '08075000', start: '2017-08-10', end: '2017-09-20' },
-    settings: { scale: 'Major pentatonic', root: 0, low: 48, high: 72, log: false, bpm: 80, rate: '1/4', gate: 0.8, tie: false, loop: false, voicing: 'triad', spread: 'proportional', roar: false, roarLevel: 0.5 },
+    gauge: { site: '08075000', start: '2015-01-02', end: '2019-12-31' },
+    settings: { scale: 'Major pentatonic', root: 0, low: 48, high: 72, log: false, bpm: 100, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'triad', spread: 'proportional', daysPerStep: 7, combine: 'mean', roar: false, roarLevel: 0.5 },
     layer: { on: true, program: '808 Sub', level: 0.45, octave: -12, every: 2, voicing: 'single' },
+    // Harvey is only a few weekly steps long, so the loudness, grit, ringing chords and
+    // echoes follow Surge: they jump with the flood and drain slowly over a couple of seconds.
     routes: [
-      { id: 'delay.depth', source: 'flow', from: 0.3, to: 0.7 },
-      { id: 'crush.mix', source: 'flow', from: 0.6, to: 0.85 },
-      { id: 'master.volume', source: 'flow', from: 0.6, to: 0.75 },
+      { id: 'delay.depth', source: 'surge', from: 0.3, to: 0.75 },
+      { id: 'crush.mix', source: 'surge', from: 0.6, to: 0.85 },
+      { id: 'ampeg.release', source: 'surge', from: 0.67, to: 0.92 },
+      { id: 'master.volume', source: 'surge', from: 0.4, to: 0.85 },
       { id: 'filter.cutoff', source: 'flow', from: 0.6, to: 0.85 },
     ],
   },
   // The Cache la Poudre just below Fort Collins and its diversions, played with the Headwaters
-  // sound in the 2002 drought and the big 2023 snowmelt year. Both use one linear 0–2,500 cfs
+  // sound, April to October, in the 2002 drought and the big 2023 snowmelt year. Both use one linear 0–2,500 cfs
   // scale (in C, so the low resting chord is the home chord), and the basin controls (note
   // length, echoes, hall, volume) follow that same flow scale instead of each year's own range,
   // so the drought stays an empty basin and the wet year fills it. Days under 2 cfs rest.
   {
     name: 'Poudre Drought · 2002',
     group: 'Floods & droughts',
-    note: 'The 2002 drought, below Fort Collins\' diversions: typically just 2.3 cfs, down to 0.03 cfs on Aug 12. Silent steps are days under 2 cfs.',
+    note: 'April–September 2002, in the drought, below Fort Collins\' diversions: typically just 2.6 cfs, down to 0.03 cfs on Aug 12. Silent steps are days under 2 cfs.',
     program: 'Whitewater Plucks',
     values: {
       'voice.mode': 3, 'voice.depth': 7 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.5, 'arp.tempo': 124,
@@ -313,7 +320,7 @@ export const RIVER_FACTORY = [
       'delay.mix': 0.22,
       'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.3,
     },
-    gauge: { site: '06752280', start: '2002-01-01', end: '2002-12-31' },
+    gauge: { site: '06752280', start: '2002-04-01', end: '2002-10-01' },
     settings: { scale: 'Major', root: 0, low: 36, high: 72, bpm: 124, rate: '1/16', gate: 1, tie: false, loop: false, voicing: 'triad', spread: 'fixed', log: false, fixedLow: 0, fixedHigh: 2500, restBelow: 2, roar: false, roarLevel: 0.3 },
     layer: { on: true, program: 'Alpine Horn', level: 0.45, octave: 0, every: 8, voicing: 'triad' },
     routes: [
@@ -327,7 +334,7 @@ export const RIVER_FACTORY = [
   {
     name: 'Poudre Wet Year · 2023',
     group: 'Floods & droughts',
-    note: 'The same gauge in 2023, a big snowmelt year: typically 16 cfs, peaking at 2,220 cfs in June.',
+    note: 'The same gauge and months in 2023, a big snowmelt year: typically 89 cfs, peaking at 2,220 cfs in June.',
     program: 'Whitewater Plucks',
     values: {
       'voice.mode': 3, 'voice.depth': 7 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.5, 'arp.tempo': 124,
@@ -335,7 +342,7 @@ export const RIVER_FACTORY = [
       'delay.mix': 0.22,
       'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.3,
     },
-    gauge: { site: '06752280', start: '2023-01-01', end: '2023-12-31' },
+    gauge: { site: '06752280', start: '2023-04-01', end: '2023-10-01' },
     settings: { scale: 'Major', root: 0, low: 36, high: 72, bpm: 124, rate: '1/16', gate: 1, tie: false, loop: false, voicing: 'triad', spread: 'fixed', log: false, fixedLow: 0, fixedHigh: 2500, restBelow: 2, roar: false, roarLevel: 0.3 },
     layer: { on: true, program: 'Alpine Horn', level: 0.45, octave: 0, every: 8, voicing: 'triad' },
     routes: [

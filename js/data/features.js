@@ -8,6 +8,7 @@ export const SOURCES = {
   anomaly:    { label: 'Anomaly vs normal',   low: 'Drier than normal', high: 'Wetter than normal' },
   trend:      { label: 'Trend (30-day)',      low: 'Low trend',         high: 'High trend' },
   turbulence: { label: 'Turbulence (7-day)',  low: 'Calm',              high: 'Turbulent' },
+  surge:      { label: 'Surge (slow to drain)', low: 'Calm',            high: 'Surge' },
 };
 
 const percentile = (sorted, p) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.round(p * (sorted.length - 1))))];

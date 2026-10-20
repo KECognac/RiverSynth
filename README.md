@@ -128,14 +128,17 @@ maps the same cfs range (2,000–130,000) to the same notes and chart height, so
 hear comes from the river itself.
 
 **Floods & droughts** shows extremes on **linear** (not log) flow scales, so ordinary days rest
-on a low chord and only big water climbs. **Big Thompson Flood · 2013** (Loveland, CO, Aug 1 –
-Nov 15: about 86 to 7,200 cfs in the September Front Range flood) arpeggiates a hammered dulcimer
-that tears into distortion as the flood hits. **Hurricane Harvey · 2017** (Brays Bayou, Houston,
-Aug 10 – Sept 20: about 160 to 32,500 cfs) plays Lo-Fi Keys chords over an 808 sub, with echoes,
-grit and volume rising with the water. **Poudre Drought · 2002** and **Poudre Wet Year · 2023**
-play the Cache la Poudre just below Fort Collins' diversions with the Headwaters sound on one
-fixed 0–2,500 cfs scale: in the 2002 drought it typically ran 2.3 cfs and fell to 0.03 cfs, so
-with **Rest below: 2 cfs** the song goes silent for 115 days.
+on a low chord and only big water climbs. The two floods play five years, one step per week, so
+you hear how far the flood towers over the years around it. **Big Thompson Flood · 2013**
+(Loveland, CO, 2011–2015, each week's peak day: 7,200 cfs in September 2013, almost 4 times any
+other peak) arpeggiates a hammered dulcimer that leaps up and tears into distortion as the flood
+hits. **Hurricane Harvey · 2017** (Brays Bayou, Houston, 2015–2019, weekly averages: Harvey's week
+averaged 11,900 cfs, about 3½ times Houston's next-biggest flood week) plays Lo-Fi Keys chords over an 808
+sub, with echoes, grit and volume surging with the water. **Poudre Drought · 2002** and **Poudre
+Wet Year · 2023** play the Cache la Poudre just below Fort Collins' diversions from April 1 to
+October 1 with the Headwaters sound on one fixed 0–2,500 cfs scale: in the 2002 drought it
+typically ran 2.6 cfs and fell to 0.03 cfs, so with **Rest below: 2 cfs** much of the summer goes
+silent.
 
 **Find a river near you** (under the chart, next to the gauge number and dates) lists the five
 nearest active USGS stream gauges, either from your browser's location (**📍 Near me**) or from a
@@ -156,6 +159,9 @@ the **normal** (median) flow for each date, drawn as a dashed line on the chart.
   (log scale by default); **Fixed scale** uses a set cfs range so different rivers or years
   can be compared fairly. **Rest below** (cfs) silences days with less flow than that, so a
   river that nearly stops goes quiet.
+- **Days per step** (1–14) plays several days as one step, so years fit in a minute or two;
+  **Combine** picks whether each step uses the days' **Average** or their **Peak** (best for
+  flash floods that last only a day).
 - **Notes: Single / Triad** gives each day one note or a triad from the scale; with an
   arpeggiator sound, triads sweep across octaves (the arp flows on from day to day).
 - **Tempo** and **Step** set the speed (at 120 BPM in 1/16 steps, a year of data plays in about
@@ -171,6 +177,8 @@ the **normal** (median) flow for each date, drawn as a dashed line on the chart.
   - **Anomaly vs normal**: drier vs wetter than the median for that date
   - **Trend (30-day)**: the slow, seasonal movement
   - **Turbulence (7-day)**: calm vs stormy weeks
+  - **Surge (slow to drain)**: jumps up with high water, then fades over a couple of seconds,
+    so a brief flood still swells and lingers
 
   Because these move independently, the sound gets more than one dimension. The defaults:
   flow opens the filter, wetter-than-normal adds reverb, turbulence adds resonance. Routed

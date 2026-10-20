@@ -110,6 +110,18 @@
           </select></label>
           <label class="check"><input id="data-log" type="checkbox" checked>Log scale</label>
         <label title="Days with less flow than this play silence, so a river that nearly stops goes quiet (0 = off)">Rest below (cfs)<input id="data-rest" type="number" min="0" step="0.5" value="0" size="4"></label>
+        <label title="Play several days as one step, so many years fit in a minute or two">Days per step<select id="data-days">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="5">5</option>
+          <option value="7">7 (a week)</option>
+          <option value="14">14</option>
+        </select></label>
+        <label title="How the days in each step become one value: their average, or the peak day (keeps flash floods)">Combine<select id="data-combine">
+          <option value="mean">Average</option>
+          <option value="max">Peak</option>
+        </select></label>
           <span class="divider" aria-hidden="true"></span>
           <label class="check"><input id="data-roar" type="checkbox">River roar</label>
           <label>Roar level<input id="data-roar-level" type="range" min="0" max="1" step="0.05" value="0.6"></label>

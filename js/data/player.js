@@ -345,53 +345,147 @@ export class DataPlayer {
 }
 
 // --- Chart ---------------------------------------------------------------------
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const GUTTER = 40; // CSS px on the left for the cfs scale
+const FOOT = 15;   // CSS px along the bottom for month or year labels
+
+// "850", "1.2k", "12k", "1.5M"
+function cfsLabel(v) {
+  if (v >= 1e6) return `${+(v / 1e6).toFixed(1)}M`;
+  if (v >= 1e4) return `${Math.round(v / 1e3)}k`;
+  if (v >= 1e3) return `${+(v / 1e3).toFixed(1)}k`;
+  if (v >= 1) return String(Math.round(v));
+  return String(+v.toFixed(2));
+}
+
+// A few round cfs values inside [lo, hi] (in chart units: log10 cfs, or cfs).
+function cfsTicks(lo, hi, log) {
+  if (!(hi > lo)) return [];
+  if (log) {
+    const vals = [];
+    for (const mults of [[1], [1, 3], [1, 2, 5]]) {
+      vals.length = 0;
+      for (let e = Math.floor(lo) - 1; e <= Math.ceil(hi); e++) {
+        for (const m of mults) { const v = Math.log10(m) + e; if (v >= lo - 1e-9 && v <= hi + 1e-9) vals.push(v); }
+      }
+      if (vals.length >= 2) break;
+    }
+    while (vals.length > 4) vals.splice(0, vals.length, ...vals.filter((_, i) => i % 2 === 0));
+    return vals.map((v) => ({ v, label: cfsLabel(10 ** v) }));
+  }
+  const raw = (hi - lo) / 4;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 5, 10].map((m) => m * mag).find((x) => x >= raw);
+  const out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push({ v, label: cfsLabel(v) });
+  return out;
+}
+
 export class DataChart {
   constructor(canvas, player, onSeek) {
     this.canvas = canvas;
     this.g = canvas.getContext('2d');
     this.player = player;
+    this.layer = document.createElement('canvas'); // the static picture, redrawn only when it changes
+    this.layerKey = null;
+    document.fonts?.ready.then(() => { this.layerKey = null; }); // redraw labels in Geist Mono once it loads
     canvas.addEventListener('pointerdown', (e) => {
       const n = player.rows.length;
       if (!n) return;
       const r = canvas.getBoundingClientRect();
-      onSeek(Math.round(((e.clientX - r.left) / r.width) * (n - 1)));
+      const f = (e.clientX - r.left - GUTTER) / (r.width - GUTTER);
+      onSeek(Math.round(Math.min(1, Math.max(0, f)) * (n - 1)));
     });
     requestAnimationFrame(() => this.draw());
   }
 
-  draw() {
-    requestAnimationFrame(() => this.draw());
-    const { canvas, g, player } = this;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    const w = Math.max(1, Math.round(rect.width * dpr));
-    const h = Math.max(1, Math.round(rect.height * dpr));
-    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
-    g.fillStyle = '#0b0e10';
-    g.fillRect(0, 0, w, h);
+  // Plot geometry in device pixels for the current size and data.
+  geometry(w, h, dpr) {
+    const { player } = this;
     const rows = player.rows;
-    if (!rows.length) return;
-
     const log = player.settings.log;
     const tr = (x) => (log ? Math.log10(Math.max(x, 0.01)) : x);
     const vals = rows.map((r) => (r.value == null ? null : tr(r.value)));
     const present = vals.filter((v) => v != null);
     // With a fixed scale the chart uses the same range too, so a flat river looks flat.
-    const [lo, hi] = player.settings.spread === 'fixed' ? player.fixedRange() : [Math.min(...present), Math.max(...present)];
-    const pad = 8 * dpr;
-    const x = (i) => (rows.length === 1 ? w / 2 : (i / (rows.length - 1)) * w);
-    const y = (v) => h - pad - (Math.min(1, Math.max(0, hi > lo ? (v - lo) / (hi - lo) : 0.5)) * (h - 2 * pad));
+    const [lo, hi] = player.settings.spread === 'fixed' ? player.fixedRange()
+      : present.length ? [Math.min(...present), Math.max(...present)] : [0, 1];
+    const left = GUTTER * dpr, top = 8 * dpr, bottom = h - FOOT * dpr;
+    const x = (i) => left + (rows.length === 1 ? 0.5 : i / (rows.length - 1)) * (w - left);
+    const y = (v) => bottom - (Math.min(1, Math.max(0, hi > lo ? (v - lo) / (hi - lo) : 0.5)) * (bottom - top));
+    return { rows, log, tr, vals, lo, hi, left, top, bottom, x, y };
+  }
 
-    // Filled area under the hydrograph
+  drawLayer(w, h, dpr, geo) {
+    const { layer, player } = this;
+    layer.width = w; layer.height = h;
+    const g = layer.getContext('2d');
+    const { rows, log, tr, vals, lo, hi, left, top, bottom, x, y } = geo;
+    g.fillStyle = '#0b0e10';
+    g.fillRect(0, 0, w, h);
+    const font = (px) => `${px * dpr}px "Geist Mono", ui-monospace, monospace`;
+
+    // cfs scale: faint lines across, labels in the left gutter
+    g.font = font(10);
+    g.textAlign = 'right';
+    g.textBaseline = 'middle';
+    for (const t of cfsTicks(lo, hi, log)) {
+      const yy = Math.round(y(t.v)) + 0.5;
+      g.fillStyle = 'rgba(169, 198, 236, 0.08)';
+      g.fillRect(left, yy, w - left, dpr);
+      g.fillStyle = 'rgba(169, 198, 236, 0.55)';
+      g.fillText(t.label, left - 6 * dpr, Math.min(bottom - 5 * dpr, Math.max(top + 5 * dpr, yy)));
+    }
+    g.textAlign = 'left';
+    g.fillStyle = 'rgba(169, 198, 236, 0.4)';
+    g.fillText('cfs', 6 * dpr, bottom + 8 * dpr);
+
+    // Month marks (or years, for longer spans) along the bottom
+    if (rows.length > 1) {
+      const span = (new Date(rows[rows.length - 1].date) - new Date(rows[0].date)) / 864e5;
+      const byYear = span > 900;
+      const multiYear = rows[0].date.slice(0, 4) !== rows[rows.length - 1].date.slice(0, 4);
+      const monthW = (w - left) / Math.max(1, span / 30.4);
+      g.textBaseline = 'middle';
+      for (let i = 1; i < rows.length; i++) {
+        const a = rows[i - 1].date, b = rows[i].date;
+        if (a.slice(0, 7) === b.slice(0, 7)) continue;
+        const m = Number(b.slice(5, 7)) - 1;
+        const newYear = a.slice(0, 4) !== b.slice(0, 4);
+        if (byYear && !newYear) {
+          g.fillStyle = 'rgba(169, 198, 236, 0.18)';
+          g.fillRect(Math.round(x(i)), bottom, dpr, 3 * dpr);
+          continue;
+        }
+        const xx = Math.round(x(i));
+        g.fillStyle = newYear ? 'rgba(169, 198, 236, 0.16)' : 'rgba(169, 198, 236, 0.07)';
+        g.fillRect(xx, top, dpr, bottom - top + 3 * dpr);
+        const label = byYear || (newYear && multiYear) ? b.slice(0, 4)
+          : monthW < 34 * dpr ? MONTHS[m][0] : MONTHS[m];
+        g.fillStyle = newYear && multiYear ? 'rgba(169, 198, 236, 0.75)' : 'rgba(169, 198, 236, 0.5)';
+        g.fillText(label, xx + 3 * dpr, bottom + 8 * dpr);
+      }
+    }
+
+    // Filled area under the hydrograph, fading toward the bottom
+    g.save();
+    g.beginPath();
+    g.rect(left, 0, w - left, h);
+    g.clip();
     g.beginPath();
     let started = false;
+    let lastX = left;
     vals.forEach((v, i) => {
       if (v == null) return;
-      if (!started) { g.moveTo(x(i), h); g.lineTo(x(i), y(v)); started = true; } else g.lineTo(x(i), y(v));
+      if (!started) { g.moveTo(x(i), bottom); g.lineTo(x(i), y(v)); started = true; } else g.lineTo(x(i), y(v));
+      lastX = x(i);
     });
-    g.lineTo(w, h);
+    g.lineTo(lastX, bottom);
     g.closePath();
-    g.fillStyle = 'rgba(240, 182, 47, 0.18)';
+    const grad = g.createLinearGradient(0, top, 0, bottom);
+    grad.addColorStop(0, 'rgba(240, 182, 47, 0.38)');
+    grad.addColorStop(1, 'rgba(240, 182, 47, 0.03)');
+    g.fillStyle = grad;
     g.fill();
 
     g.beginPath();
@@ -402,6 +496,7 @@ export class DataChart {
     });
     g.strokeStyle = '#f0b62f';
     g.lineWidth = 1.5 * dpr;
+    g.lineJoin = 'round';
     g.stroke();
 
     // Dashed line: the normal (median) flow for each date, when history is available
@@ -411,7 +506,7 @@ export class DataChart {
       started = false;
       src.normal.forEach((nv, i) => {
         if (nv == null) { started = false; return; }
-        const yy = Math.min(h, Math.max(0, y(tr(nv))));
+        const yy = Math.min(bottom, Math.max(top, y(tr(nv))));
         if (!started) { g.moveTo(x(i), yy); started = true; } else g.lineTo(x(i), yy);
       });
       g.setLineDash([4 * dpr, 4 * dpr]);
@@ -420,17 +515,49 @@ export class DataChart {
       g.stroke();
       g.setLineDash([]);
     }
+    g.restore();
+  }
 
-    // Playhead
+  draw() {
+    requestAnimationFrame(() => this.draw());
+    const { canvas, g, player } = this;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, Math.round(rect.width * dpr));
+    const h = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    const rows = player.rows;
+    if (!rows.length) {
+      g.fillStyle = '#0b0e10';
+      g.fillRect(0, 0, w, h);
+      return;
+    }
+
+    // The sources object is rebuilt whenever the data or a setting that shapes it changes,
+    // so it (with the rows and size) tells us when to redraw the static picture.
+    const src = player.sources;
+    if (!this.geo || this.layerKey?.rows !== rows || this.layerKey.src !== src || this.layerKey.w !== w || this.layerKey.h !== h) {
+      this.geo = this.geometry(w, h, dpr);
+      this.drawLayer(w, h, dpr, this.geo);
+      this.layerKey = { rows, src, w, h };
+    }
+    g.drawImage(this.layer, 0, 0);
+
+    // Playhead, with a soft glow
+    const { x, y, vals } = this.geo;
     const step = player.playing ? player.currentStep() : player.position;
     if (step != null) {
+      g.save();
+      g.shadowColor = 'rgba(240, 182, 47, 0.9)';
+      g.shadowBlur = 8 * dpr;
       g.fillStyle = 'rgba(246, 231, 182, 0.9)';
-      g.fillRect(x(step) - dpr / 2, 0, dpr * 1.5, h);
+      g.fillRect(x(step) - dpr / 2, 0, dpr * 1.5, h - FOOT * dpr);
       if (vals[step] != null) {
         g.beginPath();
         g.arc(x(step), y(vals[step]), 3.5 * dpr, 0, Math.PI * 2);
         g.fill();
       }
+      g.restore();
     }
     this.onFrame?.(step);
   }

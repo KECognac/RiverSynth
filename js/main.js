@@ -8,7 +8,7 @@ import { DataPlayer, DataChart, SCALES, RATES } from './data/player.js';
 import { fetchDaily, fetchSiteName, parseCsv } from './data/usgs.js';
 import { SOURCES } from './data/features.js';
 import { GAUGES } from './data/gauges.js';
-import { browserLocation, zipToLatLon, nearestGauges } from './data/nearby.js';
+import { browserLocation, zipToLatLon, nearestGauges, prettyName } from './data/nearby.js';
 import { RIVER_FACTORY, loadRiverPresets, saveRiverPresets } from './data/river-presets.js';
 import { buildMidi } from './data/midi.js';
 import { randomPatch, mutate } from './randomize.js';
@@ -457,6 +457,7 @@ bindSetting('#data-bpm', 'bpm', (el) => Math.min(400, Math.max(20, Number(el.val
 bindSetting('#data-gate', 'gate', (el) => Number(el.value));
 bindSetting('#data-rest', 'restBelow', (el) => Math.max(0, Number(el.value) || 0));
 bindSetting('#data-days', 'daysPerStep', (el) => Number(el.value));
+$('#data-days').addEventListener('input', () => renderStatus());
 bindSetting('#data-combine', 'combine');
 bindSetting('#data-tie', 'tie', (el) => el.checked);
 bindSetting('#data-loop', 'loop', (el) => el.checked);
@@ -485,29 +486,47 @@ chart.onFrame = (step) => {
   const note = player.notes[step];
   const normal = player.sources.normal[step];
   const pctNormal = row.value != null && normal ? ` (${Math.round((100 * row.value) / normal)}% of normal)` : '';
-  dataNow.textContent = `${row.date} · ${row.value == null ? 'no data' : `${row.value.toLocaleString()} cfs${pctNormal}`} · ${note == null ? 'rest' : noteName(note)}`;
+  dataNow.textContent = `${row.date} · ${row.value == null ? 'no data' : `${row.value.toLocaleString(undefined, { maximumFractionDigits: row.value < 10 ? 2 : 0 })} cfs${pctNormal}`} · ${note == null ? 'rest' : noteName(note)}`;
 };
 
 let riverLabel = '';
-// The line under the chart: dates, length and flow range. The river's name is already in
-// the River menu, so it's only shown for a gauge or file that isn't in the menu.
+// The line under the chart: small chips for the dates, length, flow range and (once the
+// history loads) the years behind the normal line. The river's name is in the River menu.
 function formatDates(a, b) {
   const d = (s) => new Date(`${s}T00:00`);
   const opts = { month: 'short', day: 'numeric' };
   const sameYear = a.slice(0, 4) === b.slice(0, 4);
   return `${d(a).toLocaleDateString(undefined, sameYear ? opts : { ...opts, year: 'numeric' })} – ${d(b).toLocaleDateString(undefined, { ...opts, year: 'numeric' })}`;
 }
-function showSeries(rows, label, history = null, showName = false) {
+let normalYears = null; // "1902–2007", once the gauge's history has loaded
+function renderStatus() {
+  const raw = player.raw;
+  const vals = raw.map((r) => r.value).filter((v) => v != null);
+  if (!raw.length || !vals.length) { dataStatus.textContent = 'No data'; return; }
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const n = player.settings.daysPerStep;
+  const chips = [
+    formatDates(raw[0].date, raw[raw.length - 1].date),
+    n > 1 ? `${raw.length} days · ${n} per step` : `${raw.length} days`,
+    lo === hi ? `${lo.toLocaleString()} cfs` : `${lo.toLocaleString()}–${hi.toLocaleString()} cfs`,
+  ];
+  if (normalYears) chips.push(`normal from ${normalYears}`);
+  dataStatus.replaceChildren(...chips.map((text) => {
+    const c = document.createElement('span');
+    c.className = 'chip';
+    c.textContent = text;
+    return c;
+  }));
+}
+function showSeries(rows, label, history = null, menuName = null) {
   riverLabel = label;
+  showCurrentRiver(menuName);
   player.setSeries(rows);
   player.setHistory(history);
   renderRoutes();
   lastShown = -1;
-  const vals = rows.map((r) => r.value).filter((v) => v != null);
-  const name = showName ? `${label} · ` : '';
-  dataStatus.textContent = rows.length
-    ? `${name}${formatDates(rows[0].date, rows[rows.length - 1].date)} · ${rows.length} days · flow ${Math.min(...vals).toLocaleString()}–${Math.max(...vals).toLocaleString()} cfs`
-    : `${name}no data`;
+  normalYears = null;
+  renderStatus();
 }
 
 // Fetch the gauge's full daily record in the background to work out the normal flow for
@@ -524,7 +543,8 @@ async function loadHistory(site, label, token) {
     lastShown = -1; // refresh the readout so it can show "% of normal"
     if (years.size >= 3) {
       const first = history[0].date.slice(0, 4), last = history[history.length - 1].date.slice(0, 4);
-      dataStatus.textContent += ` · normal from ${first}–${last}`;
+      normalYears = `${first}–${last}`;
+      renderStatus();
     }
   } catch {
     // Not fatal: anomaly falls back to the loaded period itself.
@@ -546,7 +566,7 @@ async function loadFromUsgs() {
       dataStatus.textContent = `No daily discharge for USGS ${site} between ${start} and ${end}.`;
     } else {
       const label = name ? `${name} (USGS ${site})` : `USGS ${site}`;
-      showSeries(rows, label, null, !GAUGES.some((g) => g.id === site));
+      showSeries(rows, label, null, GAUGES.some((g) => g.id === site) ? null : prettyName(name || `USGS ${site}`));
       loadHistory(site, label, token);
     }
   } catch (err) {
@@ -560,13 +580,22 @@ $('#data-load').addEventListener('click', loadFromUsgs);
 // River picker: choosing one fills in the gauge number and loads it.
 const gaugeSel = $('#data-gauge');
 for (const g of GAUGES) gaugeSel.append(new Option(`${g.name} — ${g.note}`, g.id));
-gaugeSel.append(new Option('Other (type a gauge number)', ''));
+// A gauge or file that isn't in the list shows its own name here instead of "Other".
+const currentRiverOpt = new Option('', '__current');
+currentRiverOpt.hidden = true;
+gaugeSel.append(currentRiverOpt, new Option('Other (type a gauge number)', ''));
 gaugeSel.value = GAUGES[0].id;
+function showCurrentRiver(name) {
+  currentRiverOpt.hidden = !name;
+  currentRiverOpt.textContent = name ?? '';
+  if (name) gaugeSel.value = '__current';
+}
 const syncGaugeSel = () => {
   const v = $('#data-site').value.trim();
   gaugeSel.value = GAUGES.some((g) => g.id === v) ? v : '';
 };
 gaugeSel.addEventListener('change', () => {
+  if (gaugeSel.value === '__current') return;
   if (!gaugeSel.value) { $('#data-site').focus(); return; }
   $('#data-site').value = gaugeSel.value;
   loadFromUsgs();
@@ -644,7 +673,7 @@ $('#data-csv').addEventListener('change', async (e) => {
   const rows = parseCsv(await file.text());
   ++loadToken;
   noteFor = null; riverNote.hidden = true;
-  if (rows.length) showSeries(rows, file.name, null, true);
+  if (rows.length) showSeries(rows, file.name, null, file.name);
   else dataStatus.textContent = `${file.name}: no date/value rows found.`;
 });
 

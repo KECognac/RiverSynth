@@ -8,6 +8,8 @@ export class Scope {
     this.readout = readout;
     this.analyser = null;
     this.buf = null;
+    this.idle = 1; // 1 = showing the resting shimmer, 0 = showing live sound
+    this.still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     this.resize();
     new ResizeObserver(() => this.resize()).observe(canvas);
     requestAnimationFrame(() => this.draw());
@@ -43,10 +45,19 @@ export class Scope {
     g.beginPath();
     g.moveTo(0, h / 2); g.lineTo(w, h / 2);
     g.stroke();
-    if (!this.analyser) return;
 
     const buf = this.buf;
-    this.analyser.getFloatTimeDomainData(buf);
+    let live = false;
+    if (this.analyser) {
+      this.analyser.getFloatTimeDomainData(buf);
+      for (let i = 0; i < buf.length; i += 8) if (Math.abs(buf[i]) > 0.003) { live = true; break; }
+    }
+    // While nothing is sounding, a slow, gentle ripple, like water at rest; it fades out as
+    // soon as sound starts and back in after it stops.
+    this.idle += ((live ? 0 : 1) - this.idle) * (live ? 0.25 : 0.04);
+    if (this.idle > 0.02) this.drawIdle(w, h);
+    if (!live) return;
+
     const span = Math.floor(buf.length / 2);
     // Trigger on a rising zero crossing so the waveform stands still.
     let start = 0;
@@ -63,6 +74,26 @@ export class Scope {
       const x = (i / (view - 1)) * w;
       const y = h / 2 - buf[start + i] * h * 0.45;
       if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+    }
+    g.stroke();
+    g.shadowBlur = 0;
+  }
+
+  drawIdle(w, h) {
+    const { g } = this;
+    const t = this.still ? 0 : performance.now() / 1000;
+    const dpr = window.devicePixelRatio || 1;
+    g.strokeStyle = `rgba(246, 231, 182, ${0.45 * this.idle})`;
+    g.lineWidth = 1.5 * dpr;
+    g.shadowColor = '#f0b62f';
+    g.shadowBlur = 6 * this.idle;
+    g.beginPath();
+    const n = 96;
+    for (let i = 0; i <= n; i++) {
+      const f = i / n;
+      const ripple = 0.6 * Math.sin(f * Math.PI * 3 + t * 0.7) + 0.4 * Math.sin(f * Math.PI * 7.4 - t * 1.1);
+      const y = h / 2 - ripple * h * 0.07 * Math.sin(f * Math.PI); // taper to the edges
+      if (i === 0) g.moveTo(f * w, y); else g.lineTo(f * w, y);
     }
     g.stroke();
     g.shadowBlur = 0;

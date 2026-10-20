@@ -353,6 +353,13 @@ kbd {
 }
 .quick #data-gauge { max-width: 480px; min-width: 300px; }
 .data-status { margin: -4px 0 0; font: 12px var(--font-ui); color: var(--muted); }
+.data-status:has(.chip) { display: flex; flex-wrap: wrap; gap: 6px; }
+.data-status .chip {
+  padding: 2px 9px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid var(--line, rgba(0, 0, 0, 0.14)); background: rgba(127, 178, 255, 0.06);
+  font: 11.5px var(--font-ui); font-variant-numeric: tabular-nums;
+}
+html[data-theme="light"] .data-status .chip { background: rgba(35, 31, 28, 0.04); }
 .sub-head {
   margin: 6px 0 0; display: flex; align-items: center; gap: 8px;
   font: 600 11px var(--font-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--te-ink);

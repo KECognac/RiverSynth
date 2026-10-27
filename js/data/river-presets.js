@@ -99,8 +99,8 @@ export const RIVER_FACTORY = [
     ],
   },
   {
-    // Headwaters: the Cache la Poudre, from the snowfields of Rocky Mountain National Park down
-    // to Fort Collins, heard as a basin filling and emptying. Soft, muted mallets flow up and
+    // Headwaters: the Animas at Durango, San Juan Mountains snowmelt bound for the San Juan
+    // River and the Colorado, heard as a basin filling and emptying. Soft, muted mallets flow up and
     // down through each day's D major chord (2 octaves, one note a day, carrying on from chord
     // to chord) in a mountain hall. Proportional note spread lets the melody sit low all winter,
     // climb through the snowmelt runoff and drain back down. The 30-day trend is the water level:
@@ -115,7 +115,7 @@ export const RIVER_FACTORY = [
       'delay.mix': 0.22,
       'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.3,
     },
-    gauge: { site: '06752260', recent: true },
+    gauge: { site: '09361500', recent: true },
     settings: { scale: 'Major', root: 2, low: 36, high: 60, bpm: 124, rate: '1/16', gate: 1, tie: false, voicing: 'triad', spread: 'proportional', log: true, roar: false, roarLevel: 0.3 },
     layer: { on: true, program: 'Alpine Horn', level: 0.45, octave: 0, every: 8, voicing: 'triad' },
     routes: [
@@ -124,6 +124,51 @@ export const RIVER_FACTORY = [
       { id: 'reverb.mix', source: 'trend', from: 0.12, to: 0.5 },
       { id: 'master.volume', source: 'trend', from: 0.55, to: 1 },
       { id: 'filter.cutoff', source: 'flow', from: 0.4, to: 0.8 },
+    ],
+  },
+  {
+    // Poudre Pickin': the Cache la Poudre at Fort Collins as a Nick Drake-style fingerpicked
+    // guitar. Each day the guitar rolls up and back down through that day's chord in D Dorian
+    // (arp Rise Fall 1), wistful rather than sad, with every note left to ring into the next
+    // like open strings, climbing with the snowmelt runoff and settling back down. A soft pick,
+    // warm tape wobble and a small, close room (no echo, no grit) keep it hushed and intimate.
+    // A bowed cello draws out a long note every fourth day (layer 2), in the spirit of
+    // Robert Kirby's string arrangements. Flow brightens the strings; a rising 30-day trend opens the room.
+    name: "Poudre Pickin'",
+    program: 'Prairie Guitar',
+    values: {
+      'voice.mode': 3, 'voice.depth': 0.5, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 1, 'arp.tempo': 80,
+      'multi.shape': 0.35, 'filter.cutoff': 2200,
+      'ampeg.attack': 0.004, 'ampeg.decay': 8, 'ampeg.release': 1.2,
+      'mod.mix': 0.1,
+      'tape.wow': 0.3, 'tape.flutter': 0.2,
+      'crush.on': 0, 'delay.on': 0,
+      'reverb.type': 1, 'reverb.time': 0.3, 'reverb.mix': 0.2,
+      'master.volume': 0.75,
+    },
+    gauge: { site: '06752260', recent: true },
+    settings: { scale: 'Dorian', root: 2, low: 38, high: 62, bpm: 80, rate: '1/16', gate: 1, tie: false, voicing: 'triad', spread: 'proportional', log: true, roar: false, roarLevel: 0.3 },
+    layer: { on: true, program: 'Bowed Cello', level: 0.2, octave: 0, every: 4, voicing: 'single' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.6 },
+      { id: 'reverb.mix', source: 'trend', from: 0.15, to: 0.3 },
+    ],
+  },
+  {
+    // Big River: the lower Mississippi at Vicksburg, carrying water from 31 states. A bowed
+    // cello holds each note into the next, so the melody meanders slowly and smoothly through
+    // F major, over a full bed of strings swelling every fourth step. Weekly-ish steps (3 days
+    // each) keep it unhurried; the rise and fall of the 30-day trend makes the whole band
+    // swell and recede, and higher water opens up the tone and the hall.
+    name: 'Big River',
+    program: 'Bowed Cello',
+    gauge: { site: '07289000', recent: true },
+    settings: { scale: 'Major', root: 5, low: 36, high: 60, log: true, bpm: 76, rate: '1/8', gate: 1, tie: true, loop: true, voicing: 'single', spread: 'even', daysPerStep: 3, combine: 'mean', roar: false, roarLevel: 0.3 },
+    layer: { on: true, program: 'PWM Strings', level: 0.3, octave: 0, every: 4, voicing: 'triad' },
+    routes: [
+      { id: 'filter.cutoff', source: 'flow', from: 0.4, to: 0.75 },
+      { id: 'reverb.mix', source: 'flow', from: 0.25, to: 0.45 },
+      { id: 'master.volume', source: 'trend', from: 0.7, to: 1 },
     ],
   },
   {
@@ -147,8 +192,9 @@ export const RIVER_FACTORY = [
   {
     // Your saved version (from "New Glacier Bells"), made gentler: both oscillators an octave
     // lower (the top bell partial used to ring near 6 kHz), the upper partial quieter, a softer
-    // strike, a darker filter that follows the keys and a warmer plate. Plays the Animas at
-    // Durango (San Juan Mountains snowmelt).
+    // strike, a darker filter that follows the keys and a warmer plate. Plays the Matanuska at
+    // Palmer, Alaska, fed by the Matanuska Glacier: low and iced over all winter, then a long
+    // summer of glacier melt.
     name: 'Glacier Bells',
     values: {
       'vco1.wave': 1, 'vco1.octave': 1, 'vco1.shape': 0.08, 'vco2.wave': 1,
@@ -159,7 +205,7 @@ export const RIVER_FACTORY = [
       'reverb.type': 2, 'reverb.time': 0.45, 'reverb.depth': 0.45, 'reverb.mix': 0.28,
       'master.volume': 0.75,
     },
-    gauge: { site: '09361500', recent: true },
+    gauge: { site: '15284000', recent: true },
     settings: { scale: 'Minor pentatonic', root: 9, low: 60, high: 84, log: true, bpm: 120, rate: '1/16', gate: 0.5, tie: true, loop: true, spread: 'even', roar: false, roarLevel: 0.45 },
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.72 },

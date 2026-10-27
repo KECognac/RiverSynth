@@ -117,8 +117,10 @@ arctic ice breakup, Colorado's mountains and plains), also starting on their lat
 any gauge number.
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →
-Sound routes, river roar and (for some) a gauge and dates. Nine sound presets are built in (Snowmelt Flute, Desert Twang,
-Flash Flood Pump, Lo-Fi Creek, Headwaters, Drip Flow, Glacier Bells, Drought Watch, Arctic Breakup), plus the river stories below, and **Save**
+Sound routes, river roar and (for some) a gauge and dates. Eleven sound presets are built in (Snowmelt Flute, Desert Twang,
+Flash Flood Pump, Lo-Fi Creek, Headwaters on the Animas, Poudre Pickin' (Nick Drake-style fingerpicked guitar
+and strings on the Cache la Poudre), Big River (smooth
+strings on the lower Mississippi), Drip Flow, Glacier Bells on Alaska's glacier-fed Matanuska, Drought Watch, Arctic Breakup), plus the river stories below, and **Save**
 stores your own in this browser. The app opens on the first one, Snowmelt Flute.
 
 **Compare: natural vs regulated** pairs two presets on the same gauge, the Colorado River at

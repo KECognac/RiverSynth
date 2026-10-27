@@ -6,6 +6,8 @@
 // User presets store the full sound, and live in this browser's localStorage.
 // Low/High must be C notes (the menus list C1-C8).
 // The first preset is the one the app opens with.
+// A gauge with `recent: true` plays the latest year: the 365 days up to yesterday, worked out
+// when the preset loads, so the everyday presets always show the river as it is now.
 
 export const RIVER_FACTORY = [
   {
@@ -18,7 +20,7 @@ export const RIVER_FACTORY = [
     program: 'Canyon Flute',
     // Quicker breath and release so the flute still speaks at 1/16 (about 40 s a year).
     values: { 'ampeg.attack': 0.05, 'ampeg.release': 0.3, 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.mix': 0.35, 'master.volume': 0.95 },
-    gauge: { site: '11264500', start: '2024-01-01', end: '2024-12-31' },
+    gauge: { site: '11264500', recent: true },
     settings: { scale: 'Minor pentatonic', root: 6, low: 48, high: 72, log: true, bpm: 132, rate: '1/16', gate: 0.95, tie: true, voicing: 'triad', spread: 'even', roar: false, roarLevel: 0.35 },
     layer: { on: true, program: 'Bowed Cello', level: 0.4, octave: -12, every: 4, voicing: 'single' },
     routes: [
@@ -36,7 +38,7 @@ export const RIVER_FACTORY = [
     name: 'Desert Twang',
     program: 'Twang Guitar',
     values: { 'voice.mode': 3, 'voice.depth': 6 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.8, 'arp.tempo': 90 },
-    gauge: { site: '09506000', start: '2024-01-01', end: '2024-12-31' },
+    gauge: { site: '09506000', recent: true },
     settings: { scale: 'Natural minor', root: 4, low: 36, high: 60, bpm: 90, rate: '1/16', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: false, roarLevel: 0.3 },
     layer: { on: true, program: 'Slide Guitar', level: 0.3, octave: 12, every: 4, voicing: 'single' },
     routes: [
@@ -60,7 +62,7 @@ export const RIVER_FACTORY = [
       'delay.on': 1, 'delay.type': 2, 'delay.time': 0.45, 'delay.depth': 0.45, 'delay.mix': 0.3, // dotted 1/8 at 100
       'reverb.on': 1, 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.depth': 0.55, 'reverb.mix': 0.35,
     },
-    gauge: { site: '16704000', start: '2024-01-01', end: '2024-12-31' },
+    gauge: { site: '16704000', recent: true },
     settings: { scale: 'Natural minor', root: 2, low: 36, high: 60, bpm: 100, rate: '1/4', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: false, roarLevel: 0.4 },
     layer: { on: true, program: 'Choir Pad', level: 0.3, octave: 24, every: 1, voicing: 'triad' },
     routes: [
@@ -88,7 +90,7 @@ export const RIVER_FACTORY = [
       'tape.on': 1, 'tape.wow': 0.15, 'tape.flutter': 0.08, 'tape.mix': 1,
       'master.volume': 0.5,
     },
-    gauge: { site: '01474000', start: '2024-01-01', end: '2024-12-31' },
+    gauge: { site: '01474000', recent: true },
     settings: { scale: 'Major', root: 5, low: 48, high: 72, log: true, bpm: 100, rate: '1/16', gate: 0.7, tie: true, loop: true, spread: 'even', roar: true, roarLevel: 0.3 },
     layer: { on: true, program: 'Drone Bass', level: 0.25, octave: 0, every: 1, voicing: 'single' },
     routes: [
@@ -113,7 +115,7 @@ export const RIVER_FACTORY = [
       'delay.mix': 0.22,
       'reverb.type': 0, 'reverb.time': 0.6, 'reverb.mix': 0.3,
     },
-    gauge: { site: '06752260', start: '2024-01-01', end: '2024-12-31' },
+    gauge: { site: '06752260', recent: true },
     settings: { scale: 'Major', root: 2, low: 36, high: 60, bpm: 124, rate: '1/16', gate: 1, tie: false, voicing: 'triad', spread: 'proportional', log: true, roar: false, roarLevel: 0.3 },
     layer: { on: true, program: 'Alpine Horn', level: 0.45, octave: 0, every: 8, voicing: 'triad' },
     routes: [
@@ -132,7 +134,7 @@ export const RIVER_FACTORY = [
     // brighter and bounce longer, stormy weeks shake the tape, wet stretches add reverb.
     name: 'Drip Flow',
     program: 'Water Drop',
-    gauge: { site: '11119500', start: '2024-01-01', end: '2024-12-31' },
+    gauge: { site: '11119500', recent: true },
     settings: { scale: 'Major pentatonic', root: 5, low: 60, high: 84, bpm: 100, rate: '1/16', gate: 0.3, tie: true, voicing: 'single', spread: 'even', log: true, roar: true, roarLevel: 0.2 },
     layer: { on: true, program: 'River Pad', level: 0.2, octave: -12, every: 8, voicing: 'single' },
     routes: [
@@ -156,7 +158,7 @@ export const RIVER_FACTORY = [
       'reverb.type': 2, 'reverb.time': 0.45, 'reverb.depth': 0.45, 'reverb.mix': 0.28,
       'master.volume': 0.75,
     },
-    gauge: { site: '06752260', start: '2024-01-01', end: '2024-12-31' },
+    gauge: { site: '06752260', recent: true },
     settings: { scale: 'Minor pentatonic', root: 9, low: 60, high: 84, log: true, bpm: 120, rate: '1/16', gate: 0.5, tie: true, loop: true, spread: 'even', roar: false, roarLevel: 0.45 },
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.72 },
@@ -178,7 +180,7 @@ export const RIVER_FACTORY = [
       'delay.type': 1, 'delay.time': 0.45, 'delay.depth': 0.45, 'delay.mix': 0.25,
       'reverb.on': 1, 'reverb.type': 5, 'reverb.time': 0.7, 'reverb.mix': 0.288,
     },
-    gauge: { site: '06752260', start: '2024-01-01', end: '2024-12-31' },
+    gauge: { site: '06752260', recent: true },
     settings: { scale: 'Minor pentatonic', root: 2, low: 36, high: 60, log: true, bpm: 80, rate: '1/32', gate: 0.9, tie: true, loop: true, spread: 'even', roar: true, roarLevel: 0.4 },
     routes: [
       { id: 'vco1.shape', source: 'anomaly', from: 0, to: 1 },
@@ -192,7 +194,8 @@ export const RIVER_FACTORY = [
     // and the river roar rumbles underneath.
     name: 'Arctic Breakup',
     program: 'Drift Bells',
-    gauge: { site: '15565447', start: '2024-01-01', end: '2024-12-31' },
+    // The latest year with the spring breakup filled in (USGS adds ice-season data months later).
+    gauge: { site: '15565447', start: '2025-01-01', end: '2025-12-31' },
     settings: { scale: 'Minor pentatonic', root: 2, low: 60, high: 96, bpm: 110, rate: '1/16', gate: 0.4, tie: false, spread: 'even', log: true, roar: true, roarLevel: 0.45 },
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.95 },

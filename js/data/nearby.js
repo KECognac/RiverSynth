@@ -13,6 +13,42 @@ export async function zipToLatLon(zip) {
   return { lat: +p.latitude, lon: +p.longitude, place: `${p['place name']}, ${p['state abbreviation']}` };
 }
 
+// "Lowell, MA", "Lowell MA" or "Lowell, Massachusetts" -> { lat, lon, place } using the free
+// Open-Meteo place search (no key, allows browser requests). The state, if given, picks the
+// right town among same-named ones; otherwise the best-known match wins.
+const STATE_NAMES = {
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado',
+  CT: 'Connecticut', DE: 'Delaware', DC: 'District of Columbia', FL: 'Florida', GA: 'Georgia',
+  HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa', KS: 'Kansas', KY: 'Kentucky',
+  LA: 'Louisiana', ME: 'Maine', MD: 'Maryland', MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota',
+  MS: 'Mississippi', MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire',
+  NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota',
+  OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', PR: 'Puerto Rico', RI: 'Rhode Island',
+  SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont',
+  VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
+};
+const ABBR = Object.fromEntries(Object.entries(STATE_NAMES).map(([a, n]) => [n.toLowerCase(), a]));
+export async function placeToLatLon(query) {
+  let town = query.trim().replace(/\s+/g, ' ');
+  let state = null;
+  const parts = town.split(',').map((p) => p.trim()).filter(Boolean);
+  if (parts.length > 1 && (STATE_NAMES[parts.at(-1).toUpperCase()] || ABBR[parts.at(-1).toLowerCase()])) {
+    const last = parts.pop();
+    state = STATE_NAMES[last.toUpperCase()] ? last.toUpperCase() : ABBR[last.toLowerCase()];
+    town = parts.join(', ');
+  } else {
+    const m = town.match(/^(.+?) ([A-Za-z]{2})$/); // "Lowell MA"
+    if (m && STATE_NAMES[m[2].toUpperCase()]) { town = m[1]; state = m[2].toUpperCase(); }
+  }
+  const params = new URLSearchParams({ name: town, count: '20', language: 'en', format: 'json', countryCode: 'US' });
+  const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${params}`);
+  if (!res.ok) throw new Error(`Place search failed (${res.status})`);
+  const results = (await res.json()).results ?? [];
+  const p = results.find((r) => !state || r.admin1 === STATE_NAMES[state]);
+  if (!p) throw new Error(`"${query.trim()}" wasn't found`);
+  return { lat: p.latitude, lon: p.longitude, place: `${p.name}, ${ABBR[p.admin1?.toLowerCase()] ?? p.admin1 ?? 'US'}` };
+}
+
 export function browserLocation() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) { reject(new Error('This browser has no location access')); return; }

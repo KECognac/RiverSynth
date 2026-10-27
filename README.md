@@ -87,7 +87,7 @@ js/data/usgs.js                 fetch USGS daily values in the browser; parse CS
 js/data/player.js               data → notes mapping, scheduler and chart
 js/data/features.js             derived signals: change, anomaly vs normal, trend, turbulence
 js/data/gauges.js               the River menu's gauges
-js/data/nearby.js               find the nearest active gauges to a location or ZIP code
+js/data/nearby.js               find the nearest active gauges to a location, ZIP code or town
 js/data/river-presets.js        built-in river presets and saved user ones
 js/data/midi.js                 MIDI file export
 js/ui/midi-input.js             MIDI keyboard input
@@ -110,10 +110,11 @@ You can try these in the browser's developer console, where the synth is availab
 
 The **River Data** panel loads daily mean discharge for any USGS gauge, straight from the
 [USGS Water Data API](https://api.waterdata.usgs.gov) in the browser. No Python is needed for
-this part. It opens on the **Merced River in Yosemite (11264500)** for 2024 (the Snowmelt Flute preset),
-and the **River** menu has about thirty more with very different characters (snowmelt, tropical flash
-floods, giant rivers, dam-controlled flow, arctic ice breakup, Colorado's mountains and plains), or
-type any gauge number.
+this part. It opens on the **Merced River in Yosemite (11264500)** (the Snowmelt Flute preset) for
+the latest year, the 365 days up to yesterday, and the **River** menu has about thirty more with
+very different characters (snowmelt, tropical flash floods, giant rivers, dam-controlled flow,
+arctic ice breakup, Colorado's mountains and plains), also starting on their latest year, or type
+any gauge number.
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →
 Sound routes, river roar and (for some) a gauge and dates. Nine sound presets are built in (Snowmelt Flute, Desert Twang,
@@ -152,7 +153,7 @@ decades of groundwater pumping from the Ogallala Aquifer and upstream diversions
 
 **Find a river near you** (under the chart, next to the gauge number and dates) lists the five
 nearest active USGS stream gauges, either from your browser's location (**📍 Near me**) or from a
-ZIP code. Only river and stream gauges that reported daily flow in the last 120 days are listed
+ZIP code or town (like "Lowell, MA"). Only river and stream gauges that reported daily flow in the last 120 days are listed
 (no canals, ditches, wells or lakes), and the search widens up to 150 miles until it finds some.
 Click one to load it. You can also browse the
 [USGS map](https://waterdata.usgs.gov/explore/) and type any gauge number into **USGS gauge**.
@@ -245,8 +246,9 @@ Streamflow data comes from the U.S. Geological Survey through the
 [USGS Water Data API](https://api.waterdata.usgs.gov). USGS data is in the public domain; please
 credit the USGS as the data source.
 
-ZIP code searches are looked up with the free [Zippopotam.us](https://zippopotam.us) service, so
-the ZIP code is sent there. **Near me** stays in the browser apart from a search area sent to the
+ZIP code searches are looked up with the free [Zippopotam.us](https://zippopotam.us) service, and
+town names with the free [Open-Meteo](https://open-meteo.com) place search, so what you type is
+sent there. **Near me** stays in the browser apart from a search area sent to the
 USGS.
 
 Fonts: [Geist and Geist Mono](https://vercel.com/font) (Vercel) and

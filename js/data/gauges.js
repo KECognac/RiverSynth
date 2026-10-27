@@ -1,5 +1,5 @@
 // A starter list of USGS stream gauges with very different personalities for the River
-// menu. All checked to have daily discharge for 2024.
+// menu. All checked to have daily discharge for 2024; the menu plays each one's latest year.
 export const GAUGES = [
   { id: '06752260', name: 'Cache la Poudre River, Fort Collins, CO', note: 'snowmelt' },
   { id: '09361500', name: 'Animas River, Durango, CO', note: 'San Juan Mountains snowmelt' },

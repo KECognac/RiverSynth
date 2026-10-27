@@ -8,7 +8,7 @@ import { DataPlayer, DataChart, SCALES, RATES } from './data/player.js';
 import { fetchDaily, fetchSiteName, parseCsv } from './data/usgs.js';
 import { SOURCES } from './data/features.js';
 import { GAUGES } from './data/gauges.js';
-import { browserLocation, zipToLatLon, nearestGauges, prettyName } from './data/nearby.js';
+import { browserLocation, zipToLatLon, placeToLatLon, nearestGauges, prettyName } from './data/nearby.js';
 import { RIVER_FACTORY, loadRiverPresets, saveRiverPresets } from './data/river-presets.js';
 import { buildMidi } from './data/midi.js';
 import { randomPatch, mutate } from './randomize.js';
@@ -489,6 +489,17 @@ chart.onFrame = (step) => {
   dataNow.textContent = `${row.date} · ${row.value == null ? 'no data' : `${row.value.toLocaleString(undefined, { maximumFractionDigits: row.value < 10 ? 2 : 0 })} cfs${pctNormal}`} · ${note == null ? 'rest' : noteName(note)}`;
 };
 
+// The latest year of data: the 365 days up to yesterday (today's daily mean isn't out yet).
+function recentYear() {
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const end = new Date();
+  end.setDate(end.getDate() - 1);
+  const start = new Date(end);
+  start.setDate(start.getDate() - 364);
+  return [iso(start), iso(end)];
+}
+[$('#data-start').value, $('#data-end').value] = recentYear(); // picking a river from the menu plays its latest year
+
 let riverLabel = '';
 // The line under the chart: small chips for the dates, length, flow range and (once the
 // history loads) the years behind the normal line. The river's name is in the River menu.
@@ -652,16 +663,19 @@ async function findNearby(getPoint, where) {
     markNearbyPick();
   } catch (err) {
     if (token !== nearbyToken) return;
-    const hint = /blocked|location/i.test(err.message) ? ' Try a ZIP code instead.' : '';
+    const hint = /blocked|location/i.test(err.message) ? ' Try a ZIP code or town instead.' : '';
     showNearbyMessage(`${err.message}.${hint}`);
     if (hint) $('#near-zip').focus();
   }
 }
 $('#near-me').addEventListener('click', () => findNearby(browserLocation, 'near you'));
+// A 5-digit ZIP code, or a place name like "Lowell, MA".
 function searchZip() {
-  const zip = $('#near-zip').value.trim();
-  if (!/^\d{5}$/.test(zip)) { showNearbyMessage('Enter a 5-digit ZIP code.'); $('#near-zip').focus(); return; }
-  findNearby(() => zipToLatLon(zip), `near ${zip}`);
+  const q = $('#near-zip').value.trim();
+  if (!q) { showNearbyMessage('Enter a ZIP code or a town, like "Lowell, MA".'); $('#near-zip').focus(); return; }
+  if (/^\d{5}$/.test(q)) findNearby(() => zipToLatLon(q), `near ${q}`);
+  else if (/^\d+$/.test(q)) { showNearbyMessage('Enter a 5-digit ZIP code.'); $('#near-zip').focus(); }
+  else findNearby(() => placeToLatLon(q), `near ${q}`);
 }
 $('#near-zip-go').addEventListener('click', searchZip);
 $('#near-zip').addEventListener('keydown', (e) => { if (e.key === 'Enter') searchZip(); });
@@ -903,9 +917,10 @@ function applyRiverPreset(key) {
   $('#river-preset-delete').disabled = kind !== 'ru';
   commitNow();
   if (rp.gauge) {
+    const [start, end] = rp.gauge.recent ? recentYear() : [rp.gauge.start, rp.gauge.end];
     $('#data-site').value = rp.gauge.site;
-    $('#data-start').value = rp.gauge.start;
-    $('#data-end').value = rp.gauge.end;
+    $('#data-start').value = start;
+    $('#data-end').value = end;
     syncGaugeSel();
     loadFromUsgs();
   }

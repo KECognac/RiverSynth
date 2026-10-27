@@ -69,8 +69,8 @@
       <h3 class="sub-head">Where &amp; when</h3>
       <div class="data-row">
         <label>USGS gauge<input id="data-site" type="text" value="06752260" inputmode="numeric" maxlength="15" size="10"></label>
-        <label>Start<input id="data-start" type="date" value="2024-01-01"></label>
-        <label>End<input id="data-end" type="date" value="2024-12-31"></label>
+        <label>Start<input id="data-start" type="date" value="2025-01-01"></label>
+        <label>End<input id="data-end" type="date" value="2025-12-31"></label>
         <button id="data-load" type="button">Load from USGS</button>
         <label class="button">Load CSV<input id="data-csv" type="file" accept=".csv,text/csv" hidden></label>
       </div>
@@ -78,7 +78,7 @@
         <span class="nearby-label">Find a river near you</span>
         <button id="near-me" type="button" title="Use this browser's location to list the nearest active USGS stream gauges">📍 Near me</button>
         <span class="nearby-or">or</span>
-        <input id="near-zip" type="text" inputmode="numeric" maxlength="5" size="6" placeholder="ZIP code" aria-label="ZIP code">
+        <input id="near-zip" type="text" maxlength="60" size="16" placeholder="ZIP or town, ST" aria-label="ZIP code or town and state" autocomplete="off">
         <button id="near-zip-go" type="button">Search</button>
         <a class="find-gauge" href="https://waterdata.usgs.gov/explore/" target="_blank" rel="noopener" title="Open the USGS map in a new tab, pick a stream gauge and copy its site number into USGS gauge">or browse the USGS map ↗</a>
       </div>

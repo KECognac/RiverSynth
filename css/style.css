@@ -461,6 +461,7 @@ html[data-theme="light"] .data-status .chip { background: rgba(35, 31, 28, 0.04)
 .data-more-body { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
 
 /* small "i" that shows the longer explanation on hover or focus */
+.csv-load { display: inline-flex; align-items: center; gap: 6px; }
 .info {
   position: relative; display: inline-grid; place-items: center;
   width: 16px; height: 16px; margin-left: 4px; vertical-align: 1px;
@@ -478,6 +479,8 @@ html[data-theme="light"] .data-status .chip { background: rgba(35, 31, 28, 0.04)
   opacity: 0; visibility: hidden; transition: opacity 0.12s; pointer-events: none; z-index: 20;
 }
 .info:hover::after, .info:focus-visible::after { opacity: 1; visibility: visible; }
+/* near the left edge: open to the right of the icon instead of centred on it */
+.info.tip-right::after { left: -60px; transform: none; max-width: min(300px, 75vw); }
 
 /* link to the USGS map for finding a gauge number */
 .find-gauge {

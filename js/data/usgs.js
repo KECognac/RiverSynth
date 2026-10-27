@@ -63,5 +63,5 @@ export function parseCsv(text) {
     const cells = line.split(',');
     const v = Number(cells[valueCol]);
     return { date: cells[dateCol]?.trim().slice(0, 10), value: cells[valueCol] === '' || isNaN(v) ? null : v };
-  }).filter((r) => r.date);
+  }).filter((r) => /^\d{4}-\d{2}-\d{2}$/.test(r.date ?? ''));
 }

@@ -161,7 +161,8 @@ Click one to load it. You can also browse the
 The rest of the river controls (Music, Layer 2, Data → Sound, Save & export) are folded under
 **Settings** so the first view stays simple; the app remembers whether you left it open.
 
-After loading, the app also fetches the gauge's full daily record in the background to work out
+Changing a start or end date reloads the data by itself (after a short pause, so typing a year
+doesn't fire a request per digit). After loading, the app also fetches the gauge's full daily record in the background to work out
 the **normal** (median) flow for each date, drawn as a dashed line on the chart.
 
 - Each day becomes one step and its flow picks a note from the chosen **Scale** and **Key**
@@ -206,8 +207,9 @@ the **normal** (median) flow for each date, drawn as a dashed line on the chart.
   44.1 kHz stereo WAV, offline and faster than real time: a year at 1/16 notes takes a few
   seconds. **Export MIDI** saves the notes plus the river signals as controllers (CC 20 Flow,
   21 Change, 22 Anomaly, 23 Trend, 24 Turbulence), so a music program can map them to any knob.
-- **Load CSV** accepts files from the Python helper below, or any CSV with a date column and a
-  value column.
+- **Load CSV** accepts files from the Python helper below, or any CSV with a date column
+  (YYYY-MM-DD) and a flow column in cfs, one row per day; a header row naming them (like
+  `date,discharge_cfs`) is optional.
 
 Notes from the data are scheduled with exact audio-clock times
 (`synth.noteOn(note, velocity, time)`), so playback stays in time.

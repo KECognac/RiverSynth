@@ -72,7 +72,8 @@
         <label>Start<input id="data-start" type="date" value="2025-01-01"></label>
         <label>End<input id="data-end" type="date" value="2025-12-31"></label>
         <button id="data-load" type="button">Load from USGS</button>
-        <label class="button">Load CSV<input id="data-csv" type="file" accept=".csv,text/csv" hidden></label>
+        <span class="csv-load"><label class="button" title="A CSV with a date column (YYYY-MM-DD) and a flow column in cfs, one row per day. A header row is optional: the columns are found by names like date and discharge_cfs (or value), otherwise the first two columns are used.">Load CSV<input id="data-csv" type="file" accept=".csv,text/csv" hidden></label>
+        <span class="info tip-right" tabindex="0" role="note" aria-label="A CSV with a date column (YYYY-MM-DD) and a flow column in cfs, one row per day. A header row is optional: the columns are found by names like date and discharge_cfs (or value), otherwise the first two columns are used." data-tip="A CSV with a date column (YYYY-MM-DD) and a flow column in cfs, one row per day. A header row is optional: the columns are found by names like date and discharge_cfs (or value), otherwise the first two columns are used.">i</span></span>
       </div>
       <div class="nearby-row">
         <span class="nearby-label">Find a river near you</span>

@@ -147,7 +147,8 @@ export const RIVER_FACTORY = [
   {
     // Your saved version (from "New Glacier Bells"), made gentler: both oscillators an octave
     // lower (the top bell partial used to ring near 6 kHz), the upper partial quieter, a softer
-    // strike, a darker filter that follows the keys and a warmer plate.
+    // strike, a darker filter that follows the keys and a warmer plate. Plays the Animas at
+    // Durango (San Juan Mountains snowmelt).
     name: 'Glacier Bells',
     values: {
       'vco1.wave': 1, 'vco1.octave': 1, 'vco1.shape': 0.08, 'vco2.wave': 1,
@@ -158,7 +159,7 @@ export const RIVER_FACTORY = [
       'reverb.type': 2, 'reverb.time': 0.45, 'reverb.depth': 0.45, 'reverb.mix': 0.28,
       'master.volume': 0.75,
     },
-    gauge: { site: '06752260', recent: true },
+    gauge: { site: '09361500', recent: true },
     settings: { scale: 'Minor pentatonic', root: 9, low: 60, high: 84, log: true, bpm: 120, rate: '1/16', gate: 0.5, tie: true, loop: true, spread: 'even', roar: false, roarLevel: 0.45 },
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.72 },

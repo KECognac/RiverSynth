@@ -588,6 +588,21 @@ async function loadFromUsgs() {
 }
 $('#data-load').addEventListener('click', loadFromUsgs);
 
+// Changing a date reloads by itself, after a short pause so typing a year digit by digit
+// doesn't fire a request for each one. Partial or backwards dates wait for a fix.
+let dateTimer = 0;
+function datesChanged() {
+  clearTimeout(dateTimer);
+  dateTimer = setTimeout(() => {
+    const site = $('#data-site').value.trim();
+    const start = $('#data-start').value, end = $('#data-end').value;
+    if (!site || !start || !end || start > end || start < '1850-01-01') return;
+    loadFromUsgs();
+  }, 800);
+}
+$('#data-start').addEventListener('change', datesChanged);
+$('#data-end').addEventListener('change', datesChanged);
+
 // River picker: choosing one fills in the gauge number and loads it.
 const gaugeSel = $('#data-gauge');
 for (const g of GAUGES) gaugeSel.append(new Option(`${g.name} — ${g.note}`, g.id));
@@ -688,7 +703,7 @@ $('#data-csv').addEventListener('change', async (e) => {
   ++loadToken;
   noteFor = null; riverNote.hidden = true;
   if (rows.length) showSeries(rows, file.name, null, file.name);
-  else dataStatus.textContent = `${file.name}: no date/value rows found.`;
+  else dataStatus.textContent = `${file.name}: no rows found. The CSV needs a date column (YYYY-MM-DD) and a flow column in cfs, like "date,discharge_cfs".`;
 });
 
 // --- Data → Sound routes -----------------------------------------------------------

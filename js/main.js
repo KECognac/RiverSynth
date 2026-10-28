@@ -13,6 +13,7 @@ import { RIVER_FACTORY, loadRiverPresets, saveRiverPresets } from './data/river-
 import { buildMidi } from './data/midi.js';
 import { randomPatch, mutate } from './randomize.js';
 import { MidiInput } from './ui/midi-input.js';
+import { SimpleView } from './ui/simple.js';
 
 const synth = new Synth();
 window.synth = synth; // handy for experimenting from the browser console
@@ -181,6 +182,7 @@ function loadPreset(key) {
   presetName.value = preset.name;
   commitNow();
   $('#delete-preset').disabled = kind !== 'u';
+  simple.capture();
   scope.show('Program', preset.name);
 }
 
@@ -930,6 +932,7 @@ function applyRiverPreset(key) {
   riverName.value = rp.name;
   showRiverNote(rp);
   $('#river-preset-delete').disabled = kind !== 'ru';
+  simple.capture();
   commitNow();
   if (rp.gauge) {
     const [start, end] = rp.gauge.recent ? recentYear() : [rp.gauge.start, rp.gauge.end];
@@ -968,6 +971,42 @@ $('#river-preset-delete').addEventListener('click', () => {
   scope.show('Deleted', removed.name);
 });
 fillRiverPresets('');
+
+// --- Simple view -------------------------------------------------------------------------
+// Instrument cards and four sliders in place of the knob panel (the default). Advanced shows
+// the full panel; the choice is remembered in this browser.
+const simple = new SimpleView($('#simple'), {
+  synth, player, factory: FACTORY,
+  getRoutes: () => routes,
+  setRoutes: (r) => { routes = r; applyRoutes(); },
+  setSetting: (key, value) => { player.set(key, value); setDataControl(key, value); },
+  getProgramName: () => presetName.value,
+  onProgram: (name) => {
+    const prog = FACTORY.find((p) => p.name === name);
+    presetName.value = name;
+    presetSelect.value = prog ? `f:${FACTORY.indexOf(prog)}` : '';
+    if (prog) scope.show('Instrument', name);
+  },
+  onChange: () => commitSoon(),
+});
+const synthArea = $('.synth-area');
+const viewBtns = synthArea.querySelectorAll('.view-toggle button');
+function setView(view) {
+  const wasSimple = synthArea.classList.contains('is-simple');
+  const isSimple = view === 'simple';
+  if (wasSimple && !isSimple) simple.leave();
+  if (!wasSimple && isSimple) simple.enter();
+  synthArea.classList.toggle('is-simple', isSimple);
+  viewBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
+  try { localStorage.setItem('synthwork.view', view); } catch {}
+}
+viewBtns.forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+try {
+  if (localStorage.getItem('synthwork.view') === 'advanced') {
+    synthArea.classList.remove('is-simple');
+    viewBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === 'advanced')));
+  }
+} catch {}
 
 // --- Export the river song -------------------------------------------------------------
 function songName(ext) {
@@ -1040,6 +1079,7 @@ if (sharedLoaded) {
   riverSel.value = 'rf:0';
   applyRiverPreset('rf:0');
 }
+simple.capture();
 window.addEventListener('pointerdown', () => ensureAudio(), { once: true });
 window.addEventListener('keydown', () => ensureAudio(), { once: true });
 

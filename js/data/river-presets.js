@@ -40,7 +40,7 @@ export const RIVER_FACTORY = [
     values: { 'voice.mode': 3, 'voice.depth': 6 / 12, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 0.8, 'arp.tempo': 90 },
     gauge: { site: '09506000', recent: true },
     settings: { scale: 'Natural minor', root: 4, low: 36, high: 60, bpm: 90, rate: '1/16', gate: 1, tie: false, voicing: 'triad', spread: 'even', log: true, roar: false, roarLevel: 0.3 },
-    layer: { on: true, program: 'Slide Guitar', level: 0.3, octave: 12, every: 4, voicing: 'single' },
+    layer: { on: true, program: 'Slide Guitar', level: 0.22, octave: 12, every: 4, voicing: 'single' },
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.8 },
       { id: 'delay.depth', source: 'change', from: 0.25, to: 0.55 },

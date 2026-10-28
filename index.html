@@ -177,14 +177,20 @@
       </details>
     </section>
 
-    <section class="synth-area step" aria-labelledby="synth-title">
+    <section class="synth-area step is-simple" aria-labelledby="synth-title">
       <div class="step-head">
         <span class="step-num" aria-hidden="true">02</span>
         <div>
           <h2 id="synth-title">Modulate</h2>
-          <p class="step-hint">Shape the sound. Drag a knob up or down (double-click resets it), or hit 🎲 Random for a surprise.</p>
+          <p class="step-hint step-hint-simple">Pick an instrument and shape the sound with four sliders. The middle of each slider is the preset's own sound.</p>
+          <p class="step-hint step-hint-advanced">Shape the sound. Drag a knob up or down (double-click resets it), or hit 🎲 Random for a surprise.</p>
+        </div>
+        <div class="view-toggle" role="group" aria-label="View">
+          <button type="button" data-view="simple" aria-pressed="true">Simple</button>
+          <button type="button" data-view="advanced" aria-pressed="false">Advanced</button>
         </div>
       </div>
+      <div id="simple" class="simple"></div>
       <div class="programs">
         <label class="quick">Program<select id="preset"></select></label>
         <div class="row">

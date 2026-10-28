@@ -744,3 +744,41 @@ html[data-theme="light"] .switch button[aria-checked="true"] { font-weight: 600;
 
 /* 03: keyboard */
 html[data-theme="light"] .keys { border-radius: 0 0 12px 12px; }
+
+/* =====================================================================================
+   Simple view (step 02): instrument cards and four sliders in place of the knob panel.
+   ===================================================================================== */
+.synth-area .step-head { flex-wrap: wrap; }
+.view-toggle { margin-left: auto; display: flex; }
+.view-toggle button { border-radius: 0; padding: 6px 14px; }
+.view-toggle button:first-child { border-radius: 8px 0 0 8px; }
+.view-toggle button:last-child { border-radius: 0 8px 8px 0; border-left-width: 0; }
+.view-toggle button[aria-pressed="true"] { background: var(--te-ink); color: #fff; border-color: var(--te-ink); }
+.synth-area.is-simple .programs, .synth-area.is-simple .panel, .synth-area.is-simple .step-hint-advanced { display: none; }
+.synth-area:not(.is-simple) .simple, .synth-area:not(.is-simple) .step-hint-simple { display: none; }
+
+.simple { display: grid; gap: 14px; max-width: 760px; }
+.simple-label { font: 600 11px var(--font-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: -6px; }
+.simple-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+.simple-card {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 6px; border-radius: 12px; font-size: 13px;
+}
+.simple-icon { display: block; height: 24px; line-height: 0; }
+.simple-card[aria-pressed="true"] .simple-icon { color: var(--te-orange); }
+html[data-theme="dark"] .simple-card[aria-pressed="true"] .simple-icon { color: var(--acc-yellow); }
+.simple-card[aria-pressed="true"] { border: 2px solid var(--te-orange); padding: 9px 5px; }
+.simple-sliders { display: grid; gap: 10px; }
+.simple-slider { display: grid; grid-template-columns: 110px minmax(0, 1fr); column-gap: 14px; align-items: center; }
+.simple-name { grid-row: span 2; display: flex; flex-direction: column; font: 600 14px var(--font-ui); }
+.simple-name output { font: 400 12px var(--font-mono); color: var(--muted); min-height: 1.2em; }
+.simple-slider input[type="range"] { width: 100%; accent-color: var(--te-orange); }
+.simple-ends { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.simple-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+html[data-theme="dark"] .view-toggle button[aria-pressed="true"] { background: var(--acc-yellow); color: #0b1322; border-color: var(--acc-yellow); }
+html[data-theme="dark"] .simple-card[aria-pressed="true"] { border-color: var(--acc-yellow); }
+html[data-theme="dark"] .simple-slider input[type="range"] { accent-color: var(--acc-yellow); }
+@media (max-width: 560px) {
+  .simple-slider { grid-template-columns: 78px minmax(0, 1fr); column-gap: 10px; }
+  .view-toggle { margin-left: 0; }
+}

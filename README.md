@@ -127,8 +127,8 @@ any gauge number.
 
 Above the chart, **River preset** recalls a whole setup at once: sound, scale and speed, Data →
 Sound routes, river roar and (for some) a gauge and dates. Eleven sound presets are built in (Snowmelt Flute, Desert Twang,
-Flash Flood Pump, Lo-Fi Creek, Headwaters on the Animas, Poudre Pickin' (Nick Drake-style fingerpicked guitar
-and strings on the Cache la Poudre), Big River (smooth
+Flash Flood Pump, Lo-Fi Creek, Headwaters on the Animas, Poudre Pickin' (old-time acoustic guitar in F# Mixolydian,
+melody on the beat and a drone string on the off-beat, on the Cache la Poudre), Big River (smooth
 strings on the lower Mississippi), Drip Flow, Glacier Bells on Alaska's glacier-fed Matanuska, Drought Watch, Arctic Breakup), plus the river stories below, and **Save**
 stores your own in this browser. The app opens on the first one, Snowmelt Flute.
 
@@ -216,8 +216,10 @@ says how many days were filled in or missing.
 - **Layer 2** adds a second sound playing the same river: pick any program (or copy the main
   sound), then set its level, octave, how often it plays (every 1–16 days, each note held for its
   span) and single notes or triads. Sustained programs like Drone Bass, Upright Bass, Bowed
-  Cello, Shruti Drone and River Pad are made for it. River presets save it; WAV export includes
-  it and MIDI export puts it on channel 2.
+  Cello, Shruti Drone and River Pad are made for it. **Drone** makes it hold one fixed note
+  instead of following the river (like a banjo's short thumb string; it rests when the river
+  does), and **Off-beat** plays it half a step late, between the main notes. River presets save
+  it; WAV export includes it and MIDI export puts it on channel 2.
 - **River roar** adds a continuous rushing-water layer whose loudness and brightness follow the
   flow: a quiet trickle at low flow, a bright roar at high flow.
 - **Export WAV** renders the whole river song (start to end, plus a tail for reverb) to a

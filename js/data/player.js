@@ -83,7 +83,8 @@ export class DataPlayer {
     };
     this.history = null;   // long daily record for the same gauge, for "normal" flows
     // Layer 2: a second sound playing the same river, shifted and paced on its own.
-    this.layer = { on: false, octave: 0, every: 4, voicing: 'single' };
+    this.layer = { on: false, octave: 0, every: 4, voicing: 'single', drone: null, offbeat: false };
+                           // drone: a MIDI note held fixed instead of following the river; offbeat: play half a step late
     this.position = 0;     // step to start from
     this.playing = false;
     this.timeline = [];    // [{ time, step }] of scheduled steps, for the playhead
@@ -213,14 +214,18 @@ export class DataPlayer {
 
   setLayer(key, value) { this.layer[key] = value; }
 
-  // Layer 2 plays every Nth day, shifted by its octave, held for its whole span.
+  // Layer 2 plays every Nth day, shifted by its octave, held for its whole span. With a drone
+  // it plays one fixed note instead (like a banjo's short thumb string), resting when the
+  // river does; off-beat moves it half a step later, between the melody notes.
   scheduleLayer(i, t) {
-    const { on, every, octave, voicing } = this.layer;
+    const { on, every, octave, voicing, drone, offbeat } = this.layer;
     if (!on || i % every !== 0) return;
-    const chord = this.chordAt(i, voicing).map((n) => n + octave).filter((n) => n >= 0 && n <= 127);
+    const chord = drone != null ? (this.notes[i] == null ? [] : [drone])
+      : this.chordAt(i, voicing).map((n) => n + octave).filter((n) => n >= 0 && n <= 127);
+    const start = t + (offbeat ? this.stepDur / 2 : 0);
     const end = t + this.stepDur * every * 0.95;
     for (const n of chord) {
-      this.synth.layerNoteOn(n, t);
+      this.synth.layerNoteOn(n, start);
       this.synth.layerNoteOff(n, end);
     }
   }

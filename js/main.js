@@ -840,8 +840,10 @@ function layerState() {
 }
 // Restore layer 2 from a river preset (or switch it off if the preset has none).
 function setLayerState(layer) {
-  const l = { on: false, octave: 0, every: 4, voicing: 'single', level: 0.6, program: 'Love Cry Sub', ...layer };
-  for (const k of ['on', 'octave', 'every', 'voicing']) player.setLayer(k, l[k]);
+  const l = { on: false, octave: 0, every: 4, voicing: 'single', drone: null, offbeat: false, level: 0.6, program: 'Love Cry Sub', ...layer };
+  for (const k of ['on', 'octave', 'every', 'voicing', 'drone', 'offbeat']) player.setLayer(k, l[k]);
+  $('#layer-drone').value = l.drone == null ? '' : String(l.drone);
+  $('#layer-offbeat').checked = !!l.offbeat;
   $('#layer-on').checked = !!l.on;
   $('#layer-octave').value = String(l.octave);
   $('#layer-every').value = String(l.every);
@@ -863,6 +865,9 @@ $('#layer-on').addEventListener('input', (e) => player.setLayer('on', e.target.c
 $('#layer-octave').addEventListener('input', (e) => player.setLayer('octave', Number(e.target.value)));
 $('#layer-every').addEventListener('input', (e) => player.setLayer('every', Number(e.target.value)));
 $('#layer-voicing').addEventListener('input', (e) => player.setLayer('voicing', e.target.value));
+fillSelect($('#layer-drone'), [['', 'Off'], ...Array.from({ length: 37 }, (_, i) => [48 + i, noteName(48 + i)])], '');
+$('#layer-drone').addEventListener('input', (e) => player.setLayer('drone', e.target.value === '' ? null : Number(e.target.value)));
+$('#layer-offbeat').addEventListener('input', (e) => player.setLayer('offbeat', e.target.checked));
 $('#layer-level').addEventListener('input', (e) => synth.setLayerLevel(Number(e.target.value)));
 $('#layer-copy').addEventListener('click', () => {
   layerCustom = { ...synth.values, ...(player.playing ? player.base : {}) }; // the patch without live data changes

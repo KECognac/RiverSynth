@@ -9,6 +9,18 @@
 // A gauge with `recent: true` plays the latest year: the 365 days up to yesterday, worked out
 // when the preset loads, so the everyday presets always show the river as it is now.
 
+// A plain acoustic steel-string guitar from the plucked-string model (Prairie Guitar without
+// its chorus, tape and slapback): a natural pick, a woody body resonance and a small room.
+const ACOUSTIC_GUITAR = {
+  'mixer.vco1': 0, 'mixer.vco2': 0,
+  'multi.type': 2, 'multi.shape': 0.5, 'mixer.multi': 1,
+  'filter.cutoff': 3000, 'filter.resonance': 0.15, 'filter.keytrack': 1,
+  'ampeg.attack': 0.001, 'ampeg.decay': 2.5, 'ampeg.sustain': 0, 'ampeg.release': 0.5,
+  'mod.on': 0, 'tape.on': 0, 'delay.on': 0,
+  'reverb.on': 1, 'reverb.type': 1, 'reverb.time': 0.3, 'reverb.mix': 0.16,
+  'master.volume': 1,
+};
+
 export const RIVER_FACTORY = [
   {
     // A Native American-style flute over Sierra snowmelt (Merced River, Yosemite): Canyon
@@ -127,31 +139,23 @@ export const RIVER_FACTORY = [
     ],
   },
   {
-    // Poudre Pickin': the Cache la Poudre at Fort Collins as a Nick Drake-style fingerpicked
-    // guitar. Each day the guitar rolls up and back down through that day's chord in D Dorian
-    // (arp Rise Fall 1), wistful rather than sad, with every note left to ring into the next
-    // like open strings, climbing with the snowmelt runoff and settling back down. A soft pick,
-    // warm tape wobble and a small, close room (no echo, no grit) keep it hushed and intimate.
-    // A bowed cello draws out a long note every fourth day (layer 2), in the spirit of
-    // Robert Kirby's string arrangements. Flow brightens the strings; a rising 30-day trend opens the room.
+    // Poudre Pickin': the Cache la Poudre at Fort Collins as old-time clawhammer-style
+    // picking on an acoustic guitar, in F# Mixolydian (major with a flat 7th, the mountain-
+    // modal sound), in the spirit of Nora Brown's "The Very Day I'm Gone". Each step (4 days)
+    // is a quick 1/16 at 50 BPM: the melody note lands, then an F#3 drone string rings in
+    // between (layer 2: Drone, Off-beat), so melody and drone alternate in a steady stream like
+    // continuous finger picking. Notes ring on into each other in a soft hall. Even spread
+    // lets the melody wander all season rather than parking on one winter note, and the drone
+    // rests with it through long gaps in the data. No chorus, tape or echo; higher flow
+    // brightens the strings.
     name: "Poudre Pickin'",
     program: 'Prairie Guitar',
-    values: {
-      'voice.mode': 3, 'voice.depth': 0.5, 'arp.latch': 0, 'arp.rate': 3, 'arp.gate': 1, 'arp.tempo': 80,
-      'multi.shape': 0.35, 'filter.cutoff': 2200,
-      'ampeg.attack': 0.004, 'ampeg.decay': 8, 'ampeg.release': 1.2,
-      'mod.mix': 0.1,
-      'tape.wow': 0.3, 'tape.flutter': 0.2,
-      'crush.on': 0, 'delay.on': 0,
-      'reverb.type': 1, 'reverb.time': 0.3, 'reverb.mix': 0.2,
-      'master.volume': 0.75,
-    },
+    values: { ...ACOUSTIC_GUITAR, 'ampeg.decay': 4, 'ampeg.release': 1.5, 'reverb.type': 0, 'reverb.time': 0.45, 'reverb.mix': 0.28 },
     gauge: { site: '06752260', recent: true },
-    settings: { scale: 'Dorian', root: 2, low: 38, high: 62, bpm: 80, rate: '1/16', gate: 1, tie: false, voicing: 'triad', spread: 'proportional', log: true, roar: false, roarLevel: 0.3 },
-    layer: { on: true, program: 'Bowed Cello', level: 0.2, octave: 0, every: 4, voicing: 'single' },
+    settings: { scale: 'Mixolydian', root: 6, low: 48, high: 72, bpm: 50, rate: '1/16', gate: 1, tie: false, voicing: 'single', spread: 'even', log: true, daysPerStep: 4, combine: 'mean', roar: false, roarLevel: 0.3 },
+    layer: { on: true, values: { ...ACOUSTIC_GUITAR, 'ampeg.decay': 1.5 }, level: 0.4, octave: 0, every: 1, voicing: 'single', drone: 54, offbeat: true },
     routes: [
-      { id: 'filter.cutoff', source: 'flow', from: 0.45, to: 0.6 },
-      { id: 'reverb.mix', source: 'trend', from: 0.15, to: 0.3 },
+      { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.7 },
     ],
   },
   {

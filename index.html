@@ -130,7 +130,7 @@
 
         <h3 class="sub-head">Layer 2</h3>
         <p class="small routes-help">A second sound playing the same river.
-          <span class="info" tabindex="0" role="note" aria-label="Pick a program, then shift it by octaves and space it out (e.g. a bass every 4 days under the melody)." data-tip="Pick a program, then shift it by octaves and space it out (e.g. a bass every 4 days under the melody).">i</span></p>
+          <span class="info" tabindex="0" role="note" aria-label="Pick a program, then shift it by octaves and space it out (e.g. a bass every 4 days under the melody). Drone holds one fixed note instead of following the river; Off-beat plays it between the main notes." data-tip="Pick a program, then shift it by octaves and space it out (e.g. a bass every 4 days under the melody). Drone holds one fixed note instead of following the river; Off-beat plays it between the main notes.">i</span></p>
         <div class="data-row">
           <label class="check"><input id="layer-on" type="checkbox">Layer 2 on</label>
           <label>Program<select id="layer-program"></select></label>
@@ -154,6 +154,8 @@
             <option value="single">Single</option>
             <option value="triad">Triad</option>
           </select></label>
+          <label title="Play one fixed note instead of following the river, like a banjo's drone string">Drone<select id="layer-drone"></select></label>
+          <label class="check" title="Play half a step late, between the main notes (the 'ditty' of bum-ditty)"><input id="layer-offbeat" type="checkbox">Off-beat</label>
         </div>
 
         <div class="routes-head">

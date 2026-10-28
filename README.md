@@ -176,6 +176,12 @@ Changing a start or end date reloads the data by itself (after a short pause, so
 doesn't fire a request per digit). After loading, the app also fetches the gauge's full daily record in the background to work out
 the **normal** (median) flow for each date, drawn as a dashed line on the chart.
 
+USGS records have holes (a broken sensor, ice on the river, or recent data not yet reviewed).
+Every calendar day is kept so time stays to scale: gaps of up to 7 days are filled in with a
+straight line between the days either side (dashed on the chart, "est." in the readout), and
+longer gaps are left as breaks in the line and shading, where the music rests. A status chip
+says how many days were filled in or missing.
+
 - Each day becomes one step and its flow picks a note from the chosen **Scale** and **Key**
   between **Low** and **High**. With **Note spread: Even** (the default) the days are ranked,
   so every note gets used about equally; **Proportional** follows the flow's actual size

@@ -488,7 +488,7 @@ chart.onFrame = (step) => {
   const note = player.notes[step];
   const normal = player.sources.normal[step];
   const pctNormal = row.value != null && normal ? ` (${Math.round((100 * row.value) / normal)}% of normal)` : '';
-  dataNow.textContent = `${row.date} · ${row.value == null ? 'no data' : `${row.value.toLocaleString(undefined, { maximumFractionDigits: row.value < 10 ? 2 : 0 })} cfs${pctNormal}`} · ${note == null ? 'rest' : noteName(note)}`;
+  dataNow.textContent = `${row.date} · ${row.value == null ? 'no data' : `${row.value.toLocaleString(undefined, { maximumFractionDigits: row.value < 10 ? 2 : 0 })} cfs${row.est ? ' (est.)' : pctNormal}`} · ${note == null ? 'rest' : noteName(note)}`;
 };
 
 // The latest year of data: the 365 days up to yesterday (today's daily mean isn't out yet).
@@ -524,12 +524,23 @@ function renderStatus() {
     lo === hi ? `${lo.toLocaleString()} cfs` : `${lo.toLocaleString()}–${hi.toLocaleString()} cfs`,
   ];
   if (normalYears) chips.push(`normal from ${normalYears}`);
-  dataStatus.replaceChildren(...chips.map((text) => {
+  const filled = raw.filter((r) => r.est).length, missing = raw.length - vals.length;
+  const gaps = [filled && `${filled} ${filled === 1 ? 'day' : 'days'} filled in`, missing && `${missing} missing`].filter(Boolean);
+  if (gaps.length) chips.push([gaps.join(' · '), `USGS has no reading for some days (a sensor problem, ice on the river, or data not yet reviewed). Gaps of up to ${DataPlayer.MAX_FILL ?? 7} days are filled in with a straight line (dashed on the chart); longer gaps are left as breaks, and the music rests there.`]);
+  const how = Object.assign(document.createElement('a'), {
+    className: 'find-gauge how-measured',
+    href: 'https://www.usgs.gov/water-science-school/science/how-streamflow-measured',
+    target: '_blank', rel: 'noopener',
+    textContent: 'How is streamflow measured? ↗',
+  });
+  dataStatus.replaceChildren(...chips.map((chip) => {
+    const [text, title] = Array.isArray(chip) ? chip : [chip];
     const c = document.createElement('span');
     c.className = 'chip';
     c.textContent = text;
+    if (title) c.title = title;
     return c;
-  }));
+  }), how);
 }
 function showSeries(rows, label, history = null, menuName = null) {
   riverLabel = label;

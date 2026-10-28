@@ -28,7 +28,42 @@ export const RATES = { '1/4': 1, '1/8': 2, '1/16': 4, '1/32': 8 }; // steps per 
 const LOOKAHEAD = 0.15; // seconds of notes scheduled in advance
 const TICK_MS = 25;
 
+// USGS records have holes: days sent with no value (a broken sensor, ice on the river) and
+// days not sent at all. Put every calendar day back so time stays to scale, then fill short
+// gaps (up to MAX_FILL days) with a straight line between the days on either side, marked
+// `est`. Longer gaps stay empty: the chart breaks there and the music rests.
+export const MAX_FILL = 7;
+export function fillGaps(rows) {
+  if (rows.length < 2) return rows;
+  const day = (d) => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 864e5;
+  const iso = (n) => new Date(n * 864e5).toISOString().slice(0, 10);
+  const out = [];
+  for (const r of rows) {
+    const prev = out[out.length - 1];
+    if (prev) {
+      const gap = day(r.date) - day(prev.date);
+      if (gap <= 0) continue; // a repeated date
+      for (let k = 1; k < gap; k++) out.push({ date: iso(day(prev.date) + k), value: null });
+    }
+    out.push({ date: r.date, value: r.value });
+  }
+  for (let i = 0; i < out.length; i++) {
+    if (out[i].value != null) continue;
+    let j = i;
+    while (j < out.length && out[j].value == null) j++;
+    const a = out[i - 1], b = out[j];
+    if (a && b && j - i <= MAX_FILL) {
+      for (let k = i; k < j; k++) {
+        out[k] = { date: out[k].date, value: a.value + ((b.value - a.value) * (k - i + 1)) / (j - i + 1), est: true };
+      }
+    }
+    i = j;
+  }
+  return out;
+}
+
 export class DataPlayer {
+  static MAX_FILL = MAX_FILL;
   constructor(synth, ensureAudio) {
     this.synth = synth;
     this.ensureAudio = ensureAudio;
@@ -59,8 +94,8 @@ export class DataPlayer {
 
   setSeries(rows) {
     this.stop();
-    this.raw = rows;
-    this.rows = this.group(rows);
+    this.raw = fillGaps(rows);
+    this.rows = this.group(this.raw);
     this.position = 0;
     this.invalidate();
   }
@@ -71,10 +106,12 @@ export class DataPlayer {
     if (n === 1) return rows;
     const out = [];
     for (let i = 0; i < rows.length; i += n) {
-      const vals = rows.slice(i, i + n).map((r) => r.value).filter((v) => v != null);
+      const days = rows.slice(i, i + n).filter((r) => r.value != null);
+      const vals = days.map((r) => r.value);
       const value = !vals.length ? null
         : this.settings.combine === 'max' ? Math.max(...vals) : vals.reduce((a, b) => a + b, 0) / vals.length;
-      out.push({ date: rows[i].date, value });
+      // A step is an estimate only if every day in it was filled in.
+      out.push(vals.length && days.every((r) => r.est) ? { date: rows[i].date, value, est: true } : { date: rows[i].date, value });
     }
     return out;
   }
@@ -473,37 +510,49 @@ export class DataChart {
     g.rect(left, 0, w - left, h);
     g.clip();
     g.beginPath();
-    let started = false;
-    let lastX = left;
+    // One shape per unbroken run, so a long gap is a real break in the shading too.
+    const runs = [];
     vals.forEach((v, i) => {
       if (v == null) return;
-      if (!started) { g.moveTo(x(i), bottom); g.lineTo(x(i), y(v)); started = true; } else g.lineTo(x(i), y(v));
-      lastX = x(i);
+      if (i === 0 || vals[i - 1] == null) runs.push([]);
+      runs[runs.length - 1].push(i);
     });
-    g.lineTo(lastX, bottom);
-    g.closePath();
+    for (const run of runs) {
+      g.moveTo(x(run[0]), bottom);
+      for (const i of run) g.lineTo(x(i), y(vals[i]));
+      g.lineTo(x(run[run.length - 1]), bottom);
+      g.closePath();
+    }
     const grad = g.createLinearGradient(0, top, 0, bottom);
     grad.addColorStop(0, 'rgba(240, 182, 47, 0.38)');
     grad.addColorStop(1, 'rgba(240, 182, 47, 0.03)');
     g.fillStyle = grad;
     g.fill();
 
-    g.beginPath();
-    started = false;
-    vals.forEach((v, i) => {
-      if (v == null) { started = false; return; }
-      if (!started) { g.moveTo(x(i), y(v)); started = true; } else g.lineTo(x(i), y(v));
-    });
-    g.strokeStyle = '#f0b62f';
+    // The line: solid between measured days, faint and dashed where days were filled in.
     g.lineWidth = 1.5 * dpr;
     g.lineJoin = 'round';
-    g.stroke();
+    for (const est of [false, true]) {
+      g.beginPath();
+      for (const run of runs) {
+        for (let k = 1; k < run.length; k++) {
+          const i = run[k - 1], j = run[k];
+          if (!!(rows[i].est || rows[j].est) !== est) continue;
+          g.moveTo(x(i), y(vals[i]));
+          g.lineTo(x(j), y(vals[j]));
+        }
+      }
+      g.setLineDash(est ? [2 * dpr, 3 * dpr] : []);
+      g.strokeStyle = est ? 'rgba(240, 182, 47, 0.55)' : '#f0b62f';
+      g.stroke();
+    }
+    g.setLineDash([]);
 
     // Dashed line: the normal (median) flow for each date, when history is available
     const src = player.sources;
     if (src.anomalyAvailable) {
       g.beginPath();
-      started = false;
+      let started = false;
       src.normal.forEach((nv, i) => {
         if (nv == null) { started = false; return; }
         const yy = Math.min(bottom, Math.max(top, y(tr(nv))));

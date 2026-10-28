@@ -489,6 +489,7 @@ html[data-theme="light"] .data-status .chip { background: rgba(35, 31, 28, 0.04)
   text-decoration: underline; text-decoration-color: var(--moog-yellow); text-underline-offset: 3px;
 }
 .find-gauge:hover { text-decoration-thickness: 2px; }
+.how-measured { align-self: center; margin-left: 4px; font-size: 12px; }
 
 /* nearest gauges: location or ZIP search, then a short list to pick from */
 .nearby-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }

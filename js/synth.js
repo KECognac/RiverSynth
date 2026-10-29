@@ -96,8 +96,23 @@ export class Synth {
 
   get running() { return this.ctx?.state === 'running'; }
 
+  // Build the audio graph without sound: browsers keep a context made before the first tap
+  // suspended, but it can load and compile the worklets, which is the slow part on phones.
+  // Called while the page loads, so the first Play only has to resume.
+  prepare() {
+    this.ready ??= this.build();
+    return this.ready;
+  }
+
   async start() {
-    if (this.ctx) { await this.ctx.resume(); return; }
+    this.started = true;
+    const pending = this.prepare();
+    const resumed = this.ctx.resume(); // inside the tap that started it, before any await
+    await pending;
+    await resumed;
+  }
+
+  async build() {
     const ctx = new AudioContext({ latencyHint: 'interactive' });
     this.ctx = ctx;
     await loadModules(ctx);
@@ -115,7 +130,8 @@ export class Synth {
     this.setParams(this.values);
     for (const msg of this.pending ?? []) this.node.port.postMessage(msg);
     this.pending = null;
-    await ctx.resume();
+    // Some browsers let a context run without a tap; keep it idle until something asks for sound.
+    if (!this.started) await ctx.suspend();
   }
 
   setParam(id, value) {

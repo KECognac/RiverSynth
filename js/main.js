@@ -383,10 +383,14 @@ midiBtn.addEventListener('click', async () => {
 
 // --- Audio start (browsers require a click or key press first) -------------------
 const power = $('#power');
-let starting = null;
+let starting = null, audioOn = false;
 function ensureAudio() {
-  if (synth.running) return Promise.resolve();
+  if (audioOn && synth.running) return Promise.resolve();
+  // Resume inside every tap: a start begun by a touch that wasn't allowed to turn sound on
+  // (a scroll on iOS) would otherwise wait for one that never comes.
+  synth.ctx?.resume().catch(() => {});
   starting ??= synth.start().then(() => {
+    audioOn = true;
     scope.attach(synth.analyser);
     power.setAttribute('aria-pressed', 'true');
     document.body.classList.add('audio-on');
@@ -1101,6 +1105,8 @@ if (sharedLoaded) {
   applyRiverPreset('rf:0');
 }
 simple.capture();
+// Load the synth engine now, silently, so the first Play doesn't wait for it (slow on phones).
+setTimeout(() => synth.prepare().catch((err) => console.error(err)), 0);
 window.addEventListener('pointerdown', () => ensureAudio(), { once: true });
 window.addEventListener('keydown', () => ensureAudio(), { once: true });
 

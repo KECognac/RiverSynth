@@ -747,7 +747,7 @@ html[data-theme="light"] .switch button[aria-checked="true"] { font-weight: 600;
 html[data-theme="light"] .keys { border-radius: 0 0 12px 12px; }
 
 /* =====================================================================================
-   Simple view (step 02): instrument cards and four sliders in place of the knob panel.
+   Simple view (step 02): instrument cards and six knobs in place of the knob panel.
    ===================================================================================== */
 .synth-area .step-head { flex-wrap: wrap; }
 .view-toggle { margin-left: auto; display: flex; }
@@ -769,17 +769,26 @@ html[data-theme="light"] .keys { border-radius: 0 0 12px 12px; }
 .simple-card[aria-pressed="true"] .simple-icon { color: var(--te-orange); }
 html[data-theme="dark"] .simple-card[aria-pressed="true"] .simple-icon { color: var(--acc-yellow); }
 .simple-card[aria-pressed="true"] { border: 2px solid var(--te-orange); padding: 9px 5px; }
-.simple-sliders { display: grid; gap: 10px; }
-.simple-slider { display: grid; grid-template-columns: 110px minmax(0, 1fr); column-gap: 14px; align-items: center; }
-.simple-name { grid-row: span 2; display: flex; flex-direction: column; font: 600 14px var(--font-ui); }
-.simple-name output { font: 400 12px var(--font-mono); color: var(--muted); min-height: 1.2em; }
-.simple-slider input[type="range"] { width: 100%; accent-color: var(--te-orange); }
-.simple-ends { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.simple-knobs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px 8px; }
+.simple-knob { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.simple-name { font: 600 14px var(--font-ui); }
+.simple-knob output { font: 400 12px var(--font-mono); color: var(--muted); min-height: 1.3em; white-space: nowrap; }
+.simple-dial { width: 64px; height: 64px; cursor: ns-resize; touch-action: none; border-radius: 50%; }
+.simple-dial svg { width: 100%; height: 100%; display: block; }
+.simple-dial .track { fill: none; stroke: rgba(0, 0, 0, 0.15); stroke-width: 4; stroke-linecap: round; }
+.simple-dial .value { fill: none; stroke: var(--te-orange); stroke-width: 4; stroke-linecap: round; }
+.simple-dial .centre { stroke: var(--muted); stroke-width: 1.5; stroke-linecap: round; }
+.simple-dial .cap { fill: var(--knob-cap); stroke: #000; stroke-width: 1; }
+.simple-dial .pointer { stroke: #f8f4ea; stroke-width: 2.5; stroke-linecap: round; }
+.simple-ends { display: flex; justify-content: space-between; gap: 6px; width: 100%; max-width: 120px; font-size: 11px; line-height: 1.2; color: var(--muted); }
+.simple-ends span:last-child { text-align: right; }
 .simple-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 html[data-theme="dark"] .view-toggle button[aria-pressed="true"] { background: var(--acc-yellow); color: #0b1322; border-color: var(--acc-yellow); }
 html[data-theme="dark"] .simple-card[aria-pressed="true"] { border-color: var(--acc-yellow); }
-html[data-theme="dark"] .simple-slider input[type="range"] { accent-color: var(--acc-yellow); }
+html[data-theme="dark"] .simple-dial .value { stroke: var(--acc-yellow); }
+html[data-theme="dark"] .simple-dial .track { stroke: rgba(255, 255, 255, 0.1); }
+html[data-theme="dark"] .simple-dial .cap { fill: #0b1322; stroke: rgba(127, 178, 255, 0.3); }
 @media (max-width: 560px) {
-  .simple-slider { grid-template-columns: 78px minmax(0, 1fr); column-gap: 10px; }
+  .simple-knobs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .view-toggle { margin-left: 0; }
 }

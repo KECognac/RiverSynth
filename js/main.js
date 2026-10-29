@@ -989,7 +989,7 @@ $('#river-preset-delete').addEventListener('click', () => {
 fillRiverPresets('');
 
 // --- Simple view -------------------------------------------------------------------------
-// Instrument cards and four sliders in place of the knob panel (the default). Advanced shows
+// Instrument cards and six knobs in place of the knob panel (the default). Advanced shows
 // the full panel; the choice is remembered in this browser.
 const simple = new SimpleView($('#simple'), {
   synth, player, factory: FACTORY,

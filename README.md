@@ -30,13 +30,16 @@ Then open <http://localhost:8123> and press a key or the power button to start a
   `2 3 5 6 7` black keys. `-` / `=` shift the octave.
 - **On-screen keyboard:** click, tap or drag across keys.
 - **Simple and Advanced:** step 02 opens in **Simple** view: pick an instrument (Guitar, Cello,
-  Flute, Glockenspiel, Keys, Dreamy pad) and shape it with four sliders. **Mood** goes from wistful
+  Flute, Glockenspiel, Keys, Dreamy pad) and shape it with six knobs. **Mood** goes from wistful
   (darker scales, a darker tone) to bright, **Speed** from half to double the tempo, **Space**
-  from a close room to a canyon (reverb, then echo) and **Texture** from clean to old tape
-  (tape warble, chorus, then a little bit-crush). The middle of each slider is the preset's own
-  sound, and a slider also shifts any Data → Sound route on the same control, so the river keeps
-  moving it. Changing instrument keeps the preset's playing style (arpeggio or chord). **Reset to
-  preset** puts it all back; double-click a slider to centre it. **Advanced** shows the full
+  from a close room to a canyon (reverb, then echo), **Texture** from clean to old tape
+  (tape warble, chorus, then a little bit-crush), **Touch** from plucked (notes snap on and die
+  away) to swelling (notes fade in and ring on) and **Flow** from steady (notes glide into each
+  other) to cascading (each river note becomes a ripple of 2, 3, then 4 picked notes). The
+  middle of each knob is the preset's own sound, and a knob also shifts any Data → Sound route
+  on the same control, so the river keeps moving it. Changing instrument keeps the preset's
+  playing style (arpeggio or chord). **Reset to preset** puts it all back; double-click a knob
+  to centre it. **Advanced** shows the full
   knob panel, and the browser remembers which view you used last.
 - **Knobs:** drag up and down, use the scroll wheel or the arrow keys. Hold `Shift` for fine
   control, and double-click to reset a knob.

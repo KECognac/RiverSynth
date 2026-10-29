@@ -305,9 +305,10 @@ export const RIVER_FACTORY = [
     ],
   },
   // --- Floods & droughts --------------------------------------------------------------
-  // Linear (not log) flow scales, so ordinary days sit near the bottom and only big water
-  // climbs: the floods tower over everything. Each day's chord is arpeggiated, so quiet
-  // stretches are gentle picking on a low chord rather than one stuck note.
+  // The floods use log flow scales, so ordinary years still move the melody and the flood is
+  // the top of the range; the Poudre pair shares one linear scale, so only big water climbs.
+  // Each day's chord is arpeggiated, so quiet stretches are gentle picking on a low chord
+  // rather than one stuck note.
   {
     // Five years (2011–2015) on the Big Thompson at Loveland, one step per week using each
     // week's peak day (it was a flash flood). Hammered-dulcimer arpeggios (a Rocky Mountain
@@ -324,7 +325,7 @@ export const RIVER_FACTORY = [
       'dist.on': 1, 'dist.type': 0, 'dist.amount': 0, 'dist.mix': 0.4, 'master.volume': 0.8,
     },
     gauge: { site: '06741510', start: '2011-01-01', end: '2015-12-31' },
-    settings: { scale: 'Dorian', root: 0, low: 36, high: 84, log: false, bpm: 132, rate: '1/16', gate: 1, tie: false, loop: false, voicing: 'triad', spread: 'proportional', daysPerStep: 7, combine: 'max', roar: true, roarLevel: 0.55 },
+    settings: { scale: 'Dorian', root: 0, low: 36, high: 84, log: true, bpm: 132, rate: '1/16', gate: 1, tie: false, loop: false, voicing: 'triad', spread: 'proportional', daysPerStep: 7, combine: 'max', roar: true, roarLevel: 0.55 },
     layer: { on: true, program: 'Drone Bass', level: 0.1, octave: -12, every: 4, voicing: 'single' },
     // The flood is only a few weekly steps long, so the loudness, grit, ringing notes and
     // echoes follow Surge: they jump with the flood and drain slowly over a couple of seconds.
@@ -347,7 +348,7 @@ export const RIVER_FACTORY = [
     note: '2015–2019, one step per week (weekly average). Harvey\'s week, Aug 25–31, 2017, averaged 11,900 cfs on Brays Bayou, about 3½ times the next-biggest week here (Memorial Day 2015, 3,350 cfs), on a bayou that usually runs about 140 cfs.',
     program: 'Lo-Fi Keys',
     gauge: { site: '08075000', start: '2015-01-02', end: '2019-12-31' },
-    settings: { scale: 'Major pentatonic', root: 0, low: 48, high: 72, log: false, bpm: 132, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'triad', spread: 'proportional', daysPerStep: 7, combine: 'mean', roar: false, roarLevel: 0.5 },
+    settings: { scale: 'Major pentatonic', root: 0, low: 48, high: 72, log: true, bpm: 132, rate: '1/16', gate: 0.9, tie: true, loop: false, voicing: 'triad', spread: 'proportional', daysPerStep: 7, combine: 'mean', roar: false, roarLevel: 0.5 },
     layer: { on: true, program: '808 Sub', level: 0.45, octave: -12, every: 2, voicing: 'single' },
     // Harvey is only a few weekly steps long, so the loudness, grit, ringing chords and
     // echoes follow Surge: they jump with the flood and drain slowly over a couple of seconds.

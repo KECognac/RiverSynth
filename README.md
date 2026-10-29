@@ -146,8 +146,8 @@ hear comes from the river itself. Each year plays three days per step, about 15 
 The story presets below are kept short too: under 30 seconds, or about 15 seconds per side of
 a comparison.
 
-**Floods & droughts** shows extremes on **linear** (not log) flow scales, so ordinary days rest
-on a low chord and only big water climbs. The two floods play five years, one step per week, so
+**Floods & droughts** shows extremes. The two floods use **log** flow scales, so ordinary years
+still move the melody and the flood is the top of the range. Both play five years, one step per week, so
 you hear how far the flood towers over the years around it. **Big Thompson Flood · 2013**
 (Loveland, CO, 2011–2015, each week's peak day: 7,200 cfs in September 2013, almost 4 times any
 other peak) arpeggiates a hammered dulcimer that leaps up and tears into distortion as the flood

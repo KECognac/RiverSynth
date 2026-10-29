@@ -109,7 +109,9 @@ export class Synth {
     const pending = this.prepare();
     const resumed = this.ctx.resume(); // inside the tap that started it, before any await
     await pending;
-    await resumed;
+    // Mobile Safari can leave a resume() promise unsettled even once sound is on, so don't
+    // wait on it for long; a later tap resumes again if it really didn't start.
+    await Promise.race([resumed.catch(() => {}), new Promise((r) => setTimeout(r, 300))]);
   }
 
   async build() {
@@ -130,8 +132,9 @@ export class Synth {
     this.setParams(this.values);
     for (const msg of this.pending ?? []) this.node.port.postMessage(msg);
     this.pending = null;
-    // Some browsers let a context run without a tap; keep it idle until something asks for sound.
-    if (!this.started) await ctx.suspend();
+    // Some browsers let a context run without a tap; keep it idle until something asks for
+    // sound. Not awaited: on mobile Safari suspending a context that never ran can hang.
+    if (!this.started && ctx.state === 'running') ctx.suspend().catch(() => {});
   }
 
   setParam(id, value) {

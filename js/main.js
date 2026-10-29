@@ -469,7 +469,12 @@ bindSetting('#data-voicing', 'voicing');
 bindSetting('#data-roar', 'roar', (el) => el.checked);
 bindSetting('#data-roar-level', 'roarLevel', (el) => Number(el.value));
 
-playBtn.addEventListener('click', () => (player.playing ? player.stop() : player.play()));
+playBtn.addEventListener('click', () => {
+  if (player.playing) { player.stop(); return; }
+  player.play();
+  // An anonymous "play" count for the GoatCounter dashboard (no-op if the script is blocked).
+  window.goatcounter?.count?.({ path: 'play', title: 'Pressed Play', event: true });
+});
 player.listeners.add(({ playing }) => {
   playBtn.querySelector('.play-text').textContent = playing ? 'Stop' : 'Play';
   playBtn.setAttribute('aria-label', playing ? 'Stop' : 'Play');

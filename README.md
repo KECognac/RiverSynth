@@ -275,6 +275,10 @@ town names with the free [Open-Meteo](https://open-meteo.com) place search, so w
 sent there. **Near me** stays in the browser apart from a search area sent to the
 USGS.
 
+Visits to the live site are counted with [GoatCounter](https://www.goatcounter.com), which uses
+no cookies and stores no personal data: just page views, presses of **Play**, referring sites,
+browser, screen size and country.
+
 Fonts: [Geist and Geist Mono](https://vercel.com/font) (Vercel) and
 [Kode Mono](https://fonts.google.com/specimen/Kode+Mono), served by Google Fonts under the
 SIL Open Font License.

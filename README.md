@@ -268,7 +268,10 @@ appreciated but not required.
 
 Streamflow data comes from the U.S. Geological Survey through the
 [USGS Water Data API](https://api.waterdata.usgs.gov). USGS data is in the public domain; please
-credit the USGS as the data source.
+credit the USGS as the data source. Under the chart, **Why measure rivers?** opens a short pop-up on
+what streamflow data is used for (flood warnings, water supply, dams, bridges, ecosystems,
+recreation and climate), with links that load the matching presets and to the USGS pages on how
+streamflow is measured and on its streamgage network.
 
 ZIP code searches are looked up with the free [Zippopotam.us](https://zippopotam.us) service, and
 town names with the free [Open-Meteo](https://open-meteo.com) place search, so what you type is

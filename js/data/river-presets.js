@@ -34,7 +34,7 @@ export const RIVER_FACTORY = [
     values: { 'ampeg.attack': 0.05, 'ampeg.release': 0.3, 'reverb.type': 0, 'reverb.time': 0.7, 'reverb.mix': 0.35, 'master.volume': 0.95 },
     gauge: { site: '11264500', recent: true },
     settings: { scale: 'Minor pentatonic', root: 6, low: 48, high: 72, log: true, bpm: 132, rate: '1/16', gate: 0.95, tie: true, voicing: 'triad', spread: 'even', roar: false, roarLevel: 0.35 },
-    layer: { on: true, program: 'Bowed Cello', level: 0.4, octave: -12, every: 4, voicing: 'single' },
+    layer: { on: false, program: 'Bowed Cello', level: 0.4, octave: -12, every: 4, voicing: 'single' }, // off: the simplest one to start with
     routes: [
       { id: 'filter.cutoff', source: 'flow', from: 0.5, to: 0.75 },
       { id: 'delay.depth', source: 'change', from: 0.2, to: 0.5 },

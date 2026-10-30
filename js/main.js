@@ -536,11 +536,8 @@ function renderStatus() {
   const filled = raw.filter((r) => r.est).length, missing = raw.length - vals.length;
   const gaps = [filled && `${filled} ${filled === 1 ? 'day' : 'days'} filled in`, missing && `${missing} missing`].filter(Boolean);
   if (gaps.length) chips.push([gaps.join(' · '), `USGS has no reading for some days (a sensor problem, ice on the river, or data not yet reviewed). Gaps of up to ${DataPlayer.MAX_FILL ?? 7} days are filled in with a straight line (dashed on the chart); longer gaps are left as breaks, and the music rests there.`]);
-  const how = Object.assign(document.createElement('a'), {
-    className: 'find-gauge how-measured',
-    href: 'https://www.usgs.gov/water-science-school/science/how-streamflow-measured',
-    target: '_blank', rel: 'noopener',
-    textContent: 'How is streamflow measured? ↗',
+  const why = Object.assign(document.createElement('a'), {
+    className: 'find-gauge how-measured why-rivers-link', href: '#', textContent: 'Why measure rivers? ⓘ',
   });
   dataStatus.replaceChildren(...chips.map((chip) => {
     const [text, title] = Array.isArray(chip) ? chip : [chip];
@@ -549,7 +546,7 @@ function renderStatus() {
     c.textContent = text;
     if (title) c.title = title;
     return c;
-  }), how);
+  }), why);
 }
 function showSeries(rows, label, history = null, menuName = null) {
   riverLabel = label;
@@ -1134,6 +1131,30 @@ showTheme();
 
 // Contact link. The address is put together here rather than written in the page, so
 // spam bots that scan pages for addresses don't pick it up.
+// --- Why measure rivers? ------------------------------------------------------------------
+// A pop-up opened from the link under the chart or in the footer; ✕, Esc or a click outside
+// closes it. Preset names in it load that preset.
+const whyDialog = $('#why-rivers');
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.why-rivers-link')) return;
+  e.preventDefault();
+  whyDialog.showModal();
+});
+whyDialog.querySelector('.info-close').addEventListener('click', () => whyDialog.close());
+whyDialog.addEventListener('click', (e) => {
+  if (e.target !== whyDialog) return;
+  const r = whyDialog.getBoundingClientRect(); // the card's own padding is the dialog too
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) whyDialog.close();
+});
+whyDialog.querySelectorAll('.preset-link').forEach((b) => b.addEventListener('click', () => {
+  const opt = [...riverSel.options].find((o) => o.text === b.dataset.preset);
+  if (!opt) return;
+  riverSel.value = opt.value;
+  applyRiverPreset(opt.value);
+  whyDialog.close();
+  riverSel.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}));
+
 const contact = document.getElementById('contact');
 const CONTACT = ['riversynth.kc', 'gmail.com']; // [name, domain]
 contact.addEventListener('click', (e) => {

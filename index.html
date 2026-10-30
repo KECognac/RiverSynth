@@ -238,10 +238,53 @@
       RiverSynth by Kristen Cognac · <a href="https://github.com/KECognac/RiverSynth#how-to-cite">How to cite</a> ·
       <a href="https://github.com/KECognac/RiverSynth/blob/main/LICENSE">MIT License</a> ·
       Flow data: <a href="https://api.waterdata.usgs.gov">USGS Water Data</a> (<a href="https://www.usgs.gov/water-science-school/science/how-streamflow-measured">how it's measured</a>) ·
+      <a href="#" class="why-rivers-link">Why measure rivers?</a> ·
       Visits counted anonymously with <a href="https://www.goatcounter.com">GoatCounter</a> (no cookies) ·
       <a id="contact" href="#" title="Questions, suggestions or comments">Questions or ideas? Email me</a>
     </footer>
   </main>
+  <dialog id="why-rivers" class="info-dialog" aria-labelledby="why-rivers-title">
+    <button type="button" class="info-close" aria-label="Close">✕</button>
+    <h2 id="why-rivers-title">Why measure rivers?</h2>
+    <p>Since 1889, when the first USGS streamgage went in on the Rio Grande in New Mexico, the
+      U.S. Geological Survey has been measuring how much water flows past fixed points on rivers.
+      Today about 12,000 streamgages report every 15 minutes or so, and the data are free for
+      anyone to use.</p>
+    <h3>What the numbers are used for</h3>
+    <ul>
+      <li><strong>Flood warnings.</strong> The National Weather Service and local emergency managers
+        watch streamflow in real time to warn communities as rivers rise. Check out the
+        <button type="button" class="preset-link" data-preset="Big Thompson Flood · 2013">Big Thompson Flood · 2013</button>
+        preset to hear a flood.</li>
+      <li><strong>Water supply.</strong> Cities, farms and municipal water managers use streamflow to
+        determine how much water is available for the many uses. In the West, that includes knowing
+        when to limit diversions so enough water stays in the stream. Fort Collins, Colorado, draws
+        part of its drinking water from the Cache la Poudre River: hear it below the city's
+        diversions in a dry year and a wet one with
+        <button type="button" class="preset-link" data-preset="Poudre Drought · 2002">Poudre Drought · 2002</button>
+        and
+        <button type="button" class="preset-link" data-preset="Poudre Wet Year · 2023">Poudre Wet Year · 2023</button>.</li>
+      <li><strong>Dams and reservoirs.</strong> Operators decide when to store water and when to
+        release it. Compare
+        <button type="button" class="preset-link" data-preset="Wild Colorado · 1957">Wild Colorado · 1957</button>
+        and
+        <button type="button" class="preset-link" data-preset="Engineered Colorado · 2024">Engineered Colorado · 2024</button>
+        at Lees Ferry to hear how a dam reshapes a river.</li>
+      <li><strong>Bridges and buildings.</strong> Engineers design bridges, culverts and floodplain
+        maps around how big floods have been in the past.</li>
+      <li><strong>Rivers and ecosystems.</strong> Fish, insects and streamside plants depend on how
+        much water flows, and when. Scientists track flow rates to protect habitat.</li>
+      <li><strong>Recreation and safety.</strong> Rafters, anglers and paddlers check gauges before
+        heading out.</li>
+      <li><strong>A changing climate.</strong> Gauges with records going back decades show long-term
+        shifts, like snowmelt peaking earlier in the spring.</li>
+    </ul>
+    <p class="info-closing">Every note you hear in RiverSynth is one of these measurements.</p>
+    <p class="info-links">
+      <a href="https://www.usgs.gov/water-science-school/science/how-streamflow-measured" target="_blank" rel="noopener">How is streamflow measured? ↗</a>
+      <a href="https://www.usgs.gov/mission-areas/water-resources/science/usgs-national-streamgaging-network" target="_blank" rel="noopener">Learn more about USGS streamgaging ↗</a>
+    </p>
+  </dialog>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
